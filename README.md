@@ -111,7 +111,7 @@ internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFac
 
 		}
 	}
-	```
+```
 
 	And call the GetReader method:
 
