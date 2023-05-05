@@ -5,8 +5,6 @@ using Voyager.DBConnection.Interfaces;
 namespace Voyager.DBConnection
 {
 
-
-
 	class LogFeature : IFeature
 	{
 		private readonly ILogger logger;
