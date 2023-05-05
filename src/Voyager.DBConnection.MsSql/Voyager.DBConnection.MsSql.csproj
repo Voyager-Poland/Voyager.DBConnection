@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
+    <IsPackable>true</IsPackable>
+    <RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.MsSql.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.MsSql</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="Voyager.DBConnection" Version="3.0.0" />
+  </ItemGroup>
+
+</Project>

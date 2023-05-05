@@ -402,6 +402,7 @@ FodyWeavers.xsd
 # SVN
 src/Voyager.DBConnection/.svn/*
 src/Voyager.DBConnection.Logging/.svn/*
+src/Voyager.DBConnection.MsSql/.svn/*
 test/Voyager.DBConnection.Test/.svn/*
 
 
