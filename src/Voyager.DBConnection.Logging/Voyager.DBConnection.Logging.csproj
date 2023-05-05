@@ -9,7 +9,7 @@
     <AssemblyOriginatorKeyFile>VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
     <IsPackable>true</IsPackable>
     <RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.Logging.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.Logging</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,7 +27,7 @@
     <OutputType>Library</OutputType>
     <RepositoryType>git</RepositoryType>
     <Company>Voyager.com sp. z o.o.</Company>
-    <Title>Voyager.DBConnection</Title>
+    <Title>Voyager.DBConnection.Logging</Title>
     <Authors>Andrzej Świstowski</Authors>
     <Description>Logging extension for Voyager.DBConnection</Description>
   </PropertyGroup>

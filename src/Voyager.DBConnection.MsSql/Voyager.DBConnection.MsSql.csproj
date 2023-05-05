@@ -8,12 +8,47 @@
     <AssemblyOriginatorKeyFile>VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
     <IsPackable>true</IsPackable>
     <RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.MsSql.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.MsSql</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="Voyager.DBConnection" Version="3.0.0" />
   </ItemGroup>
+
+
+
+  <PropertyGroup>
+
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
+    <OutputType>Library</OutputType>
+    <RepositoryType>git</RepositoryType>
+    <Company>Voyager.com sp. z o.o.</Company>
+    <Title>Voyager.DBConnection.MsSql</Title>
+    <Authors>Andrzej Świstowski</Authors>
+    <Description>Implementation MS Sql extension for Voyager.DBConnection</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>SQL,DbProviderFactory,MSSQL,Voyager.DBConnection</PackageTags>
+    <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\img\voyager-nugets-ikona-128x128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
 
 </Project>
