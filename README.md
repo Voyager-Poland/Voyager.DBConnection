@@ -150,6 +150,22 @@ namespace Voyager.DBConnection
 		}
 	}
 }
+```
+
+## MS Sql provider
+
+For using MS SQL Provider is prepared the Nuget Voyager.DBConnection.MySql. There is provided implementation of the connection object:
+
+```C#
+namespace Voyager.DBConnection.MsSql
+{
+	public class SqlConnection : Connection
+	{
+		public SqlConnection(string sqlConnectionString) : base(new SqlDatabase(sqlConnectionString), new ExceptionFactory())
+		{
+		}
+	}
+}
 
 ```
 
