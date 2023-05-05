@@ -53,7 +53,7 @@ Using your DbProviderFactory create your type of database object Voyager.DBConne
 			con.ExecuteNonQuery(factory);
 ```
 
-For readeng data set implement IGetConsumer interface:
+For reading data implement IGetConsumer interface:
 
 ```C#
 internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFactory, IGetConsumer<SaleItem[]>
@@ -134,7 +134,24 @@ internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFac
 		}
 	}
 ```
+## Logging
 
+There is an extension used to log operations. Voyager.DBConnection.Logging. After installing on the connection obcjet is needed to call extension:
+
+```C#
+
+namespace Voyager.DBConnection
+{
+	public static class ConnectionLogger
+	{
+		public static void AddLogger(this Connection connection, ILogger logger)
+		{
+			connection.AddFeature(new LogFeature(logger, connection));
+		}
+	}
+}
+
+```
 
 ## ✍️ Authors 
 
