@@ -113,7 +113,7 @@ internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFac
 	}
 ```
 
-Next call the GetReader method:
+Next, call the GetReader method:
 
 ```C#
 		public class RaportDB : Voyager.Raport.DBEntity.Store.Raport
