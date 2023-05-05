@@ -1,9 +1,9 @@
 # Voyager.DBConnection
-Library providing connection to SQL database using DbProviderFactory
+Library providing connection to SQL database using DbProviderFactory.
 
 ## How to use it
 
-Implement interface  Voyager.DBConnection.Interfaces.ICommandFactory
+Implement interface  Voyager.DBConnection.Interfaces.ICommandFactory:
 
 ```C#
 	public interface ICommandFactory : IReadOutParameters
