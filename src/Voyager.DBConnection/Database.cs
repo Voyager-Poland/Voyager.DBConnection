@@ -49,12 +49,6 @@ namespace Voyager.DBConnection
 			return cmd;
 		}
 
-		[Obsolete("Wywołać metodę bez wątku GetSqlCommand")]
-		public Task<DbCommand> GetSqlCommandAsync(string procedureName)
-		{
-			DbCommand cmd = this.dbProviderFactory.GetSqlCommand(procedureName);
-			return Task.FromResult(cmd);
-		}
 
 		public DbCommand GetSqlCommand(string procedureName)
 		{
