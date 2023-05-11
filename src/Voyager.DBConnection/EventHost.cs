@@ -1,7 +1,6 @@
 ﻿using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Interfaces;
 
-
 namespace Voyager.DBConnection
 {
 	internal class EventHost : IInvokeEvents, IRegisterEvents

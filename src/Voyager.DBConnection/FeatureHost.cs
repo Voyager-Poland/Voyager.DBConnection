@@ -4,7 +4,7 @@ namespace Voyager.DBConnection
 {
 	class FeatureHost : IFeatureHost
 	{
-		List<IFeature> featureList = new List<IFeature>();
+		private readonly List<IFeature> featureList = new List<IFeature>();
 
 		public void AddFeature(IFeature feature)
 		{
@@ -15,7 +15,6 @@ namespace Voyager.DBConnection
 		{
 			foreach (IFeature feature in featureList)
 				feature.Dispose();
-
 		}
 	}
 }

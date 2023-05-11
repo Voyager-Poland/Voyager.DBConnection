@@ -25,7 +25,6 @@ namespace Voyager.DBConnection
 		public Connection(Database db)
 		{
 			DbGuard(db);
-
 			this.db = db;
 			this.exceptionPolicy = new NoExceptiopnPolicy();
 		}
@@ -41,7 +40,6 @@ namespace Voyager.DBConnection
 			return ProcessExecuteNoQuery(factory, command);
 		}
 
-
 		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory)
 		{
 			return Task.Run(() =>
@@ -50,8 +48,7 @@ namespace Voyager.DBConnection
 			});
 		}
 
-		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory,
-IGetConsumer<TDomain> consumer)
+		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
 		{
 			return Task.Run(() =>
 			{
@@ -59,8 +56,7 @@ IGetConsumer<TDomain> consumer)
 			});
 		}
 
-		public TDomain GetReader<TDomain>(ICommandFactory factory,
-		IGetConsumer<TDomain> consumer)
+		public TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
 		{
 			using DbCommand command = GetCommand(factory);
 			return ProcessReader(factory, consumer, command);
@@ -71,7 +67,6 @@ IGetConsumer<TDomain> consumer)
 			this.db.RealseConnection();
 			featureHost.Dispose();
 		}
-
 
 		private IDataReader GetDataReader(DbCommand command)
 		{
@@ -115,7 +110,6 @@ IGetConsumer<TDomain> consumer)
 			}
 		}
 
-
 		public virtual DbCommand GetCommand(ICommandFactory storedProcedure)
 		{
 			return storedProcedure.ConstructDbCommand(db);
@@ -125,8 +119,6 @@ IGetConsumer<TDomain> consumer)
 		{
 			return exceptionPolicy.GetException(ex);
 		}
-
-
 
 		protected virtual void ReadOutPrameters(IReadOutParameters factory, DbCommand command)
 		{
@@ -140,7 +132,6 @@ IGetConsumer<TDomain> consumer)
 			ReadOutPrameters(factory, command);
 			return result;
 		}
-
 
 		private TDomain ProcessReader<TDomain>(IReadOutParameters factory, IGetConsumer<TDomain> consumer, DbCommand command)
 		{
@@ -180,7 +171,5 @@ IGetConsumer<TDomain> consumer)
 			if (db == null)
 				throw new NoDbException();
 		}
-
-
 	}
 }

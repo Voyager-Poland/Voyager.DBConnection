@@ -10,15 +10,11 @@ namespace Voyager.DBConnection
 
 	public class Database : ITransactionOwner
 	{
-
-
 		private readonly DbProviderFactory dbProviderFactory;
-
 		private readonly string sqlConnectionString;
+		private DbConnection dbConnection;
+		private Transaction transaction;
 
-		DbConnection dbConnection;
-
-		Transaction transaction;
 		public Database(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
 			this.dbProviderFactory = dbProviderFactory;
@@ -38,14 +34,6 @@ namespace Voyager.DBConnection
 
 			transaction = new Transaction(tran, this);
 			return transaction;
-		}
-
-		[Obsolete("Wywołać GetStoredProcCommand")]
-		public Task<DbCommand> GetStoredProcCommandAsync(string procedureName)
-		{
-			DbCommand cmd = this.dbProviderFactory.GetStroredProcedure(procedureName);
-			//	await OpenCmdAsync(cmd);
-			return Task.FromResult(cmd);
 		}
 
 		public DbCommand GetStoredProcCommand(string procedureName)
@@ -251,7 +239,6 @@ namespace Voyager.DBConnection
 
 			if (this.transaction != null)
 				cmd.Transaction = this.transaction.GetTransaction();
-
 		}
 	}
 }

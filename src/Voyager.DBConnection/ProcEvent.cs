@@ -6,8 +6,7 @@ namespace Voyager.DBConnection
 {
 	class ProcEvent<TResult>
 	{
-		readonly IInvokeEvents connection;
-
+		private readonly IInvokeEvents connection;
 		private SqlCallEvent callEvent;
 
 		public ProcEvent(IInvokeEvents connection)
@@ -34,7 +33,6 @@ namespace Voyager.DBConnection
 			}
 			catch { }
 			return result;
-
 		}
 
 		public void ErrorPublish(Exception ex)
@@ -44,5 +42,4 @@ namespace Voyager.DBConnection
 			this.connection.Invoke(errorEvent);
 		}
 	}
-
 }

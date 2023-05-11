@@ -1,6 +1,5 @@
 ﻿using Voyager.DBConnection.Interfaces;
 
-
 namespace Voyager.DBConnection
 {
 	class NoExceptiopnPolicy : IExceptionPolicy
