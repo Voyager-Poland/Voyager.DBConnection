@@ -1,11 +1,12 @@
-﻿using Voyager.DBConnection.Events;
+﻿using System;
+using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
 {
 	internal class EventHost : IInvokeEvents, IRegisterEvents
 	{
-		event Action<Events.SqlCallEvent>? SqlCallEvent;
+		event Action<Events.SqlCallEvent> SqlCallEvent;
 
 		void IInvokeEvents.Invoke(SqlCallEvent callEvent)
 		{

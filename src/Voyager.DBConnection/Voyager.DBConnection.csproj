@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net48</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
     <IsPackable>true</IsPackable>

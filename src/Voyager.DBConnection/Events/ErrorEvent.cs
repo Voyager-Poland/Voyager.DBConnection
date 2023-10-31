@@ -1,4 +1,6 @@
-﻿namespace Voyager.DBConnection.Events
+﻿using System;
+
+namespace Voyager.DBConnection.Events
 {
 	public class ErrorEvent : SqlCallEvent
 	{

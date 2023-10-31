@@ -1,5 +1,7 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Interfaces;
 
@@ -36,8 +38,8 @@ namespace Voyager.DBConnection
 
 		public int ExecuteNonQuery(ICommandFactory factory)
 		{
-			using DbCommand command = GetCommand(factory);
-			return ProcessExecuteNoQuery(factory, command);
+			using (DbCommand command = GetCommand(factory))
+				return ProcessExecuteNoQuery(factory, command);
 		}
 
 		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory)
@@ -58,8 +60,8 @@ namespace Voyager.DBConnection
 
 		public TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
 		{
-			using DbCommand command = GetCommand(factory);
-			return ProcessReader(factory, consumer, command);
+			using (DbCommand command = GetCommand(factory))
+				return ProcessReader(factory, consumer, command);
 		}
 
 		public void Dispose()

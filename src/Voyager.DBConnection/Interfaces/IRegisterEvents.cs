@@ -1,4 +1,5 @@
-﻿using Voyager.DBConnection.Events;
+﻿using System;
+using Voyager.DBConnection.Events;
 
 namespace Voyager.DBConnection.Interfaces
 {

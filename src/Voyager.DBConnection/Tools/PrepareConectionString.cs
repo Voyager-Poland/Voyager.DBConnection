@@ -1,4 +1,6 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
+using System.Threading;
 
 namespace Voyager.DBConnection.Tools
 {
@@ -7,7 +9,7 @@ namespace Voyager.DBConnection.Tools
 		DbConnectionStringBuilder conStringBuilder;
 		public PrepareConectionString(DbProviderFactory factory, string sqlConnectionString)
 		{
-			conStringBuilder = factory.CreateConnectionStringBuilder()!;
+			conStringBuilder = factory.CreateConnectionStringBuilder();
 			// INFO pomiń przypadki testowe
 			if (sqlConnectionString.Length > 5)
 				conStringBuilder.ConnectionString = sqlConnectionString;

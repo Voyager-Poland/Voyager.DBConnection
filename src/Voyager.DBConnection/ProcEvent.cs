@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Interfaces;
 

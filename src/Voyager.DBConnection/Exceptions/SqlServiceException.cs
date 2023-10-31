@@ -1,4 +1,6 @@
-﻿namespace Voyager.DBConnection.Exceptions
+﻿using System;
+
+namespace Voyager.DBConnection.Exceptions
 {
 	[global::System.Serializable]
 	public class SqlServiceException : DBConnectionException

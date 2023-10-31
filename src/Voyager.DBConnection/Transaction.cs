@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
@@ -45,7 +46,7 @@ namespace Voyager.DBConnection
 			catch { }
 		}
 
-		internal DbTransaction? GetTransaction()
+		internal DbTransaction GetTransaction()
 		{
 			return dbTransaction;
 		}

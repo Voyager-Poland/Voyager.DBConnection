@@ -1,4 +1,6 @@
-﻿namespace Voyager.DBConnection.Interfaces
+﻿using System;
+
+namespace Voyager.DBConnection.Interfaces
 {
 	public interface IExceptionPolicy
 	{

@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Data.Common;
 using Voyager.DBConnection.Interfaces;
 using Voyager.DBConnection.Tools;
@@ -19,8 +20,8 @@ namespace Voyager.DBConnection
 		{
 			this.dbProviderFactory = dbProviderFactory;
 			this.sqlConnectionString = UppDateConnectionString(sqlConnectionString);
-			dbConnection = null!;
-			transaction = null!;
+			dbConnection = null;
+			transaction = null;
 		}
 
 		public Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
@@ -84,7 +85,7 @@ namespace Voyager.DBConnection
 																	string name,
 																	DbType dbType)
 		{
-			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, null!);
+			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, null);
 		}
 
 		public void AddInParameter(DbCommand command,
@@ -101,7 +102,7 @@ namespace Voyager.DBConnection
 																	 string sourceColumn,
 																	 DataRowVersion sourceVersion)
 		{
-			AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null!);
+			AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null);
 		}
 
 		public DbParameter AddOutParameter(DbCommand command,
@@ -137,13 +138,13 @@ namespace Voyager.DBConnection
 		{
 			if (command == null) throw new ArgumentNullException(nameof(command));
 
-			return command.Parameters[BuildParameterName(name)].Value!;
+			return command.Parameters[BuildParameterName(name)].Value;
 		}
 
 
 		protected DbParameter CreateParameter(string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
-			DbParameter param = dbProviderFactory.CreateParameter()!;
+			DbParameter param = dbProviderFactory.CreateParameter();
 			param.ParameterName = BuildParameterName(name);
 			ConfigureParameter(param, name, dbType, size, direction, nullable, precision, scale, sourceColumn, sourceVersion, value);
 			return param;
@@ -176,7 +177,7 @@ namespace Voyager.DBConnection
 
 		private void DoConnection()
 		{
-			dbConnection = this.dbProviderFactory.CreateConnection()!;
+			dbConnection = this.dbProviderFactory.CreateConnection();
 			dbConnection.ConnectionString = this.sqlConnectionString;
 		}
 
@@ -204,7 +205,7 @@ namespace Voyager.DBConnection
 
 		void ITransactionOwner.ResetTransaction()
 		{
-			transaction = null!;
+			transaction = null;
 		}
 
 		DbConnection GetConnection()
@@ -215,7 +216,7 @@ namespace Voyager.DBConnection
 					RealseConnection();
 				DoConnection();
 			}
-			return dbConnection!;
+			return dbConnection;
 		}
 
 		/*
