@@ -1,5 +1,4 @@
 ﻿using System.Data.Common;
-using System.Data.SqlClient;
 
 namespace Voyager.DBConnection.MsSql
 {
@@ -7,12 +6,22 @@ namespace Voyager.DBConnection.MsSql
 	{
 		static DBProvider()
 		{
-			DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
+
+#if NETCORE
+			DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", System.Data.SqlClient.SqlClientFactory.Instance);
+#endif
 		}
 
 		public DbProviderFactory GetSqlProvider()
 		{
-			return DbProviderFactories.GetFactory("Microsoft.Data.SqlClient");
+#if NETCORE
+			string providerName = "Microsoft.Data.SqlClient";
+#else
+			string providerName = "System.Data.SqlClient";
+#endif
+			return DbProviderFactories.GetFactory(providerName);
 		}
+
+
 	}
 }

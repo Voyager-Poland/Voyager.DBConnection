@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
 {
-	[Obsolete("Użyj AddLogger")]
+	[Obsolete("Use AddLogger")]
 	public class ConnectionLogged : Connection
 	{
 		public ConnectionLogged(Database db, IExceptionPolicy exceptionPolicy, ILogger logger) : base(db, exceptionPolicy)

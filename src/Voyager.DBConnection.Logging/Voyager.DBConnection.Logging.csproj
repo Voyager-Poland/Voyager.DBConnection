@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
-    <PackageReference Include="Voyager.DBConnection" Version="3.0.*" />
+    <PackageReference Include="Voyager.DBConnection" Version="4.0.*" />
   </ItemGroup>
 
 
@@ -22,8 +22,8 @@
 
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-    <AssemblyVersion>3.0.0.0</AssemblyVersion>
-    <FileVersion>3.0.0.0</FileVersion>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
     <OutputType>Library</OutputType>
     <RepositoryType>git</RepositoryType>
     <Company>Voyager.com sp. z o.o.</Company>

@@ -13,7 +13,7 @@ namespace Voyager.DBConnection.MsSql
 
 		public string Name()
 		{
-			SqlReadSqlName sqlReadSqlName = new();
+			SqlReadSqlName sqlReadSqlName = new SqlReadSqlName();
 			connection.ExecuteNonQuery(sqlReadSqlName);
 			return sqlReadSqlName.SqlName;
 		}

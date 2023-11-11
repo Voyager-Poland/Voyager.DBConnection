@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Interfaces;
@@ -42,20 +43,24 @@ namespace Voyager.DBConnection
 				return ProcessExecuteNoQuery(factory, command);
 		}
 
-		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory)
+		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory) => ExecuteNonQueryAsync(factory, CancellationToken.None);
+
+		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{
 				return ExecuteNonQuery(factory);
-			});
+			}, cancellationToken);
 		}
 
-		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
+		Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
+
+		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{
 				return GetReader(factory, consumer);
-			});
+			}, cancellationToken);
 		}
 
 		public TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)

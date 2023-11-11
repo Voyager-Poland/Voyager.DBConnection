@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 using Voyager.DBConnection.Exceptions;
 using Voyager.DBConnection.Interfaces;
 
@@ -10,7 +11,7 @@ namespace Voyager.DBConnection.MsSql
 		{
 
 #pragma warning disable IDE0019 // Use pattern matching
-			SqlException? sqlException = ex as SqlException;
+			SqlException sqlException = ex as SqlException;
 #pragma warning restore IDE0019 // Use pattern matching
 			if (sqlException != null)
 			{
