@@ -3,7 +3,7 @@ using Voyager.UnitTestLogger;
 
 namespace Voyager.DBConnection.Logger.Test
 {
-	public class LoggerTest
+	abstract class LoggerTest
 	{
 		Connection connection;
 		SpyLog<LoggerTest> spyLog;
