@@ -406,3 +406,4 @@ src/Voyager.DBConnection.MsSql/.svn/*
 test/Voyager.DBConnection.Test/.svn/*
 
 
+test/Voyager.MockDBProvider/.svn/*
