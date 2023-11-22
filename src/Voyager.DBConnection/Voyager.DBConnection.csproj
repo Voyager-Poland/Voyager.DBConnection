@@ -14,8 +14,7 @@
 
     <RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
-    <AssemblyVersion>3.1.0.0</AssemblyVersion>
-    <FileVersion>3.1.0.0</FileVersion>
+
     <OutputType>Library</OutputType>
     <RepositoryType>git</RepositoryType>
     <Company>Voyager.com sp. z o.o.</Company>
@@ -29,6 +28,15 @@
     <PackageTags>SQL,DbProviderFactory</PackageTags>
     <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>4.1.0</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+    <WarningLevel>7</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+    <WarningLevel>7</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>
