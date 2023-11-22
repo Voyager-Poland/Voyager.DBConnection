@@ -3,6 +3,100 @@ using System.Data.Common;
 
 namespace Voyager.DBConnection.Test
 {
+	class ConnectionExceptionPolicy : Interfaces.IExceptionPolicy
+	{
+		Connection connection;
+		private bool spy;
+
+		[SetUp]
+		public void ConSetup()
+		{
+			connection = new Connection(new MockDataBase(), this);
+		}
+
+		[TearDown]
+		public void ConTearDown()
+		{
+			spy = false;
+			connection.Dispose();
+		}
+
+		[Test]
+		public void ErrorPolicy()
+		{
+			try
+			{
+				this.connection.ExecuteScalar(new ErrorProc());
+			}
+			catch { }
+			Assert.That(spy, Is.True);
+		}
+
+		public Exception GetException(Exception ex)
+		{
+			spy = true;
+			return ex;
+		}
+
+		class ErrorProc : Interfaces.ICommandFactory
+		{
+			public DbCommand ConstructDbCommand(Database db)
+			{
+				return new ErrorCmd();
+			}
+
+			public void ReadOutParameters(Database db, DbCommand command)
+			{
+
+			}
+		}
+
+		class ErrorCmd : DbCommand
+		{
+			public override string CommandText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+			public override int CommandTimeout { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+			public override CommandType CommandType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+			public override bool DesignTimeVisible { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+			public override UpdateRowSource UpdatedRowSource { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+			protected override DbConnection? DbConnection { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+			protected override DbParameterCollection DbParameterCollection => throw new NotImplementedException();
+
+			protected override DbTransaction? DbTransaction { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+			public override void Cancel()
+			{
+				throw new NotImplementedException();
+			}
+
+			public override int ExecuteNonQuery()
+			{
+				throw new NotImplementedException();
+			}
+
+			public override object? ExecuteScalar()
+			{
+				throw new NotImplementedException();
+			}
+
+			public override void Prepare()
+			{
+				throw new NotImplementedException();
+			}
+
+			protected override DbParameter CreateDbParameter()
+			{
+				throw new NotImplementedException();
+			}
+
+			protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
+			{
+				throw new NotImplementedException();
+			}
+		}
+	}
+
+
 	class ConnectionTest
 	{
 		Connection connection;
