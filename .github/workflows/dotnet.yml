@@ -37,6 +37,6 @@ jobs:
     - name: upload to Nuget.org
       uses: brandedoutcast/publish-nuget@v2.5.2
       with:
-          PROJECT_FILE_PATH: ${{ github.workspace }}/src/Voyager.BackgroundWorker/Voyager.DBConnection.csproj
+          PROJECT_FILE_PATH: ${{ github.workspace }}/src/Voyager.DBConnection/Voyager.DBConnection.csproj
           NUGET_KEY: ${{secrets.VOY_AND_API_KEY}}
   
