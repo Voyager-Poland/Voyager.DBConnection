@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+
+    <SignAssembly>True</SignAssembly>
+
+    <AssemblyOriginatorKeyFile>VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Voyager.DBConnection.Logging\Voyager.DBConnection.Logging.csproj" />
+    <ProjectReference Include="..\..\src\Voyager.DBConnection\Voyager.DBConnection.csproj" />
   </ItemGroup>
 
 </Project>

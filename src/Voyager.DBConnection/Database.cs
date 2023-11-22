@@ -19,19 +19,15 @@ namespace Voyager.DBConnection
 		public Database(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
 			this.dbProviderFactory = dbProviderFactory;
-			this.sqlConnectionString = UppDateConnectionString(sqlConnectionString);
+			this.sqlConnectionString = UppDateConnectionString(sqlConnectionString, dbProviderFactory);
 			dbConnection = null;
 			transaction = null;
 		}
 
-		public Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+		internal Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
 		{
-			var connection = GetConnection();
-			if (connection.State != ConnectionState.Open)
-			{
-				connection.Open();
-			}
-			var tran = connection.BeginTransaction(isolationLevel);
+			PrepareConnection();
+			var tran = dbConnection.BeginTransaction(isolationLevel);
 
 			transaction = new Transaction(tran, this);
 			return transaction;
@@ -198,7 +194,7 @@ namespace Voyager.DBConnection
 			}
 			catch { }
 		}
-		protected virtual string UppDateConnectionString(string sqlConnectionString)
+		protected virtual string UppDateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
 			return (new PrepareConectionString(this.dbProviderFactory, sqlConnectionString)).Prepare();
 		}
@@ -208,7 +204,7 @@ namespace Voyager.DBConnection
 			transaction = null;
 		}
 
-		DbConnection GetConnection()
+		void PrepareConnection()
 		{
 			if (!ConnectionIsReady)
 			{
@@ -216,7 +212,8 @@ namespace Voyager.DBConnection
 					RealseConnection();
 				DoConnection();
 			}
-			return dbConnection;
+			if (dbConnection.State != ConnectionState.Open)
+				dbConnection.Open();
 		}
 
 		/*
@@ -234,9 +231,8 @@ namespace Voyager.DBConnection
 
 		internal void OpenCmd(DbCommand cmd)
 		{
-			cmd.Connection = GetConnection();
-			if (cmd.Connection.State != ConnectionState.Open)
-				cmd.Connection.Open();
+			PrepareConnection();
+			cmd.Connection = this.dbConnection;
 
 			if (this.transaction != null)
 				cmd.Transaction = this.transaction.GetTransaction();

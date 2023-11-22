@@ -1,6 +1,6 @@
 namespace Voyager.DBConnection.Test
 {
-	internal class BasicCall
+	abstract class BasicCall
 	{
 		Voyager.DBConnection.Connection connection;
 

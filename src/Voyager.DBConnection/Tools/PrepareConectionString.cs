@@ -6,17 +6,39 @@ namespace Voyager.DBConnection.Tools
 {
 	public class PrepareConectionString
 	{
-		DbConnectionStringBuilder conStringBuilder;
+		readonly ConBuilderEmpty stategy;
 		public PrepareConectionString(DbProviderFactory factory, string sqlConnectionString)
 		{
-			conStringBuilder = factory.CreateConnectionStringBuilder();
-			// INFO pomiń przypadki testowe
+			var conStringBuilder = factory.CreateConnectionStringBuilder();
+			stategy = conStringBuilder != null ? new ConBuilderProvider(conStringBuilder, sqlConnectionString) : new ConBuilderEmpty(sqlConnectionString);
+		}
+		public String Prepare() => stategy.Prepare();
+	}
+
+	class ConBuilderEmpty
+	{
+		private readonly string sqlConnectionString;
+
+		public ConBuilderEmpty(string sqlConnectionString)
+		{
+			this.sqlConnectionString = sqlConnectionString;
+		}
+		public virtual string Prepare() => sqlConnectionString;
+	}
+
+	class ConBuilderProvider : ConBuilderEmpty
+	{
+		private readonly DbConnectionStringBuilder conStringBuilder;
+
+		public ConBuilderProvider(DbConnectionStringBuilder builder, string sqlConnectionString) : base(sqlConnectionString)
+		{
+			this.conStringBuilder = builder;
 			if (sqlConnectionString.Length > 5)
 				conStringBuilder.ConnectionString = sqlConnectionString;
 		}
 
 		const string ApplicationName = "Application Name";
-		public String Prepare()
+		public override String Prepare()
 		{
 			if (Thread.CurrentPrincipal != null && Thread.CurrentPrincipal.Identity != null)
 			{

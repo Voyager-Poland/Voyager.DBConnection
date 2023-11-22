@@ -17,13 +17,13 @@ namespace Voyager.DBConnection
 
 		public Connection(Database db, IExceptionPolicy exceptionPolicy)
 		{
-			if (exceptionPolicy == null)
-				throw new LackExceptionPolicyException();
+			DBPolicyGuard(exceptionPolicy);
 			DbGuard(db);
 
 			this.db = db;
 			this.exceptionPolicy = exceptionPolicy;
 		}
+
 
 		public Connection(Database db)
 		{
@@ -43,6 +43,20 @@ namespace Voyager.DBConnection
 				return ProcessExecuteNoQuery(factory, command);
 		}
 
+		public object ExecuteScalar(ICommandFactory factory)
+		{
+			using (DbCommand command = GetCommand(factory))
+				return ProcessExecuteScalar(factory, command);
+		}
+
+		public Task<object> ExecuteScalarAsync(ICommandFactory factory, CancellationToken cancellationToken)
+		{
+			return Task.Run(() =>
+			{
+				return ExecuteScalar(factory);
+			}, cancellationToken);
+		}
+
 		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory) => ExecuteNonQueryAsync(factory, CancellationToken.None);
 
 		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory, CancellationToken cancellationToken)
@@ -53,7 +67,7 @@ namespace Voyager.DBConnection
 			}, cancellationToken);
 		}
 
-		Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
+		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
 
 		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
 		{
@@ -75,18 +89,14 @@ namespace Voyager.DBConnection
 			featureHost.Dispose();
 		}
 
-		private IDataReader GetDataReader(DbCommand command)
+		private T ProcCallEvent<T>(DbCommand command, Func<DbCommand, T> action)
 		{
-			var proc = new ProcEvent<IDataReader>(this.eventHost);
+			var proc = new ProcEvent<T>(this.eventHost);
 
 			try
 			{
 				db.OpenCmd(command);
-
-				return proc.Call(() =>
-				{
-					return command.ExecuteReader();
-				}, command);
+				return proc.Call(() => action.Invoke(command), command);
 			}
 			catch (Exception ex)
 			{
@@ -94,30 +104,28 @@ namespace Voyager.DBConnection
 				proc.ErrorPublish(handled);
 				throw handled;
 			}
+		}
+
+
+		private IDataReader GetDataReader(DbCommand command)
+		{
+			Func<DbCommand, IDataReader> lambdaReader = (commandPara) => commandPara.ExecuteReader();
+			return ProcCallEvent(command, lambdaReader);
 		}
 
 		private int Exec(DbCommand command)
 		{
-			var proc = new ProcEvent<int>(this.eventHost);
-			try
-			{
-				db.OpenCmd(command);
-
-				return proc.Call(() =>
-				{
-					return command.ExecuteNonQuery();
-				}, command);
-
-			}
-			catch (Exception ex)
-			{
-				var handled = HandleSqlException(ex);
-				proc.ErrorPublish(handled);
-				throw handled;
-			}
+			Func<DbCommand, Int32> lambdaNoQuery = (commandPara) => commandPara.ExecuteNonQuery();
+			return ProcCallEvent(command, lambdaNoQuery);
 		}
 
-		public virtual DbCommand GetCommand(ICommandFactory storedProcedure)
+		private object ExecScalar(DbCommand command)
+		{
+			Func<DbCommand, object> lambdaScalar = (commandPara) => commandPara.ExecuteScalar();
+			return ProcCallEvent(command, lambdaScalar);
+		}
+
+		protected virtual DbCommand GetCommand(ICommandFactory storedProcedure)
 		{
 			return storedProcedure.ConstructDbCommand(db);
 		}
@@ -135,6 +143,14 @@ namespace Voyager.DBConnection
 		private int ProcessExecuteNoQuery(IReadOutParameters factory, DbCommand command)
 		{
 			int result = Exec(command);
+
+			ReadOutPrameters(factory, command);
+			return result;
+		}
+
+		private object ProcessExecuteScalar(IReadOutParameters factory, DbCommand command)
+		{
+			object result = ExecScalar(command);
 
 			ReadOutPrameters(factory, command);
 			return result;
@@ -178,5 +194,12 @@ namespace Voyager.DBConnection
 			if (db == null)
 				throw new NoDbException();
 		}
+
+		private static void DBPolicyGuard(IExceptionPolicy exceptionPolicy)
+		{
+			if (exceptionPolicy == null)
+				throw new LackExceptionPolicyException();
+		}
+
 	}
 }

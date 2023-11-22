@@ -7,12 +7,12 @@ namespace Voyager.DBConnection
 {
 	class ProcEvent<TResult>
 	{
-		private readonly IInvokeEvents connection;
+		private readonly IInvokeEvents invokeEnents;
 		private SqlCallEvent callEvent;
 
-		public ProcEvent(IInvokeEvents connection)
+		public ProcEvent(IInvokeEvents invokeEvent)
 		{
-			this.connection = connection;
+			this.invokeEnents = invokeEvent;
 			callEvent = new SqlCallEvent("connection", DateTime.Now);
 		}
 
@@ -30,7 +30,7 @@ namespace Voyager.DBConnection
 			}
 			try
 			{
-				this.connection.Invoke(callEvent);
+				this.invokeEnents.Invoke(callEvent);
 			}
 			catch { }
 			return result;
@@ -40,7 +40,7 @@ namespace Voyager.DBConnection
 		{
 			var errorEvent = new Voyager.DBConnection.Events.ErrorEvent(ex, callEvent);
 			errorEvent.Finish();
-			this.connection.Invoke(errorEvent);
+			this.invokeEnents.Invoke(errorEvent);
 		}
 	}
 }
