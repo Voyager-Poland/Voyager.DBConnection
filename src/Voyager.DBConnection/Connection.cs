@@ -107,7 +107,7 @@ namespace Voyager.DBConnection
 		}
 
 
-		private IDataReader GetDataReader(DbCommand command)
+		protected virtual IDataReader GetDataReader(DbCommand command)
 		{
 			Func<DbCommand, IDataReader> lambdaReader = (commandPara) => commandPara.ExecuteReader();
 			return ProcCallEvent(command, lambdaReader);
