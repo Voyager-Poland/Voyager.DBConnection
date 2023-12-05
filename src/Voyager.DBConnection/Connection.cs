@@ -113,13 +113,13 @@ namespace Voyager.DBConnection
 			return ProcCallEvent(command, lambdaReader);
 		}
 
-		private int Exec(DbCommand command)
+		protected virtual int Exec(DbCommand command)
 		{
 			Func<DbCommand, Int32> lambdaNoQuery = (commandPara) => commandPara.ExecuteNonQuery();
 			return ProcCallEvent(command, lambdaNoQuery);
 		}
 
-		private object ExecScalar(DbCommand command)
+		protected virtual object ExecScalar(DbCommand command)
 		{
 			Func<DbCommand, object> lambdaScalar = (commandPara) => commandPara.ExecuteScalar();
 			return ProcCallEvent(command, lambdaScalar);
