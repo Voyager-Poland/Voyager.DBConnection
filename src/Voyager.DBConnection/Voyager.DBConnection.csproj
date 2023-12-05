@@ -28,7 +28,7 @@
     <PackageTags>SQL,DbProviderFactory</PackageTags>
     <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>4.1.0</Version>
+    <Version>4.1.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
