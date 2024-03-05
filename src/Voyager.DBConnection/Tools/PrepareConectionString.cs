@@ -11,6 +11,18 @@ namespace Voyager.DBConnection.Tools
 			var conStringBuilder = factory.CreateConnectionStringBuilder();
 			stategy = conStringBuilder != null ? new ConBuilderProvider(conStringBuilder, sqlConnectionString) : new ConBuilderEmpty(sqlConnectionString);
 		}
-		public String Prepare() => stategy.Prepare();
+		public virtual String Prepare() => stategy.Prepare();
+	}
+
+
+	public class PrepareConectionStringEmpty : PrepareConectionString
+	{
+		readonly ConBuilderEmpty stategy;
+		public PrepareConectionStringEmpty(DbProviderFactory factory, string sqlConnectionString) : base(factory, sqlConnectionString)
+		{
+			var conStringBuilder = factory.CreateConnectionStringBuilder();
+			stategy = new ConBuilderEmpty(sqlConnectionString);
+		}
+		public override String Prepare() => stategy.Prepare();
 	}
 }

@@ -194,10 +194,9 @@ namespace Voyager.DBConnection
 			}
 			catch { }
 		}
-		protected virtual string UppDateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory)
-		{
-			return (new PrepareConectionString(this.dbProviderFactory, sqlConnectionString)).Prepare();
-		}
+		protected virtual string UppDateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory) => this.GetPrepare(sqlConnectionString, dbProviderFactory).Prepare();
+
+		protected virtual PrepareConectionString GetPrepare(string sqlConnectionString, DbProviderFactory dbProviderFactory) => new PrepareConectionString(this.dbProviderFactory, sqlConnectionString);
 
 		void ITransactionOwner.ResetTransaction()
 		{
