@@ -19,7 +19,7 @@ namespace Voyager.DBConnection
 		public Database(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
 			this.dbProviderFactory = dbProviderFactory;
-			this.sqlConnectionString = UppDateConnectionString(sqlConnectionString, dbProviderFactory);
+			this.sqlConnectionString = sqlConnectionString;
 			dbConnection = null;
 			transaction = null;
 		}
@@ -174,7 +174,7 @@ namespace Voyager.DBConnection
 		private void DoConnection()
 		{
 			dbConnection = this.dbProviderFactory.CreateConnection();
-			dbConnection.ConnectionString = this.sqlConnectionString;
+			dbConnection.ConnectionString = UppDateConnectionString(sqlConnectionString, dbProviderFactory);
 		}
 
 		bool ConnectionIsReady
