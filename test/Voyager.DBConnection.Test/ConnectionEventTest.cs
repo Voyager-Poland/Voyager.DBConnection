@@ -28,7 +28,7 @@ namespace Voyager.DBConnection.Test
 		public override void ExecuteScalar()
 		{
 			base.ExecuteScalar();
-			Assert.IsTrue(logged);
+			Assert.That(logged, Is.True);
 		}
 	}
 }
