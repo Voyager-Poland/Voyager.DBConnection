@@ -62,12 +62,6 @@ jobs:
         retention-days: 1
         overwrite: true
 
-    # - name: upload to Nuget.org
-    #   uses: brandedoutcast/publish-nuget@v2.5.2
-    #   with:
-    #     PROJECT_FILE_PATH: ${{ github.workspace }}/src/Voyager.DBConnection/Voyager.DBConnection.csproj
-    #     NUGET_KEY: ${{secrets.VOY_AND_API_KEY}}
-
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -82,6 +76,6 @@ jobs:
           name: DBConnection
       - name: Publish the package to GPR
         run: dotnet nuget push ${{ github.workspace }}/*.nupkg -s Voyager-Poland  --skip-duplicate
-      - name: Push NuGet package
+      - name: Publish the package to NuGet
         run: dotnet nuget push  ${{ github.workspace }}/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json
   

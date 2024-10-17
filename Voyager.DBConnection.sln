@@ -11,7 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7C37BE89-B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voyager.DBConnection.Test", "test\Voyager.DBConnection.Test\Voyager.DBConnection.Test.csproj", "{8C1AFB40-01F6-46D6-B745-5C8952AE767E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.MockDBProvider", "test\Voyager.MockDBProvider\Voyager.MockDBProvider.csproj", "{CD8CEF94-CE27-452F-BD5D-5789788DE892}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Voyager.MockDBProvider", "test\Voyager.MockDBProvider\Voyager.MockDBProvider.csproj", "{CD8CEF94-CE27-452F-BD5D-5789788DE892}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{09A5A4D5-2B61-48CC-A878-98064AB31F03}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnet_pullRequest.yml = .github\workflows\dotnet_pullRequest.yml
+		.github\workflows\dotnet_push.yml = .github\workflows\dotnet_push.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
