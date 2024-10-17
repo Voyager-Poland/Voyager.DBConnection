@@ -15,6 +15,9 @@ namespace Voyager.DBConnection
 		private readonly EventHost eventHost = new EventHost();
 		private readonly FeatureHost featureHost = new FeatureHost();
 
+		[Obsolete("This object is only for mock purposes")]
+		public Connection() : this(new Database()) { }
+
 		public Connection(Database db, IExceptionPolicy exceptionPolicy)
 		{
 			DBPolicyGuard(exceptionPolicy);
@@ -32,18 +35,18 @@ namespace Voyager.DBConnection
 			this.exceptionPolicy = new NoExceptiopnPolicy();
 		}
 
-		public Transaction BeginTransaction()
+		public virtual Transaction BeginTransaction()
 		{
 			return db.BeginTransaction();
 		}
 
-		public int ExecuteNonQuery(ICommandFactory factory)
+		public virtual int ExecuteNonQuery(ICommandFactory factory)
 		{
 			using (DbCommand command = GetCommand(factory))
 				return ProcessExecuteNoQuery(factory, command);
 		}
 
-		public object ExecuteScalar(ICommandFactory factory)
+		public virtual object ExecuteScalar(ICommandFactory factory)
 		{
 			using (DbCommand command = GetCommand(factory))
 				return ProcessExecuteScalar(factory, command);
@@ -57,9 +60,9 @@ namespace Voyager.DBConnection
 			}, cancellationToken);
 		}
 
-		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory) => ExecuteNonQueryAsync(factory, CancellationToken.None);
+		public virtual Task<int> ExecuteNonQueryAsync(ICommandFactory factory) => ExecuteNonQueryAsync(factory, CancellationToken.None);
 
-		public Task<int> ExecuteNonQueryAsync(ICommandFactory factory, CancellationToken cancellationToken)
+		public virtual Task<int> ExecuteNonQueryAsync(ICommandFactory factory, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{
@@ -67,9 +70,9 @@ namespace Voyager.DBConnection
 			}, cancellationToken);
 		}
 
-		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
+		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
 
-		public Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
+		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
 		{
 			return Task.Run(() =>
 			{
@@ -77,13 +80,13 @@ namespace Voyager.DBConnection
 			}, cancellationToken);
 		}
 
-		public TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
+		public virtual TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
 		{
 			using (DbCommand command = GetCommand(factory))
 				return ProcessReader(factory, consumer, command);
 		}
 
-		public void Dispose()
+		public virtual void Dispose()
 		{
 			this.db.RealseConnection();
 			featureHost.Dispose();
