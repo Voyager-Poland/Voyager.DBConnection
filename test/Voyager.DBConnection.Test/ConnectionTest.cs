@@ -151,6 +151,11 @@ namespace Voyager.DBConnection.Test
 		{
 			Assert.That(connection.ExecuteScalar(new CmdFactory()), Is.Not.Null);
 		}
+		[Test]
+		public virtual async Task ExecuteScalarAsync()
+		{
+			Assert.That(await connection.ExecuteScalarAsync(new CmdFactory(), CancellationToken.None), Is.Not.Null);
+		}
 	}
 
 	class CmdFactory : Interfaces.ICommandFactory
