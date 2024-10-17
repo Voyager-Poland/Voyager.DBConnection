@@ -7,8 +7,6 @@ using Voyager.DBConnection.Tools;
 namespace Voyager.DBConnection
 {
 
-
-
 	public class Database : ITransactionOwner
 	{
 		private readonly DbProviderFactory dbProviderFactory;
