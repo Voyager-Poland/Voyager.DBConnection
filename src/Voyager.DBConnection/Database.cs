@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.Common;
 using Voyager.DBConnection.Interfaces;
+using Voyager.DBConnection.MockServcie;
 using Voyager.DBConnection.Tools;
 
 namespace Voyager.DBConnection
@@ -13,6 +14,12 @@ namespace Voyager.DBConnection
 		private readonly string sqlConnectionString;
 		private DbConnection dbConnection;
 		private Transaction transaction;
+
+		public Database() : this("Data Source=mockSql; Initial Catalog=FanyDB; Integrated Security = true;", new DbProviderFactoryMock())
+		{
+
+		}
+
 
 		public Database(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
@@ -31,14 +38,14 @@ namespace Voyager.DBConnection
 			return transaction;
 		}
 
-		public DbCommand GetStoredProcCommand(string procedureName)
+		public virtual DbCommand GetStoredProcCommand(string procedureName)
 		{
 			DbCommand cmd = this.dbProviderFactory.GetStroredProcedure(procedureName);
 			return cmd;
 		}
 
 
-		public DbCommand GetSqlCommand(string procedureName)
+		public virtual DbCommand GetSqlCommand(string procedureName)
 		{
 			DbCommand cmd = this.dbProviderFactory.GetSqlCommand(procedureName);
 			return cmd;
@@ -63,7 +70,7 @@ namespace Voyager.DBConnection
 			return parameter;
 		}
 
-		public void AddParameter(DbCommand command,
+		public virtual void AddParameter(DbCommand command,
 																string name,
 																DbType dbType,
 																ParameterDirection direction,
@@ -75,14 +82,14 @@ namespace Voyager.DBConnection
 		}
 
 
-		public void AddInParameter(DbCommand command,
+		public virtual void AddInParameter(DbCommand command,
 																	string name,
 																	DbType dbType)
 		{
 			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, null);
 		}
 
-		public void AddInParameter(DbCommand command,
+		public virtual void AddInParameter(DbCommand command,
 																	 string name,
 																	 DbType dbType,
 																	 object value)
@@ -90,7 +97,7 @@ namespace Voyager.DBConnection
 			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, value);
 		}
 
-		public void AddInParameter(DbCommand command,
+		public virtual void AddInParameter(DbCommand command,
 																	 string name,
 																	 DbType dbType,
 																	 string sourceColumn,
@@ -99,7 +106,7 @@ namespace Voyager.DBConnection
 			AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null);
 		}
 
-		public DbParameter AddOutParameter(DbCommand command,
+		public virtual DbParameter AddOutParameter(DbCommand command,
 																	 string name,
 																	 DbType dbType,
 																	 int size)
@@ -108,22 +115,22 @@ namespace Voyager.DBConnection
 		}
 
 
-		public void AddInOutParameter(DbCommand command, string name, DbType dbType, object value)
+		public virtual void AddInOutParameter(DbCommand command, string name, DbType dbType, object value)
 		{
 			AddParameter(command, name, dbType, 0, ParameterDirection.InputOutput, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
-		public void AddInOutParameter(DbCommand command, string name, DbType dbType, int size, object value)
+		public virtual void AddInOutParameter(DbCommand command, string name, DbType dbType, int size, object value)
 		{
 			AddParameter(command, name, dbType, size, ParameterDirection.InputOutput, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
-		public void AddOutParameter(DbCommand command, string name, DbType dbType, object value)
+		public virtual void AddOutParameter(DbCommand command, string name, DbType dbType, object value)
 		{
 			AddParameter(command, name, dbType, 0, ParameterDirection.Output, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
-		public void AddOutParameter(DbCommand command, string name, DbType dbType, int size, object value)
+		public virtual void AddOutParameter(DbCommand command, string name, DbType dbType, int size, object value)
 		{
 			AddParameter(command, name, dbType, size, ParameterDirection.Output, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
@@ -213,18 +220,6 @@ namespace Voyager.DBConnection
 				dbConnection.Open();
 		}
 
-		/*
-		internal async Task OpenCmdAsync(DbCommand cmd)
-		{
-			cmd.Connection = GetConnection();
-			if (cmd.Connection.State != ConnectionState.Open)
-				await cmd.Connection.OpenAsync();
-
-			if (this.transaction != null)
-				cmd.Transaction = this.transaction.GetTransaction();
-
-		}
-		*/
 
 		internal void OpenCmd(DbCommand cmd)
 		{

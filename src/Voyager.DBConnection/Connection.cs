@@ -32,7 +32,7 @@ namespace Voyager.DBConnection
 			this.exceptionPolicy = new NoExceptiopnPolicy();
 		}
 
-		public Transaction BeginTransaction()
+		public virtual Transaction BeginTransaction()
 		{
 			return db.BeginTransaction();
 		}
