@@ -31,6 +31,7 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    needs: newversion
     permissions:
       packages: write
       contents: read
@@ -56,7 +57,7 @@ jobs:
       with:
         name: DBConnection
 
-        path: ${{ github.workspace }}/src/Voyager.ConfigurationStore/bin/Release/*.nupkg 
+        path: ${{ github.workspace }}/src/Voyager.DBConnection/bin/Release/*.nupkg 
         compression-level: 0	
         retention-days: 1
         overwrite: true
