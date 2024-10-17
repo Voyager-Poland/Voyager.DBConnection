@@ -15,7 +15,7 @@ namespace Voyager.DBConnection
 		private readonly EventHost eventHost = new EventHost();
 		private readonly FeatureHost featureHost = new FeatureHost();
 
-		[Obsolete("This object is only for mock purposese")]
+		[Obsolete("This object is only for mock purposes")]
 		public Connection() : this(new Database()) { }
 
 		public Connection(Database db, IExceptionPolicy exceptionPolicy)
