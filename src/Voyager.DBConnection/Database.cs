@@ -140,14 +140,14 @@ namespace Voyager.DBConnection
 		{
 			if (command == null) throw new ArgumentNullException(nameof(command));
 
-			return command.Parameters[BuildParameterName(name)].Value;
+			return command.Parameters[BuildParameterName(BuildParameterNameObsolete(name))].Value;
 		}
 
 
 		protected DbParameter CreateParameter(string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
 			DbParameter param = dbProviderFactory.CreateParameter();
-			param.ParameterName = BuildParameterName(name);
+			param.ParameterName = BuildParameterName(BuildParameterNameObsolete(name));
 			ConfigureParameter(param, name, dbType, size, direction, nullable, precision, scale, sourceColumn, sourceVersion, value);
 			return param;
 		}
@@ -163,9 +163,20 @@ namespace Voyager.DBConnection
 			param.SourceVersion = sourceVersion;
 		}
 
+		[Obsolete]
 		protected char ParameterToken = '0';
 
+		protected virtual string GetParameterToken() => string.Empty;
+
+
 		string BuildParameterName(string name)
+		{
+			ParamNameRule paramNameRule = new ParamNameRule(GetParameterToken());
+			return paramNameRule.GetParamName(name);
+		}
+
+		[Obsolete("Usunąć od wersji 4.4")]
+		string BuildParameterNameObsolete(string name)
 		{
 			if (name == null) throw new ArgumentNullException(nameof(name));
 
@@ -231,4 +242,5 @@ namespace Voyager.DBConnection
 				cmd.Transaction = this.transaction.GetTransaction();
 		}
 	}
+
 }
