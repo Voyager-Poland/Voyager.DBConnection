@@ -13,9 +13,5 @@
 		public DeadlockException() { }
 		public DeadlockException(string message) : base(message) { }
 		public DeadlockException(string message, System.Exception inner) : base(message, inner) { }
-		protected DeadlockException(
-		System.Runtime.Serialization.SerializationInfo info,
-		System.Runtime.Serialization.StreamingContext context)
-			: base(info, context) { }
 	}
 }

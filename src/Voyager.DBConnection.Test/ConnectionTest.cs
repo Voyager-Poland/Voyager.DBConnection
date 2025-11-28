@@ -53,7 +53,10 @@ namespace Voyager.DBConnection.Test
 
 		class ErrorCmd : DbCommand
 		{
-			public override string CommandText { get ; set ; } = string.Empty;	
+			string cmdTest = "mockCmd";
+#pragma warning disable CS8765
+			public override string CommandText { get => cmdTest; set => cmdTest = value; }
+#pragma warning restore CS8765
 			public override int CommandTimeout { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 			public override CommandType CommandType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 			public override bool DesignTimeVisible { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }

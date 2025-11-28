@@ -15,7 +15,9 @@ namespace Voyager.DBConnection
 		private DbConnection dbConnection;
 		private Transaction transaction;
 
-		[Obsolete("This is mock object")]
+		/// <summary>
+		/// Default constructor uses mock provider and a mock connection string
+		/// </summary>
 		public Database() : this("Data Source=mockSql; Initial Catalog=FanyDB; Integrated Security = true;", new DbProviderFactoryMock())
 		{
 
