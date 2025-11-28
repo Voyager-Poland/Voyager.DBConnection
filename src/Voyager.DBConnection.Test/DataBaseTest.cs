@@ -18,6 +18,7 @@ namespace Voyager.DBConnection.Test
 		{
 			var trans = database.BeginTransaction().GetTransaction();
 			Assert.That(trans.IsolationLevel, Is.EqualTo(System.Data.IsolationLevel.ReadCommitted));
+			Assert.That(trans.Connection, Is.Not.Null);
 			Assert.That(trans.Connection.State, Is.EqualTo((System.Data.ConnectionState.Open)));
 		}
 
@@ -93,6 +94,7 @@ namespace Voyager.DBConnection.Test
 		{
 			var cmd = database.GetStoredProcCommand("cmdTxt");
 			database.OpenCmd(cmd);
+			Assert.That(cmd.Connection, Is.Not.Null);
 			Assert.That(cmd.Connection.State, Is.EqualTo(System.Data.ConnectionState.Open));
 			Assert.That(cmd.Transaction, Is.Null);
 		}
@@ -103,6 +105,7 @@ namespace Voyager.DBConnection.Test
 			database.BeginTransaction();
 			var cmd = database.GetStoredProcCommand("cmdTxt");
 			database.OpenCmd(cmd);
+			Assert.That(cmd.Connection, Is.Not.Null);
 			Assert.That(cmd.Connection.State, Is.EqualTo(System.Data.ConnectionState.Open));
 			Assert.That(cmd.Transaction, Is.Not.Null);
 		}

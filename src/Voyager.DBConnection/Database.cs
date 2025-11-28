@@ -140,14 +140,14 @@ namespace Voyager.DBConnection
 		{
 			if (command == null) throw new ArgumentNullException(nameof(command));
 
-			return command.Parameters[BuildParameterName(BuildParameterNameObsolete(name))].Value;
+			return command.Parameters[BuildParameterName(name)].Value;
 		}
 
 
 		protected DbParameter CreateParameter(string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
 			DbParameter param = dbProviderFactory.CreateParameter();
-			param.ParameterName = BuildParameterName(BuildParameterNameObsolete(name));
+			param.ParameterName = BuildParameterName(name);
 			ConfigureParameter(param, name, dbType, size, direction, nullable, precision, scale, sourceColumn, sourceVersion, value);
 			return param;
 		}
@@ -173,19 +173,6 @@ namespace Voyager.DBConnection
 		{
 			ParamNameRule paramNameRule = new ParamNameRule(GetParameterToken());
 			return paramNameRule.GetParamName(name);
-		}
-
-		[Obsolete("Usunąć od wersji 4.4")]
-		string BuildParameterNameObsolete(string name)
-		{
-			if (name == null) throw new ArgumentNullException(nameof(name));
-
-			if (ParameterToken != '0')
-				if (name[0] != ParameterToken)
-				{
-					return name.Insert(0, new string(ParameterToken, 1));
-				}
-			return name;
 		}
 
 		private void DoConnection()
