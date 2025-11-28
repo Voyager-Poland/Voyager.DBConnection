@@ -1,0 +1,8 @@
+<Project>
+
+	<PropertyGroup>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)..\src\Voyager.DBConnection\VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
+	</PropertyGroup>
+
+</Project>

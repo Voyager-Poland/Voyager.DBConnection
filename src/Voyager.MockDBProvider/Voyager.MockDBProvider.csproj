@@ -3,8 +3,6 @@
   <PropertyGroup>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Voyager.DBConnection\VoyIdentityAssemblyCert.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
