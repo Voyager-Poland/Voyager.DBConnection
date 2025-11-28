@@ -5,6 +5,9 @@
 		<Product>Voyager Common Libraries</Product>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
+		<Authors>Andrzej Świstowski</Authors>
 	</PropertyGroup>
 
 

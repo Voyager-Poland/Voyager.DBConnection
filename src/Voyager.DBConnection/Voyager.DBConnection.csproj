@@ -7,14 +7,8 @@
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
-    <RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
-
     <OutputType>Library</OutputType>
-    <RepositoryType>git</RepositoryType>
-    <Company>Voyager.com sp. z o.o.</Company>
     <Title>Voyager.DBConnection</Title>
-    <Authors>Andrzej Świstowski</Authors>
     <Description>Library providing connection to SQL database using DbProviderFactory</Description>
   </PropertyGroup>
 
@@ -22,7 +16,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>SQL,DbProviderFactory</PackageTags>
     <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>4.3.1</Version>
   </PropertyGroup>
 
@@ -45,5 +38,10 @@
     </None>
   </ItemGroup>
 
-
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="IsExternalInit" Version="1.0.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 </Project>
