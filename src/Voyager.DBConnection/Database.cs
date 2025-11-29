@@ -28,7 +28,7 @@ namespace Voyager.DBConnection
 		{
 			this.dbProviderFactory = dbProviderFactory;
 			this.sqlConnectionString = sqlConnectionString;
-			dbConnection = new MockConnection();
+			dbConnection = null;
 			transaction = null;
 		}
 
