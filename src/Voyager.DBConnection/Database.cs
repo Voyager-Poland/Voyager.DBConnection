@@ -192,7 +192,7 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		internal void RealseConnection()
+		internal void ReleaseConnection()
 		{
 			try
 			{
@@ -215,7 +215,7 @@ namespace Voyager.DBConnection
 			if (!ConnectionIsReady)
 			{
 				if (dbConnection != null)
-					RealseConnection();
+					ReleaseConnection();
 				DoConnection();
 			}
 			if (dbConnection!.State != ConnectionState.Open)

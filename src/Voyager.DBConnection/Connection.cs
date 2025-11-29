@@ -88,7 +88,7 @@ namespace Voyager.DBConnection
 
 		public virtual void Dispose()
 		{
-			this.db.RealseConnection();
+			this.db.ReleaseConnection();
 			featureHost.Dispose();
 		}
 
