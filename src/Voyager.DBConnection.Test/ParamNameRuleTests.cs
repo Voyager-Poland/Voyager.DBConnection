@@ -54,7 +54,7 @@ namespace Voyager.Tests
 			var paramNameRule = new ParamNameRule("@");
 
 			// Act & Assert
-			Assert.That(() => paramNameRule.GetParamName(null), Throws.TypeOf<ArgumentNullException>());
+			Assert.That(() => paramNameRule.GetParamName(null!), Throws.TypeOf<ArgumentNullException>());
 		}
 
 		[Test]

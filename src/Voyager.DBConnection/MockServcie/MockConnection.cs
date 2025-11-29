@@ -6,7 +6,7 @@ namespace Voyager.DBConnection.MockServcie
 {
 	internal class MockConnection : DbConnection
 	{
-		public override string ConnectionString { get; set; }
+		public override string ConnectionString { get; set; } = "MockConnectionString";
 
 		public override string Database => "Mock";
 

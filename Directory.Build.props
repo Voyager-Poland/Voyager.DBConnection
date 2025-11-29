@@ -13,7 +13,7 @@
 	<PropertyGroup>
 		<!-- Target Frameworks - Always multi-target for .NET 8 and .NET Framework 4.8 -->
 		<TargetFrameworks>net48;net6.0;net8.0</TargetFrameworks>
-		<Nullable>enable</Nullable>
+		<Nullable>disable</Nullable>
 
 		<Company>Sindbad IT Sp. z o.o.</Company>
 		<Copyright>Copyright © Sindbad IT sp. z o.o. $([System.DateTime]::Now.Year)</Copyright>

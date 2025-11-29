@@ -28,14 +28,14 @@ namespace Voyager.DBConnection
 		{
 			this.dbProviderFactory = dbProviderFactory;
 			this.sqlConnectionString = sqlConnectionString;
-			dbConnection = null;
+			dbConnection = new MockConnection();
 			transaction = null;
 		}
 
 		internal Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
 		{
 			PrepareConnection();
-			var tran = dbConnection.BeginTransaction(isolationLevel);
+			var tran = dbConnection!.BeginTransaction(isolationLevel);
 
 			transaction = new Transaction(tran, this);
 			return transaction;
@@ -89,7 +89,7 @@ namespace Voyager.DBConnection
 																	string name,
 																	DbType dbType)
 		{
-			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, null);
+			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, null!);
 		}
 
 		public virtual void AddInParameter(DbCommand command,
@@ -106,7 +106,7 @@ namespace Voyager.DBConnection
 																	 string sourceColumn,
 																	 DataRowVersion sourceVersion)
 		{
-			AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null);
+			AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null!);
 		}
 
 		public virtual DbParameter AddOutParameter(DbCommand command,
@@ -148,6 +148,7 @@ namespace Voyager.DBConnection
 
 		protected DbParameter CreateParameter(string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
+			if (dbProviderFactory == null) throw new ArgumentNullException(nameof(transaction));
 			DbParameter param = dbProviderFactory.CreateParameter();
 			param.ParameterName = BuildParameterName(name);
 			ConfigureParameter(param, name, dbType, size, direction, nullable, precision, scale, sourceColumn, sourceVersion, value);
@@ -217,7 +218,7 @@ namespace Voyager.DBConnection
 					RealseConnection();
 				DoConnection();
 			}
-			if (dbConnection.State != ConnectionState.Open)
+			if (dbConnection!.State != ConnectionState.Open)
 				dbConnection.Open();
 		}
 

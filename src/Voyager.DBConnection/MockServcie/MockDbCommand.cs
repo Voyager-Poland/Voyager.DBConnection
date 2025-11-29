@@ -7,16 +7,16 @@ namespace Voyager.DBConnection.MockServcie
 {
 	class MockDbCommand : DbCommand
 	{
-		public override string CommandText { get; set; }
+		public override string CommandText { get; set; } = "MockCommandText";
 		public override int CommandTimeout { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 		public override CommandType CommandType { get; set; }
 		public override bool DesignTimeVisible { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 		public override UpdateRowSource UpdatedRowSource { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-		protected override DbConnection DbConnection { get; set; }
+		protected override DbConnection DbConnection { get; set; } = new MockConnection();
 		DbParameterCollection dbParameterCollection = new MockDbParameterCollection();
 		protected override DbParameterCollection DbParameterCollection => dbParameterCollection;
 
-		protected override DbTransaction DbTransaction { get; set; }
+		protected override DbTransaction DbTransaction { get; set; } = new MockDbTransaction(new MockConnection(), IsolationLevel.ReadCommitted);
 
 		public override void Cancel()
 		{

@@ -124,6 +124,8 @@ namespace Voyager.DBConnection
 
 		protected virtual object ExecScalar(DbCommand command)
 		{
+			if (command == null)
+				throw new ArgumentNullException(nameof(command));
 			Func<DbCommand, object> lambdaScalar = (commandPara) => commandPara.ExecuteScalar();
 			return ProcCallEvent(command, lambdaScalar);
 		}

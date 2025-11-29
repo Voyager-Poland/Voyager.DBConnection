@@ -2,8 +2,6 @@
 
 
   <PropertyGroup>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
     <IsPackable>true</IsPackable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
@@ -19,13 +17,10 @@
     <Version>4.3.1</Version>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
-    <WarningLevel>7</WarningLevel>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
-    <WarningLevel>7</WarningLevel>
-  </PropertyGroup>
+  
+	<PropertyGroup Condition="'$(TargetFramework)' != 'net48'">
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\img\voyager-nugets-ikona-128x128.png">
