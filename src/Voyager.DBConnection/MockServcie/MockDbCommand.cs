@@ -16,7 +16,7 @@ namespace Voyager.DBConnection.MockServcie
 		DbParameterCollection dbParameterCollection = new MockDbParameterCollection();
 		protected override DbParameterCollection DbParameterCollection => dbParameterCollection;
 
-		protected override DbTransaction DbTransaction { get; set; } = new MockDbTransaction(new MockConnection(), IsolationLevel.ReadCommitted);
+		protected override DbTransaction DbTransaction { get; set; }
 
 		public override void Cancel()
 		{
