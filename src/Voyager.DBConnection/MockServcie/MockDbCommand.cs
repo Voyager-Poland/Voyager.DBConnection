@@ -40,7 +40,7 @@ namespace Voyager.DBConnection.MockServcie
 
 		protected override DbParameter CreateDbParameter()
 		{
-			throw new NotImplementedException();
+			return new MockDbParameter();
 		}
 
 		protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)

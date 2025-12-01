@@ -54,6 +54,7 @@ namespace Voyager.DBConnection
 			return cmd;
 		}
 
+		[Obsolete("Use DbCommand.WithParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual DbParameter AddParameter(DbCommand command,
 																				string name,
 																				DbType dbType,
@@ -73,6 +74,7 @@ namespace Voyager.DBConnection
 			return parameter;
 		}
 
+		[Obsolete("Use DbCommand.WithParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddParameter(DbCommand command,
 																string name,
 																DbType dbType,
@@ -85,6 +87,7 @@ namespace Voyager.DBConnection
 		}
 
 
+		[Obsolete("Use DbCommand.WithInputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddInParameter(DbCommand command,
 																	string name,
 																	DbType dbType)
@@ -92,6 +95,7 @@ namespace Voyager.DBConnection
 			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, null!);
 		}
 
+		[Obsolete("Use DbCommand.WithInputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddInParameter(DbCommand command,
 																	 string name,
 																	 DbType dbType,
@@ -100,6 +104,7 @@ namespace Voyager.DBConnection
 			AddParameter(command, name, dbType, ParameterDirection.Input, String.Empty, DataRowVersion.Default, value);
 		}
 
+		[Obsolete("Use DbCommand.WithInputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddInParameter(DbCommand command,
 																	 string name,
 																	 DbType dbType,
@@ -109,6 +114,7 @@ namespace Voyager.DBConnection
 			AddParameter(command, name, dbType, 0, ParameterDirection.Input, true, 0, 0, sourceColumn, sourceVersion, null!);
 		}
 
+		[Obsolete("Use DbCommand.WithOutputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual DbParameter AddOutParameter(DbCommand command,
 																	 string name,
 																	 DbType dbType,
@@ -118,26 +124,31 @@ namespace Voyager.DBConnection
 		}
 
 
+		[Obsolete("Use DbCommand.WithInputOutputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddInOutParameter(DbCommand command, string name, DbType dbType, object value)
 		{
 			AddParameter(command, name, dbType, 0, ParameterDirection.InputOutput, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
+		[Obsolete("Use DbCommand.WithInputOutputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddInOutParameter(DbCommand command, string name, DbType dbType, int size, object value)
 		{
 			AddParameter(command, name, dbType, size, ParameterDirection.InputOutput, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
+		[Obsolete("Use DbCommand.WithOutputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddOutParameter(DbCommand command, string name, DbType dbType, object value)
 		{
 			AddParameter(command, name, dbType, 0, ParameterDirection.Output, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
+		[Obsolete("Use DbCommand.WithOutputParameter() extension method instead. This method will be removed in version 5.0.")]
 		public virtual void AddOutParameter(DbCommand command, string name, DbType dbType, int size, object value)
 		{
 			AddParameter(command, name, dbType, size, ParameterDirection.Output, true, 0, 0, String.Empty, DataRowVersion.Default, value);
 		}
 
+		[Obsolete("Use DbCommand.GetParameterValue() extension method instead. This method will be removed in version 5.0.")]
 		public virtual object GetParameterValue(DbCommand command, string name)
 		{
 			if (command == null) throw new ArgumentNullException(nameof(command));

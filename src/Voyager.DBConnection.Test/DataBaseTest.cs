@@ -49,7 +49,7 @@ namespace Voyager.DBConnection.Test
 		{
 			var cmd = database.GetStoredProcCommand("cmdTxt");
 
-			database.AddInParameter(cmd, "ala", System.Data.DbType.Int32, 4);
+			cmd.WithInputParameter("ala", System.Data.DbType.Int32, 4);
 			var param = cmd.Parameters["ala"];
 			Assert.That(param.DbType, Is.EqualTo(System.Data.DbType.Int32));
 			Assert.That(param.Value, Is.EqualTo(4));
@@ -61,7 +61,7 @@ namespace Voyager.DBConnection.Test
 		{
 			var cmd = database.GetStoredProcCommand("cmdTxt");
 
-			database.AddOutParameter(cmd, "ala", System.Data.DbType.AnsiString, 200);
+			cmd.WithOutputParameter("ala", System.Data.DbType.AnsiString, 200);
 			var param = cmd.Parameters["ala"];
 			Assert.That(param.DbType, Is.EqualTo(System.Data.DbType.AnsiString));
 			Assert.That(param.Size, Is.EqualTo(200));
@@ -73,7 +73,7 @@ namespace Voyager.DBConnection.Test
 		{
 			var cmd = database.GetStoredProcCommand("cmdTxt");
 
-			database.AddInOutParameter(cmd, "ala", System.Data.DbType.AnsiString, "Ziemia");
+			cmd.WithInputOutputParameter("ala", System.Data.DbType.AnsiString, "Ziemia");
 			var param = cmd.Parameters["ala"];
 			Assert.That(param.DbType, Is.EqualTo(System.Data.DbType.AnsiString));
 			Assert.That(param.Value, Is.EqualTo("Ziemia"));
@@ -86,11 +86,11 @@ namespace Voyager.DBConnection.Test
 		{
 			var cmd = database.GetStoredProcCommand("cmdTxt");
 
-			database.AddOutParameter(cmd, "ala", System.Data.DbType.AnsiString, 40);
+			cmd.WithOutputParameter("ala", System.Data.DbType.AnsiString, 40);
 
 			var param = cmd.Parameters["ala"];
 			param.Value = "Ma kota";
-			Assert.That(database.GetParameterValue(cmd, "ala"), Is.EqualTo("Ma kota"));
+			Assert.That(cmd.GetParameterValue("ala"), Is.EqualTo("Ma kota"));
 		}
 
 
