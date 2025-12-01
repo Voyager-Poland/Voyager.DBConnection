@@ -53,7 +53,8 @@ namespace Voyager.DBConnection
             if (command == null) throw new ArgumentNullException(nameof(command));
             if (name == null) throw new ArgumentNullException(nameof(name));
 
-            return command.Parameters[name].Value;
+            var paramName = BuildParameterName(command, name);
+            return command.Parameters[paramName].Value;
         }
 
         /// <summary>
@@ -64,7 +65,8 @@ namespace Voyager.DBConnection
             if (command == null) throw new ArgumentNullException(nameof(command));
             if (name == null) throw new ArgumentNullException(nameof(name));
 
-            var value = command.Parameters[name].Value;
+            var paramName = BuildParameterName(command, name);
+            var value = command.Parameters[paramName].Value;
             if (value == DBNull.Value || value == null)
                 return default;
 
@@ -77,7 +79,7 @@ namespace Voyager.DBConnection
             if (name == null) throw new ArgumentNullException(nameof(name));
 
             var param = command.CreateParameter();
-            param.ParameterName = name;
+            param.ParameterName = BuildParameterName(command, name);
             param.DbType = dbType;
             if (size > 0)
                 param.Size = size;
@@ -85,6 +87,33 @@ namespace Voyager.DBConnection
             param.Value = value ?? DBNull.Value;
             command.Parameters.Add(param);
             return command;
+        }
+
+        private static string BuildParameterName(DbCommand command, string name)
+        {
+            var prefix = GetParameterPrefix(command);
+
+            // Jeśli nazwa już ma odpowiedni prefix, nie dodawaj
+            if (!string.IsNullOrEmpty(prefix) && !name.StartsWith(prefix))
+                return prefix + name;
+
+            return name;
+        }
+
+        private static string GetParameterPrefix(DbCommand command)
+        {
+            var typeName = command.GetType().FullName ?? "";
+
+            // Oracle używa :
+            if (typeName.Contains("Oracle"))
+                return ":";
+
+            // MS SQL, PostgreSQL, MySQL, SQLite używają @
+            if (typeName.Contains("Sql") || typeName.Contains("Npgsql") || typeName.Contains("MySql") || typeName.Contains("SQLite"))
+                return "@";
+
+            // Nieznany provider - brak prefixu
+            return "";
         }
     }
 }

@@ -156,7 +156,7 @@ namespace Voyager.DBConnection
 			return command.Parameters[BuildParameterName(name)].Value;
 		}
 
-
+		[Obsolete]
 		protected DbParameter CreateParameter(string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
 			if (dbProviderFactory == null) throw new ArgumentNullException(nameof(transaction));
@@ -166,6 +166,7 @@ namespace Voyager.DBConnection
 			return param;
 		}
 
+		[Obsolete]
 		protected virtual void ConfigureParameter(DbParameter param, string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
 			param.DbType = dbType;
@@ -178,11 +179,9 @@ namespace Voyager.DBConnection
 		}
 
 		[Obsolete]
-		protected char ParameterToken = '0';
-
 		protected virtual string GetParameterToken() => string.Empty;
 
-
+		[Obsolete]
 		string BuildParameterName(string name)
 		{
 			ParamNameRule paramNameRule = new ParamNameRule(GetParameterToken());
