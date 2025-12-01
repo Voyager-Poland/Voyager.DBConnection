@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
-using Voyager.DBConnection.Interfaces;
 using Voyager.DBConnection.MockServcie;
 using Voyager.DBConnection.Tools;
 
 namespace Voyager.DBConnection
 {
 
-	public class Database : ITransactionOwner, IDisposable
+	public class Database : IDisposable
 	{
 		private readonly DbProviderFactory dbProviderFactory;
 		private readonly string sqlConnectionString;
 		private readonly ConnectionHolder connectionHolder;
-		private Transaction transaction;
+		private TransactionHolder transactionHolder;
 		private bool disposed;
 
 		/// <summary>
@@ -34,11 +33,12 @@ namespace Voyager.DBConnection
 
 		internal Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
 		{
-			var connection = connectionHolder.GetConnection();
-			var tran = connection.BeginTransaction(isolationLevel);
+			if (transactionHolder?.IsActive == true)
+				throw new InvalidOperationException("Transaction already active");
 
-			transaction = new Transaction(tran, this);
-			return transaction;
+			var connection = connectionHolder.GetConnection();
+			transactionHolder = new TransactionHolder(connection, isolationLevel);
+			return new Transaction(transactionHolder, () => transactionHolder = null);
 		}
 
 		public virtual DbCommand GetStoredProcCommand(string procedureName)
@@ -159,7 +159,7 @@ namespace Voyager.DBConnection
 		[Obsolete]
 		protected DbParameter CreateParameter(string name, DbType dbType, int size, ParameterDirection direction, bool nullable, byte precision, byte scale, string sourceColumn, DataRowVersion sourceVersion, object value)
 		{
-			if (dbProviderFactory == null) throw new ArgumentNullException(nameof(transaction));
+			if (dbProviderFactory == null) throw new ArgumentNullException(nameof(dbProviderFactory));
 			DbParameter param = dbProviderFactory.CreateParameter();
 			param.ParameterName = BuildParameterName(name);
 			ConfigureParameter(param, name, dbType, size, direction, nullable, precision, scale, sourceColumn, sourceVersion, value);
@@ -207,7 +207,10 @@ namespace Voyager.DBConnection
 			{
 				if (disposing)
 				{
-					transaction?.Dispose();
+					// TransactionHolder.Dispose() is idempotent - safe to call even if 
+					// Transaction already disposed it. Acts as fallback if user forgot 
+					// to dispose Transaction.
+					transactionHolder?.Dispose();
 					connectionHolder?.Dispose();
 				}
 				disposed = true;
@@ -218,10 +221,7 @@ namespace Voyager.DBConnection
 
 		protected virtual PrepareConectionString GetPrepare(string sqlConnectionString, DbProviderFactory dbProviderFactory) => new PrepareConectionString(this.dbProviderFactory, sqlConnectionString);
 
-		void ITransactionOwner.ResetTransaction()
-		{
-			transaction = null;
-		}
+
 
 		internal void OpenCmd(DbCommand cmd)
 		{
@@ -230,8 +230,8 @@ namespace Voyager.DBConnection
 
 			cmd.Connection = connectionHolder.GetConnection();
 
-			if (this.transaction != null)
-				cmd.Transaction = this.transaction.GetTransaction();
+			if (transactionHolder?.IsActive == true)
+				cmd.Transaction = transactionHolder.Transaction;
 		}
 	}
 
