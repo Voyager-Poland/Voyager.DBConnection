@@ -8,12 +8,13 @@ using Voyager.DBConnection.Tools;
 namespace Voyager.DBConnection
 {
 
-	public class Database : ITransactionOwner
+	public class Database : ITransactionOwner, IDisposable
 	{
 		private readonly DbProviderFactory dbProviderFactory;
 		private readonly string sqlConnectionString;
 		private DbConnection dbConnection;
 		private Transaction transaction;
+		private bool disposed;
 
 		/// <summary>
 		/// Default constructor uses mock provider and a mock connection string
@@ -192,15 +193,44 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		internal void ReleaseConnection()
+		private void ReleaseConnection()
 		{
 			try
 			{
 				if (dbConnection != null)
 					dbConnection.Dispose();
+				dbConnection = null;
 			}
 			catch { }
 		}
+
+		/// <summary>
+		/// Releases all resources used by the Database.
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		/// Releases unmanaged and optionally managed resources.
+		/// </summary>
+		/// <param name="disposing">True to release both managed and unmanaged resources.</param>
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposed)
+			{
+				if (disposing)
+				{
+					transaction?.Dispose();
+					transaction = null;
+					ReleaseConnection();
+				}
+				disposed = true;
+			}
+		}
+
 		protected virtual string UppDateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory) => this.GetPrepare(sqlConnectionString, dbProviderFactory).Prepare();
 
 		protected virtual PrepareConectionString GetPrepare(string sqlConnectionString, DbProviderFactory dbProviderFactory) => new PrepareConectionString(this.dbProviderFactory, sqlConnectionString);
@@ -212,6 +242,9 @@ namespace Voyager.DBConnection
 
 		void PrepareConnection()
 		{
+			if (disposed)
+				throw new ObjectDisposedException(nameof(Database));
+
 			if (!ConnectionIsReady)
 			{
 				if (dbConnection != null)

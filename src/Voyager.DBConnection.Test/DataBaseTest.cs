@@ -13,6 +13,12 @@ namespace Voyager.DBConnection.Test
 			database = new MockDataBase();
 		}
 
+		[TearDown]
+		public void CleanupDB()
+		{
+			database?.Dispose();
+		}
+
 		[Test]
 		public void BeginTran()
 		{
