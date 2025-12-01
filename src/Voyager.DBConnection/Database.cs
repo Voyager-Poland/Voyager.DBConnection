@@ -12,7 +12,7 @@ namespace Voyager.DBConnection
 	{
 		private readonly DbProviderFactory dbProviderFactory;
 		private readonly string sqlConnectionString;
-		private DbConnection dbConnection;
+		private readonly ConnectionHolder connectionHolder;
 		private Transaction transaction;
 		private bool disposed;
 
@@ -27,16 +27,15 @@ namespace Voyager.DBConnection
 
 		public Database(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
-			this.dbProviderFactory = dbProviderFactory;
-			this.sqlConnectionString = sqlConnectionString;
-			dbConnection = null;
-			transaction = null;
+			this.dbProviderFactory = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
+			this.sqlConnectionString = sqlConnectionString ?? throw new ArgumentNullException(nameof(sqlConnectionString));
+			this.connectionHolder = new ConnectionHolder(dbProviderFactory, () => UppDateConnectionString(sqlConnectionString, dbProviderFactory));
 		}
 
 		internal Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
 		{
-			PrepareConnection();
-			var tran = dbConnection!.BeginTransaction(isolationLevel);
+			var connection = connectionHolder.GetConnection();
+			var tran = connection.BeginTransaction(isolationLevel);
 
 			transaction = new Transaction(tran, this);
 			return transaction;
@@ -179,31 +178,6 @@ namespace Voyager.DBConnection
 			return paramNameRule.GetParamName(name);
 		}
 
-		private void DoConnection()
-		{
-			dbConnection = this.dbProviderFactory.CreateConnection();
-			dbConnection.ConnectionString = UppDateConnectionString(sqlConnectionString, dbProviderFactory);
-		}
-
-		bool ConnectionIsReady
-		{
-			get
-			{
-				return !(dbConnection == null || dbConnection.State == ConnectionState.Broken);
-			}
-		}
-
-		private void ReleaseConnection()
-		{
-			try
-			{
-				if (dbConnection != null)
-					dbConnection.Dispose();
-				dbConnection = null;
-			}
-			catch { }
-		}
-
 		/// <summary>
 		/// Releases all resources used by the Database.
 		/// </summary>
@@ -224,8 +198,7 @@ namespace Voyager.DBConnection
 				if (disposing)
 				{
 					transaction?.Dispose();
-					transaction = null;
-					ReleaseConnection();
+					connectionHolder?.Dispose();
 				}
 				disposed = true;
 			}
@@ -240,26 +213,12 @@ namespace Voyager.DBConnection
 			transaction = null;
 		}
 
-		void PrepareConnection()
+		internal void OpenCmd(DbCommand cmd)
 		{
 			if (disposed)
 				throw new ObjectDisposedException(nameof(Database));
 
-			if (!ConnectionIsReady)
-			{
-				if (dbConnection != null)
-					ReleaseConnection();
-				DoConnection();
-			}
-			if (dbConnection!.State != ConnectionState.Open)
-				dbConnection.Open();
-		}
-
-
-		internal void OpenCmd(DbCommand cmd)
-		{
-			PrepareConnection();
-			cmd.Connection = this.dbConnection;
+			cmd.Connection = connectionHolder.GetConnection();
 
 			if (this.transaction != null)
 				cmd.Transaction = this.transaction.GetTransaction();
