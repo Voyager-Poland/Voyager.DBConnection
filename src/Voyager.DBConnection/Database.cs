@@ -6,7 +6,10 @@ using Voyager.DBConnection.Tools;
 
 namespace Voyager.DBConnection
 {
-
+	/// <summary>
+	/// Provides database connection and command execution functionality.
+	/// Manages database connections, transactions, and command creation with support for stored procedures and SQL text commands.
+	/// </summary>
 	public class Database : IDisposable
 	{
 		private readonly DbProviderFactory dbProviderFactory;
