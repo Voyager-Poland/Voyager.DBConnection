@@ -9,7 +9,10 @@ using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
 {
-
+	/// <summary>
+	/// Provides a high-level interface for executing database commands with exception handling and event support.
+	/// Throws exceptions on errors (unlike DbCommandExecutor which returns Result&lt;T&gt;).
+	/// </summary>
 	public class Connection : IDisposable, IRegisterEvents, IFeatureHost
 	{
 		private readonly Database db;
@@ -18,9 +21,20 @@ namespace Voyager.DBConnection
 		private readonly FeatureHost featureHost = new FeatureHost();
 		private bool disposed;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Connection"/> class.
+		/// </summary>
+		/// <remarks>This constructor is only for mock purposes and should not be used in production code.</remarks>
 		[Obsolete("This object is only for mock purposes")]
 		public Connection() : this(new Database()) { }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Connection"/> class with a custom exception handling policy.
+		/// </summary>
+		/// <param name="db">The database instance.</param>
+		/// <param name="exceptionPolicy">The exception policy for transforming thrown exceptions.</param>
+		/// <exception cref="LackExceptionPolicyException">Thrown when exceptionPolicy is null.</exception>
+		/// <exception cref="NoDbException">Thrown when db is null.</exception>
 		public Connection(Database db, IExceptionPolicy exceptionPolicy)
 		{
 			Guard.DBPolicyGuard(exceptionPolicy);
@@ -31,6 +45,11 @@ namespace Voyager.DBConnection
 		}
 
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Connection"/> class with default exception handling.
+		/// </summary>
+		/// <param name="db">The database instance.</param>
+		/// <exception cref="NoDbException">Thrown when db is null.</exception>
 		public Connection(Database db)
 		{
 			Guard.DbGuard(db);
@@ -38,11 +57,22 @@ namespace Voyager.DBConnection
 			this.exceptionPolicy = new NoExceptionPolicy();
 		}
 
+		/// <summary>
+		/// Begins a new database transaction.
+		/// </summary>
+		/// <returns>A <see cref="Transaction"/> object representing the new transaction.</returns>
 		public virtual Transaction BeginTransaction()
 		{
 			return db.BeginTransaction();
 		}
 
+		/// <summary>
+		/// Executes a non-query command (INSERT, UPDATE, DELETE) and returns the number of affected rows.
+		/// </summary>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <returns>The number of rows affected by the command.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory is null.</exception>
+		/// <exception cref="Exception">Throws transformed exceptions according to the exception policy.</exception>
 		public virtual int ExecuteNonQuery(ICommandFactory factory)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
@@ -50,6 +80,13 @@ namespace Voyager.DBConnection
 				return ProcessExecuteNoQuery(factory, command);
 		}
 
+		/// <summary>
+		/// Executes a command and returns the first column of the first row in the result set.
+		/// </summary>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <returns>The scalar value from the query, or null if no results.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory is null.</exception>
+		/// <exception cref="Exception">Throws transformed exceptions according to the exception policy.</exception>
 		public virtual object ExecuteScalar(ICommandFactory factory)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
@@ -57,22 +94,59 @@ namespace Voyager.DBConnection
 				return ProcessExecuteScalar(factory, command);
 		}
 
+		/// <summary>
+		/// Asynchronously executes a command and returns the first column of the first row in the result set.
+		/// </summary>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+		/// <returns>A task representing the asynchronous operation, containing the scalar value or null.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory is null.</exception>
 		public Task<object> ExecuteScalarAsync(ICommandFactory factory, CancellationToken cancellationToken)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
 			return Task.Run(() => ExecuteScalar(factory), cancellationToken);
 		}
 
+		/// <summary>
+		/// Asynchronously executes a non-query command (INSERT, UPDATE, DELETE) and returns the number of affected rows.
+		/// </summary>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <returns>A task representing the asynchronous operation, containing the number of rows affected.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory is null.</exception>
 		public virtual Task<int> ExecuteNonQueryAsync(ICommandFactory factory) => ExecuteNonQueryAsync(factory, CancellationToken.None);
 
+		/// <summary>
+		/// Asynchronously executes a non-query command (INSERT, UPDATE, DELETE) and returns the number of affected rows.
+		/// </summary>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+		/// <returns>A task representing the asynchronous operation, containing the number of rows affected.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory is null.</exception>
 		public virtual Task<int> ExecuteNonQueryAsync(ICommandFactory factory, CancellationToken cancellationToken)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
 			return Task.Run(() => ExecuteNonQuery(factory), cancellationToken);
 		}
 
+		/// <summary>
+		/// Asynchronously executes a command and processes the result set using a consumer.
+		/// </summary>
+		/// <typeparam name="TDomain">The type of the result produced by the consumer.</typeparam>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <param name="consumer">The consumer that processes the data reader.</param>
+		/// <returns>A task representing the asynchronous operation, containing the processed result.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory or consumer is null.</exception>
 		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
 
+		/// <summary>
+		/// Asynchronously executes a command and processes the result set using a consumer.
+		/// </summary>
+		/// <typeparam name="TDomain">The type of the result produced by the consumer.</typeparam>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <param name="consumer">The consumer that processes the data reader.</param>
+		/// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+		/// <returns>A task representing the asynchronous operation, containing the processed result.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory or consumer is null.</exception>
 		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
@@ -80,6 +154,15 @@ namespace Voyager.DBConnection
 			return Task.Run(() => GetReader(factory, consumer), cancellationToken);
 		}
 
+		/// <summary>
+		/// Executes a command and processes the result set using a consumer.
+		/// </summary>
+		/// <typeparam name="TDomain">The type of the result produced by the consumer.</typeparam>
+		/// <param name="factory">The factory that creates the database command.</param>
+		/// <param name="consumer">The consumer that processes the data reader.</param>
+		/// <returns>The result produced by the consumer after processing the data reader.</returns>
+		/// <exception cref="ArgumentNullException">Thrown when factory or consumer is null.</exception>
+		/// <exception cref="Exception">Throws transformed exceptions according to the exception policy.</exception>
 		public virtual TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
@@ -116,7 +199,7 @@ namespace Voyager.DBConnection
 
 		private T ExecuteWithEvents<T>(DbCommand command, Func<DbCommand, T> action)
 		{
-			var proc = new ProcEvent<T>(this.eventHost);
+			var proc = new ExecutionEventPublisher<T>(this.eventHost);
 
 			try
 			{
@@ -205,16 +288,28 @@ namespace Voyager.DBConnection
 			return result;
 		}
 
+		/// <summary>
+		/// Registers an event handler for SQL call events.
+		/// </summary>
+		/// <param name="logEvent">The event handler to register.</param>
 		public void AddEvent(Action<SqlCallEvent> logEvent)
 		{
 			eventHost.AddEvent(logEvent);
 		}
 
+		/// <summary>
+		/// Unregisters an event handler for SQL call events.
+		/// </summary>
+		/// <param name="logEvent">The event handler to unregister.</param>
 		public void RemoveEvent(Action<SqlCallEvent> logEvent)
 		{
 			eventHost.RemoveEvent(logEvent);
 		}
 
+		/// <summary>
+		/// Adds a feature to extend the functionality of the connection.
+		/// </summary>
+		/// <param name="feature">The feature to add.</param>
 		public void AddFeature(IFeature feature)
 		{
 			featureHost.AddFeature(feature);

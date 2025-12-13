@@ -5,12 +5,12 @@ using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
 {
-	class ProcEvent<TResult>
+	class ExecutionEventPublisher<TResult>
 	{
 		private readonly IInvokeEvents invokeEvents;
 		private SqlCallEvent callEvent;
 
-		public ProcEvent(IInvokeEvents invokeEvent)
+		public ExecutionEventPublisher(IInvokeEvents invokeEvent)
 		{
 			this.invokeEvents = invokeEvent;
 			callEvent = new SqlCallEvent("connection", DateTime.Now);

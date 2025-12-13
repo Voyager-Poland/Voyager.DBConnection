@@ -270,7 +270,7 @@ namespace Voyager.DBConnection
 
         private Result<TValue> ExecuteWithEvents<TValue>(DbCommand command, Func<DbCommand, TValue> action)
         {
-            var proc = new ProcEvent<TValue>(this.eventHost);
+            var proc = new ExecutionEventPublisher<TValue>(this.eventHost);
 
             return Result<TValue>.Try(
                 () =>
@@ -289,7 +289,7 @@ namespace Voyager.DBConnection
 
         private async Task<Result<TValue>> ExecuteWithEventsAsync<TValue>(DbCommand command, Func<DbCommand, Task<TValue>> action, CancellationToken cancellationToken)
         {
-            var proc = new ProcEvent<TValue>(this.eventHost);
+            var proc = new ExecutionEventPublisher<TValue>(this.eventHost);
 
             return await Result<TValue>.TryAsync(
                 async () =>

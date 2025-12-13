@@ -11,12 +11,4 @@ namespace Voyager.DBConnection
 			return ex;
 		}
 	}
-
-	public class DefaultMapError : IMapErrorPolicy
-	{
-		public Voyager.Common.Results.Error MapError(Exception ex)
-		{
-			return Error.FromException(ex);
-		}
-	}
 }
