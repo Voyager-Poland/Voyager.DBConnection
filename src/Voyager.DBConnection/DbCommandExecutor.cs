@@ -72,7 +72,7 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Result<TValue> ExecuteResult<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall)
+        public virtual Result<TValue> ExecuteMap<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
