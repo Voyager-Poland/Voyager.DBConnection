@@ -37,8 +37,8 @@ namespace Voyager.DBConnection
 		/// <exception cref="NoDbException">Thrown when db is null.</exception>
 		public Connection(Database db, IExceptionPolicy exceptionPolicy)
 		{
-			Guard.DBPolicyGuard(exceptionPolicy);
-			Guard.DbGuard(db);
+			ParameterValidator.DBPolicyGuard(exceptionPolicy);
+			ParameterValidator.DbGuard(db);
 
 			this.db = db;
 			this.exceptionPolicy = exceptionPolicy;
@@ -52,7 +52,7 @@ namespace Voyager.DBConnection
 		/// <exception cref="NoDbException">Thrown when db is null.</exception>
 		public Connection(Database db)
 		{
-			Guard.DbGuard(db);
+			ParameterValidator.DbGuard(db);
 			this.db = db;
 			this.exceptionPolicy = new NoExceptionPolicy();
 		}
@@ -317,7 +317,7 @@ namespace Voyager.DBConnection
 
 	}
 
-	internal static class Guard
+	internal static class ParameterValidator
 	{
 
 		public static void DbGuard(Database db)

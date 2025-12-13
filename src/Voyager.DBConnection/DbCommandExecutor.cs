@@ -29,8 +29,8 @@ namespace Voyager.DBConnection
         /// <exception cref="NoDbException">Thrown when db is null.</exception>
         public DbCommandExecutor(Database db, IMapErrorPolicy errorPolicy)
         {
-            Guard.DBPolicyGuard(errorPolicy);
-            Guard.DbGuard(db);
+            ParameterValidator.DBPolicyGuard(errorPolicy);
+            ParameterValidator.DbGuard(db);
 
             this.db = db;
             this.errorPolicy = errorPolicy;
@@ -43,7 +43,7 @@ namespace Voyager.DBConnection
         /// <exception cref="NoDbException">Thrown when db is null.</exception>
         public DbCommandExecutor(Database db)
         {
-            Guard.DbGuard(db);
+            ParameterValidator.DbGuard(db);
             this.db = db;
             this.errorPolicy = new DefaultMapError();
         }
