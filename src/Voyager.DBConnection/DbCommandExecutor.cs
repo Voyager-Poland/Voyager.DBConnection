@@ -98,8 +98,7 @@ namespace Voyager.DBConnection
             TDomain result = consumer.GetResults(dr);
             while (dr.NextResult())
             { }
-            dr.Close();
-
+            // dr.Close(); // removed — Dispose is called in Finally()
             return result;
         }
         protected virtual Result<IDataReader> GetDataReader(DbCommand command)

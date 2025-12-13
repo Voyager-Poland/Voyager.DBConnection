@@ -16,6 +16,7 @@ namespace Voyager.DBConnection
 		private readonly IExceptionPolicy exceptionPolicy;
 		private readonly EventHost eventHost = new EventHost();
 		private readonly FeatureHost featureHost = new FeatureHost();
+		private bool disposed;
 
 		[Obsolete("This object is only for mock purposes")]
 		public Connection() : this(new Database()) { }
@@ -44,54 +45,73 @@ namespace Voyager.DBConnection
 
 		public virtual int ExecuteNonQuery(ICommandFactory factory)
 		{
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
 			using (DbCommand command = GetCommand(factory))
 				return ProcessExecuteNoQuery(factory, command);
 		}
 
 		public virtual object ExecuteScalar(ICommandFactory factory)
 		{
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
 			using (DbCommand command = GetCommand(factory))
 				return ProcessExecuteScalar(factory, command);
 		}
 
 		public Task<object> ExecuteScalarAsync(ICommandFactory factory, CancellationToken cancellationToken)
 		{
-			return Task.Run(() =>
-			{
-				return ExecuteScalar(factory);
-			}, cancellationToken);
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
+			return Task.Run(() => ExecuteScalar(factory), cancellationToken);
 		}
 
 		public virtual Task<int> ExecuteNonQueryAsync(ICommandFactory factory) => ExecuteNonQueryAsync(factory, CancellationToken.None);
 
 		public virtual Task<int> ExecuteNonQueryAsync(ICommandFactory factory, CancellationToken cancellationToken)
 		{
-			return Task.Run(() =>
-			{
-				return ExecuteNonQuery(factory);
-			}, cancellationToken);
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
+			return Task.Run(() => ExecuteNonQuery(factory), cancellationToken);
 		}
 
 		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
 
 		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
 		{
-			return Task.Run(() =>
-			{
-				return GetReader(factory, consumer);
-			}, cancellationToken);
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
+			if (consumer == null) throw new ArgumentNullException(nameof(consumer));
+			return Task.Run(() => GetReader(factory, consumer), cancellationToken);
 		}
 
 		public virtual TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
 		{
+			if (factory == null) throw new ArgumentNullException(nameof(factory));
+			if (consumer == null) throw new ArgumentNullException(nameof(consumer));
 			using (DbCommand command = GetCommand(factory))
 				return ProcessReader(factory, consumer, command);
 		}
 
 		public virtual void Dispose()
 		{
-			this.db.Dispose();
-			featureHost.Dispose();
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposed) return;
+			if (disposing)
+			{
+				// free managed
+				this.db.Dispose();
+				featureHost.Dispose();
+				// if eventHost implements IDisposable, dispose it here
+				// (kept as-is to avoid breaking changes)
+			}
+			// free unmanaged (none)
+			disposed = true;
+		}
+
+		~Connection()
+		{
+			Dispose(false);
 		}
 
 		private T ExecuteWithEvents<T>(DbCommand command, Func<DbCommand, T> action)
@@ -134,6 +154,7 @@ namespace Voyager.DBConnection
 
 		protected virtual DbCommand GetCommand(ICommandFactory storedProcedure)
 		{
+			if (storedProcedure == null) throw new ArgumentNullException(nameof(storedProcedure));
 			return storedProcedure.ConstructDbCommand(db);
 		}
 
@@ -144,6 +165,7 @@ namespace Voyager.DBConnection
 
 		protected virtual void ReadOutParameters(IReadOutParameters factory, DbCommand command)
 		{
+			if (factory == null) return;
 			factory.ReadOutParameters(db, command);
 		}
 
@@ -178,7 +200,7 @@ namespace Voyager.DBConnection
 			TDomain result = consumer.GetResults(dr);
 			while (dr.NextResult())
 			{ }
-			dr.Close();
+			// dr.Close(); // removed — Dispose is called in Finally()
 
 			return result;
 		}
