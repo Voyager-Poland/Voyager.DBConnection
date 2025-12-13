@@ -1,3 +1,4 @@
+using Voyager.DBConnection.Exceptions;
 using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Voyager.Common.Results;
 using Voyager.DBConnection.Events;
+using Voyager.DBConnection.Exceptions;
 using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
