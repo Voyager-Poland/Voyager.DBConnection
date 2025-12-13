@@ -29,7 +29,7 @@ namespace Voyager.DBConnection.Events
 
 		public override string ToString()
 		{
-			return $"{CallTime}; {SqlText}; Durration: {Duration}";
+			return $"{CallTime}; {SqlText}; Duration: {Duration}";
 		}
 
 		public bool IsError { get; protected set; }
