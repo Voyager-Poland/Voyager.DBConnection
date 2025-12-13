@@ -6,11 +6,16 @@ using Voyager.DBConnection.Tools;
 
 namespace Voyager.DBConnection
 {
+	public interface IDatabase
+	{
+		DbCommand GetStoredProcCommand(string procedureName);
+		DbCommand GetSqlCommand(string procedureName);
+	}
 	/// <summary>
 	/// Provides database connection and command execution functionality.
 	/// Manages database connections, transactions, and command creation with support for stored procedures and SQL text commands.
 	/// </summary>
-	public class Database : IDisposable
+	public class Database : IDisposable, IDatabase
 	{
 		private readonly DbProviderFactory dbProviderFactory;
 		private readonly string sqlConnectionString;

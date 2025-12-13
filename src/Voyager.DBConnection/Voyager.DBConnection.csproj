@@ -14,7 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>SQL,DbProviderFactory</PackageTags>
     <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
-    <Version>4.3.1</Version>
+    <Version>4.3.1.0</Version>
   </PropertyGroup>
 
   
@@ -39,4 +39,10 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 	</ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Voyager.Common.Results" Version="1.3.1-preview.2" />
+  </ItemGroup>
+
+
 </Project>

@@ -12,6 +12,6 @@ namespace Voyager.DBConnection.Interfaces
         /// </summary>
         /// <param name="db">The database instance used to create the command.</param>
         /// <returns>A configured DbCommand ready for execution.</returns>
-        DbCommand ConstructDbCommand(Database db);
+        DbCommand ConstructDbCommand(IDatabase db);
     }
 }

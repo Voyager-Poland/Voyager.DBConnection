@@ -6,4 +6,9 @@ namespace Voyager.DBConnection.Interfaces
 	{
 		Exception GetException(Exception ex);
 	}
+
+	public interface IMapErrorPolicy
+	{
+		Voyager.Common.Results.Error MapError(Exception ex);
+	}
 }
