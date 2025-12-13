@@ -13,6 +13,7 @@ namespace Voyager.DBConnection
         private readonly IMapErrorPolicy errorPolicy;
         private readonly EventHost eventHost = new EventHost();
         private readonly FeatureHost featureHost = new FeatureHost();
+        private bool disposed;
 
         public DbCommandExecutor(Database db, IMapErrorPolicy errorPolicy)
         {
@@ -32,8 +33,26 @@ namespace Voyager.DBConnection
 
         public virtual void Dispose()
         {
-            this.db.Dispose();
-            featureHost.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) return;
+            if (disposing)
+            {
+                // free managed resources
+                this.db.Dispose();
+                featureHost.Dispose();
+            }
+            // free unmanaged resources (none)
+            disposed = true;
+        }
+
+        ~DbCommandExecutor()
+        {
+            Dispose(false);
         }
 
         public virtual Transaction BeginTransaction()
