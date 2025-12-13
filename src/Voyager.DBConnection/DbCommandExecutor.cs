@@ -119,17 +119,19 @@ namespace Voyager.DBConnection
         {
             var proc = new ExecutionEventPublisher<TValue>(this.eventHost);
 
-            try
-            {
-                db.OpenCmd(command);
-                return Result<TValue>.Success(proc.Execute(() => action.Invoke(command), command));
-            }
-            catch (Exception ex)
-            {
-                var handled = HandleSqlException(ex);
-                proc.ErrorPublish(handled);
-                return handled;
-            }
+            return Result<TValue>.Try(
+                () =>
+                {
+                    db.OpenCmd(command);
+                    return proc.Execute(() => action.Invoke(command), command);
+                },
+                ex =>
+                {
+                    var error = HandleSqlException(ex);
+                    proc.ErrorPublish(error);
+                    return error;
+                }
+            );
         }
 
         Common.Results.Error HandleSqlException(Exception ex)
