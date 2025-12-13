@@ -1,6 +1,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Voyager.Common.Results;
 using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Interfaces;
@@ -112,6 +114,69 @@ namespace Voyager.DBConnection
             }
         }
 
+        public virtual Task<Result<int>> ExecuteNonQueryAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null) =>
+            ExecuteNonQueryAsync(commandFactory, CancellationToken.None, afterCall);
+
+        public virtual async Task<Result<int>> ExecuteNonQueryAsync(IDbCommandFactory commandFactory, CancellationToken cancellationToken, Action<DbCommand> afterCall = null)
+        {
+            using (DbCommand command = GetCommand(commandFactory))
+            {
+                Func<DbCommand, Task<int>> executeNonQueryAsync = async (cmd) => await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                var executionResult = await ExecuteWithEventsAsync(command, executeNonQueryAsync, cancellationToken).ConfigureAwait(false);
+                if (executionResult.IsSuccess)
+                    afterCall?.Invoke(command);
+                return executionResult;
+            }
+        }
+
+        public virtual Task<Result<TValue>> ExecuteMapAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall) =>
+            ExecuteMapAsync(commandFactory, CancellationToken.None, afterCall);
+
+        public virtual async Task<Result<TValue>> ExecuteMapAsync<TValue>(IDbCommandFactory commandFactory, CancellationToken cancellationToken, Func<DbCommand, Result<TValue>> afterCall)
+        {
+            using (DbCommand command = GetCommand(commandFactory))
+            {
+                Func<DbCommand, Task<int>> executeNonQueryAsync = async (cmd) => await cmd.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteWithEventsAsync(command, executeNonQueryAsync, cancellationToken).ConfigureAwait(false);
+                return result.Bind(_ => afterCall.Invoke(command));
+            }
+        }
+
+        public virtual Task<Result<object>> ExecuteScalarAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null) =>
+            ExecuteScalarAsync(commandFactory, CancellationToken.None, afterCall);
+
+        public virtual async Task<Result<object>> ExecuteScalarAsync(IDbCommandFactory commandFactory, CancellationToken cancellationToken, Action<DbCommand> afterCall = null)
+        {
+            using (DbCommand command = GetCommand(commandFactory))
+            {
+                Func<DbCommand, Task<object>> executeScalarAsync = async (cmd) => await cmd.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
+                var result = await ExecuteWithEventsAsync(command, executeScalarAsync, cancellationToken).ConfigureAwait(false);
+                if (result.IsSuccess)
+                    afterCall?.Invoke(command);
+                return result;
+            }
+        }
+
+        public virtual Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null) =>
+            ExecuteReaderAsync(commandFactory, consumer, CancellationToken.None, afterCall);
+
+        public virtual async Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, CancellationToken cancellationToken, Action<DbCommand> afterCall = null)
+        {
+            using (DbCommand command = GetCommand(commandFactory))
+            {
+                var reader = await GetDataReaderAsync(command, cancellationToken).ConfigureAwait(false);
+                if (!reader.IsSuccess)
+                    return reader.Error;
+
+                var result = reader
+                    .Map(reader => HandleReader(consumer, reader))
+                    .Tap(_ => afterCall?.Invoke(command))
+                    .Finally(() => reader.Value.Dispose());
+
+                return result;
+            }
+        }
+
         private TDomain HandleReader<TDomain>(IGetConsumer<TDomain> consumer, IDataReader dr)
         {
             TDomain result = consumer.GetResults(dr);
@@ -126,6 +191,12 @@ namespace Voyager.DBConnection
             return ExecuteWithEvents(command, executeReader);
         }
 
+        protected virtual async Task<Result<IDataReader>> GetDataReaderAsync(DbCommand command, CancellationToken cancellationToken)
+        {
+            Func<DbCommand, Task<IDataReader>> executeReaderAsync = async (cmd) => await cmd.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            return await ExecuteWithEventsAsync(command, executeReaderAsync, cancellationToken).ConfigureAwait(false);
+        }
+
         protected DbCommand GetCommand(IDbCommandFactory commandFactory)
         {
             return commandFactory.ConstructDbCommand(db);
@@ -136,17 +207,39 @@ namespace Voyager.DBConnection
         {
             var proc = new ProcEvent<TValue>(this.eventHost);
 
-            try
-            {
-                db.OpenCmd(command);
-                return Result<TValue>.Success(proc.Call(() => action.Invoke(command), command));
-            }
-            catch (Exception ex)
-            {
-                var error = HandleSqlException(ex);
-                proc.ErrorPublish(error);
-                return Result<TValue>.Failure(error);
-            }
+            return Result<TValue>.Try(
+                () =>
+                {
+                    db.OpenCmd(command);
+                    return proc.Call(() => action.Invoke(command), command);
+                },
+                ex =>
+                {
+                    var error = HandleSqlException(ex);
+                    proc.ErrorPublish(error);
+                    return error;
+                }
+            );
+        }
+
+        private async Task<Result<TValue>> ExecuteWithEventsAsync<TValue>(DbCommand command, Func<DbCommand, Task<TValue>> action, CancellationToken cancellationToken)
+        {
+            var proc = new ProcEvent<TValue>(this.eventHost);
+
+            return await Result<TValue>.TryAsync(
+                async () =>
+                {
+                    db.OpenCmd(command);
+                    var result = await action.Invoke(command).ConfigureAwait(false);
+                    return proc.Call(() => result, command);
+                },
+                ex =>
+                {
+                    var error = HandleSqlException(ex);
+                    proc.ErrorPublish(error);
+                    return error;
+                }
+            ).ConfigureAwait(false);
         }
 
         Common.Results.Error HandleSqlException(Exception ex)
