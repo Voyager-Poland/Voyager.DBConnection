@@ -5,7 +5,7 @@ namespace Voyager.DBConnection.Interfaces
 {
 	public interface IReadOutParameters
 	{
-		void ReadOutParameters(IDatabase db, DbCommand command);
+		void ReadOutParameters(Database db, DbCommand command);
 	}
 
 	public interface IReadParameters
