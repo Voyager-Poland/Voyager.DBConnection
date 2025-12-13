@@ -204,7 +204,7 @@ namespace Voyager.DBConnection
 			try
 			{
 				db.OpenCmd(command);
-				return proc.Call(() => action.Invoke(command), command);
+				return proc.Execute(() => action.Invoke(command), command);
 			}
 			catch (Exception ex)
 			{

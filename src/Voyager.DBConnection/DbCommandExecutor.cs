@@ -276,7 +276,7 @@ namespace Voyager.DBConnection
                 () =>
                 {
                     db.OpenCmd(command);
-                    return proc.Call(() => action.Invoke(command), command);
+                    return proc.Execute(() => action.Invoke(command), command);
                 },
                 ex =>
                 {
@@ -296,7 +296,7 @@ namespace Voyager.DBConnection
                 {
                     db.OpenCmd(command);
                     var result = await action.Invoke(command).ConfigureAwait(false);
-                    return proc.Call(() => result, command);
+                    return proc.Execute(() => result, command);
                 },
                 ex =>
                 {

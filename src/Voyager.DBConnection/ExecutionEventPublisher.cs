@@ -16,7 +16,7 @@ namespace Voyager.DBConnection
 			callEvent = new SqlCallEvent("connection", DateTime.Now);
 		}
 
-		public TResult Call(Func<TResult> function, DbCommand command)
+		public TResult Execute(Func<TResult> function, DbCommand command)
 		{
 			callEvent = Voyager.DBConnection.Events.SqlCallEvent.Create(command);
 			TResult result;
