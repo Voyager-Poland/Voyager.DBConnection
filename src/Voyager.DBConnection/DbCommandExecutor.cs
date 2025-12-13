@@ -143,9 +143,9 @@ namespace Voyager.DBConnection
             }
             catch (Exception ex)
             {
-                var handled = HandleSqlException(ex);
-                proc.ErrorPublish(handled);
-                return handled;
+                var error = HandleSqlException(ex);
+                proc.ErrorPublish(error);
+                return Result<TValue>.Failure(error);
             }
         }
 
