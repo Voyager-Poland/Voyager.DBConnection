@@ -20,7 +20,7 @@ namespace Voyager.DBConnection.Test
 
 		private void EventCall(SqlCallEvent @event)
 		{
-			Console.WriteLine(@event);
+			Console.Out.WriteLine(@event);
 			logged = true;
 		}
 

@@ -15,7 +15,7 @@ namespace Voyager.DBConnection.Test
 		[TearDown]
 		public void Monitor()
 		{
-			Console.WriteLine($"Aktualna liczba wywołań {CountAllRequest.AllRequestCount}");
+			Console.Out.WriteLine($"Aktualna liczba wywołań {CountAllRequest.AllRequestCount}");
 		}
 
 		[Test]
@@ -44,7 +44,7 @@ namespace Voyager.DBConnection.Test
 
 			public void Dispose()
 			{
-				Console.WriteLine("Zwolnione połączenie");
+				Console.Out.WriteLine("Zwolnione połączenie");
 				registerEvents.RemoveEvent(MyHandler);
 			}
 		}
