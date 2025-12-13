@@ -134,13 +134,13 @@ namespace Voyager.DBConnection
 
 		protected virtual IDataReader GetDataReader(DbCommand command)
 		{
-			Func<DbCommand, IDataReader> executeReader = (commandPara) => commandPara.ExecuteReader();
+			Func<DbCommand, IDataReader> executeReader = (cmd) => cmd.ExecuteReader();
 			return ExecuteWithEvents(command, executeReader);
 		}
 
 		protected virtual int Exec(DbCommand command)
 		{
-			Func<DbCommand, Int32> executeNonQuery = (commandPara) => commandPara.ExecuteNonQuery();
+			Func<DbCommand, int> executeNonQuery = (cmd) => cmd.ExecuteNonQuery();
 			return ExecuteWithEvents(command, executeNonQuery);
 		}
 
@@ -148,7 +148,7 @@ namespace Voyager.DBConnection
 		{
 			if (command == null)
 				throw new ArgumentNullException(nameof(command));
-			Func<DbCommand, object> executeScalar = (commandPara) => commandPara.ExecuteScalar();
+			Func<DbCommand, object> executeScalar = (cmd) => cmd.ExecuteScalar();
 			return ExecuteWithEvents(command, executeScalar);
 		}
 

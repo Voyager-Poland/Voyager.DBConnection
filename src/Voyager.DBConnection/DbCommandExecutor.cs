@@ -45,7 +45,7 @@ namespace Voyager.DBConnection
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
-                Func<DbCommand, Int32> executeNonQuery = (commandPara) => commandPara.ExecuteNonQuery();
+                Func<DbCommand, int> executeNonQuery = (cmd) => cmd.ExecuteNonQuery();
                 var executionResult = ExecuteWithEvents(command, executeNonQuery);
                 if (executionResult.IsSuccess)
                     afterCall?.Invoke(command);
@@ -57,7 +57,7 @@ namespace Voyager.DBConnection
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
-                Func<DbCommand, Int32> executeNonQuery = (commandPara) => commandPara.ExecuteNonQuery();
+                Func<DbCommand, int> executeNonQuery = (cmd) => cmd.ExecuteNonQuery();
                 var result = ExecuteWithEvents(command, executeNonQuery)
                     .Bind(_ => afterCall.Invoke(command));
                 return result;
@@ -68,7 +68,7 @@ namespace Voyager.DBConnection
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
-                Func<DbCommand, object> executeScalar = (commandPara) => commandPara.ExecuteScalar();
+                Func<DbCommand, object> executeScalar = (cmd) => cmd.ExecuteScalar();
                 var result = ExecuteWithEvents(command, executeScalar);
                 if (result.IsSuccess)
                     afterCall?.Invoke(command);
@@ -103,7 +103,7 @@ namespace Voyager.DBConnection
         }
         protected virtual Result<IDataReader> GetDataReader(DbCommand command)
         {
-            Func<DbCommand, IDataReader> executeReader = (commandPara) => commandPara.ExecuteReader();
+            Func<DbCommand, IDataReader> executeReader = (cmd) => cmd.ExecuteReader();
             return ExecuteWithEvents(command, executeReader);
         }
 
