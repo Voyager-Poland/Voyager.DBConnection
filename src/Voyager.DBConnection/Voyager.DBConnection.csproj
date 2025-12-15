@@ -6,8 +6,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 
     <OutputType>Library</OutputType>
-    <Title>Voyager.DBConnection</Title>
-    <Description>Library providing connection to SQL database using DbProviderFactory</Description>
+
   </PropertyGroup>
 
   <PropertyGroup>
