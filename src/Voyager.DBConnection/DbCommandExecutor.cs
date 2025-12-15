@@ -10,7 +10,7 @@ using Voyager.DBConnection.Exceptions;
 
 namespace Voyager.DBConnection
 {
-    public class DbCommandExecutor : IDisposable, IRegisterEvents, IFeatureHost
+    public class DbCommandExecutor : IDisposable, IRegisterEvents, IFeatureHost, IDbCommandExecutor
     {
         private readonly Database db;
         private readonly IMapErrorPolicy errorPolicy;
