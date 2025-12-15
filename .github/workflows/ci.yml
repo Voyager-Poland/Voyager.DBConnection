@@ -33,7 +33,7 @@ jobs:
     - name: Build
       run: dotnet build --no-restore  -c Release
     - name: Test
-      run: dotnet test --no-build --verbosity normal  -c Release
+      run: dotnet test --no-build --verbosity normal -c Release --framework net6.0 --framework net8.0
     - name: Pack
       run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection/Voyager.DBConnection.csproj
     - name: Upload artifact for deployment job
