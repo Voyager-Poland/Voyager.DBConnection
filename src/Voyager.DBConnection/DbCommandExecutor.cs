@@ -70,7 +70,7 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Result<TValue> ExecuteResult<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall)
+        public virtual Result<TValue> ExecuteAndBind<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -81,9 +81,9 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Task<Result<TValue>> ExecuteResultAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall) => ExecuteResultAsync(commandFactory, afterCall, CancellationToken.None);
+        public virtual Task<Result<TValue>> ExecuteAndBindAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall) => ExecuteAndBindAsync(commandFactory, afterCall, CancellationToken.None);
 
-        public virtual async Task<Result<TValue>> ExecuteResultAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall, CancellationToken cancellationToken)
+        public virtual async Task<Result<TValue>> ExecuteAndBindAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall, CancellationToken cancellationToken)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
