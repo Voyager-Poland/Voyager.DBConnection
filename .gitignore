@@ -399,6 +399,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea/
+.svn/
 
 # macOS
 .DS_Store
@@ -420,3 +421,4 @@ _site/
 # NuGet package publishing artifacts
 public/
 *.nupkg.metadata
+src/Voyager.DBConnection/.svn/wc.db-journal
