@@ -33,18 +33,18 @@ namespace Voyager.DBConnection
             this.errorPolicy = new DefaultMapError();
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
             this.db.Dispose();
             featureHost.Dispose();
         }
 
-        public virtual Transaction BeginTransaction()
+        public Transaction BeginTransaction()
         {
             return db.BeginTransaction();
         }
 
-        public virtual Result<int> ExecuteNonQuery(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null)
+        public Result<int> ExecuteNonQuery(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -56,9 +56,9 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Task<Result<int>> ExecuteNonQueryAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null) => ExecuteNonQueryAsync(commandFactory, afterCall, CancellationToken.None);
+        public Task<Result<int>> ExecuteNonQueryAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null) => ExecuteNonQueryAsync(commandFactory, afterCall, CancellationToken.None);
 
-        public virtual async Task<Result<int>> ExecuteNonQueryAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+        public async Task<Result<int>> ExecuteNonQueryAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall, CancellationToken cancellationToken)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -70,7 +70,7 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Result<TValue> ExecuteAndBind<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall)
+        public Result<TValue> ExecuteAndBind<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -81,9 +81,9 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Task<Result<TValue>> ExecuteAndBindAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall) => ExecuteAndBindAsync(commandFactory, afterCall, CancellationToken.None);
+        public Task<Result<TValue>> ExecuteAndBindAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall) => ExecuteAndBindAsync(commandFactory, afterCall, CancellationToken.None);
 
-        public virtual async Task<Result<TValue>> ExecuteAndBindAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall, CancellationToken cancellationToken)
+        public async Task<Result<TValue>> ExecuteAndBindAsync<TValue>(IDbCommandFactory commandFactory, Func<DbCommand, Result<TValue>> afterCall, CancellationToken cancellationToken)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -93,7 +93,7 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Result<object> ExecuteScalar(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null)
+        public Result<object> ExecuteScalar(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -105,9 +105,9 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Task<Result<object>> ExecuteScalarAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null) => ExecuteScalarAsync(commandFactory, afterCall, CancellationToken.None);
+        public Task<Result<object>> ExecuteScalarAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall = null) => ExecuteScalarAsync(commandFactory, afterCall, CancellationToken.None);
 
-        public virtual async Task<Result<object>> ExecuteScalarAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+        public async Task<Result<object>> ExecuteScalarAsync(IDbCommandFactory commandFactory, Action<DbCommand> afterCall, CancellationToken cancellationToken)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -119,7 +119,7 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+        public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
@@ -136,9 +136,9 @@ namespace Voyager.DBConnection
             }
         }
 
-        public virtual Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null) => ExecuteReaderAsync(commandFactory, consumer, afterCall, CancellationToken.None);
+        public Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null) => ExecuteReaderAsync(commandFactory, consumer, afterCall, CancellationToken.None);
 
-        public virtual async Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+        public async Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
         {
             using (DbCommand command = GetCommand(commandFactory))
             {
