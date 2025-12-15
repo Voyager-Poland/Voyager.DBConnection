@@ -13,8 +13,6 @@ Implement interface  Voyager.DBConnection.Interfaces.ICommandFactory:
 ```
 
 Example code is like:
-
-```C#
 	internal class SetPilotiDoPowiadomieniaFactory : Voyager.DBConnection.Interfaces.ICommandFactory
 	{
 		private readonly int idBusMapRNo;

@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile>..\..\README.md</PackageReadmeFile>
     <PackageTags>SQL,DbProviderFactory</PackageTags>
     <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
