@@ -31,7 +31,7 @@ namespace Voyager.DBConnection
 		{
 			this.dbProviderFactory = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
 			this.sqlConnectionString = sqlConnectionString ?? throw new ArgumentNullException(nameof(sqlConnectionString));
-			this.connectionHolder = new ConnectionHolder(dbProviderFactory, () => UppDateConnectionString(sqlConnectionString, dbProviderFactory));
+			this.connectionHolder = new ConnectionHolder(dbProviderFactory, () => UpdateConnectionString(sqlConnectionString, dbProviderFactory));
 		}
 
 		internal Transaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
@@ -220,10 +220,22 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		protected virtual string UppDateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory) => this.GetPrepare(sqlConnectionString, dbProviderFactory).Prepare();
+		/// <summary>
+		/// Updates the connection string by preparing it with current user information.
+		/// </summary>
+		/// <param name="sqlConnectionString">The base SQL connection string</param>
+		/// <param name="dbProviderFactory">The database provider factory</param>
+		/// <returns>The prepared connection string with updated application name</returns>
+		protected virtual string UpdateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory)
+			=> ConnectionStringHelper.PrepareConnectionString(dbProviderFactory, sqlConnectionString);
 
-		protected virtual PrepareConectionString GetPrepare(string sqlConnectionString, DbProviderFactory dbProviderFactory) => new PrepareConectionString(this.dbProviderFactory, sqlConnectionString);
-
+		/// <summary>
+		/// Obsolete: Use UpdateConnectionString instead.
+		/// Kept for backward compatibility.
+		/// </summary>
+		[Obsolete("Use UpdateConnectionString instead", false)]
+		protected virtual string UppDateConnectionString(string sqlConnectionString, DbProviderFactory dbProviderFactory)
+			=> this.UpdateConnectionString(sqlConnectionString, dbProviderFactory);
 
 
 		internal void OpenCmd(DbCommand cmd)
