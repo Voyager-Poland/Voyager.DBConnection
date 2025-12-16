@@ -1,15 +1,14 @@
 <Project>
-  <!--
+	<!--
     This file applies to ALL projects in this solution.
     Any .csproj file will automatically inherit these settings.
   -->
 	<!-- Import build configuration -->
-	<Import Project="build/Build.Versioning.props" />
 	<Import Project="build/Build.CodeQuality.props" />
 	<Import Project="build/Build.SourceLink.props" />
 	<Import Project="build/Build.NuGet.props" />
 	<Import Project="build/Build.Signing.props" />
-
+	<Import Project="build/Build.Versioning.props" />
 	<PropertyGroup>
 		<!-- Target Frameworks - Always multi-target for .NET 8 and .NET Framework 4.8 -->
 		<TargetFrameworks>net48;net6.0;net8.0</TargetFrameworks>
