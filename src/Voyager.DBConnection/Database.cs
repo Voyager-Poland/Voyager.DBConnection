@@ -21,12 +21,19 @@ namespace Voyager.DBConnection
 		/// <summary>
 		/// Default constructor uses mock provider and a mock connection string
 		/// </summary>
+		[Obsolete("This constructor is only for mock purposes", true)]
 		public Database() : this("Data Source=mockSql; Initial Catalog=FanyDB; Integrated Security = true;", new DbProviderFactoryMock())
 		{
 
 		}
 
 
+		/// <summary>
+		/// Initializes a new instance of the Database class with the specified connection string and provider factory.
+		/// </summary>
+		/// <param name="sqlConnectionString">The connection string for the database.</param>
+		/// <param name="dbProviderFactory">The provider factory used to create database connections and commands.</param>
+		/// <exception cref="ArgumentNullException">Thrown when sqlConnectionString or dbProviderFactory is null.</exception>
 		public Database(string sqlConnectionString, DbProviderFactory dbProviderFactory)
 		{
 			this.dbProviderFactory = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));

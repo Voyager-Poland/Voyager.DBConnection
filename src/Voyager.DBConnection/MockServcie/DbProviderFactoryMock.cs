@@ -2,6 +2,7 @@
 
 namespace Voyager.DBConnection.MockServcie
 {
+	
 	internal class DbProviderFactoryMock : DbProviderFactory
 	{
 		public override DbConnection CreateConnection()

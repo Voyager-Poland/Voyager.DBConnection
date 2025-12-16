@@ -26,7 +26,7 @@ namespace Voyager.DBConnection
 		/// Initializes a new instance of the <see cref="Connection"/> class.
 		/// </summary>
 		/// <remarks>This constructor is only for mock purposes and should not be used in production code.</remarks>
-		[Obsolete("This object is only for mock purposes")]
+		[Obsolete("This object is only for mock purposes", true)]
 		public Connection() : this(new Database()) { }
 
 		/// <summary>
