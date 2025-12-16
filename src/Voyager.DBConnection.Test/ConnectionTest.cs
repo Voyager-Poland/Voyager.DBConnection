@@ -1,5 +1,7 @@
 ﻿using System.Data;
 using System.Data.Common;
+using Moq;
+using Voyager.DBConnection.MockServcie;
 
 namespace Voyager.DBConnection.Test
 {
@@ -11,7 +13,25 @@ namespace Voyager.DBConnection.Test
 		[SetUp]
 		public void ConSetup()
 		{
-			connection = new Connection(new MockDataBase(), this);
+			var factory = new DbProviderFactoryMock();
+			var dbMock = new Mock<Database>("Data Source=mockSql; Initial Catalog=TestDB; Integrated Security = true;", factory) { CallBase = true };
+			dbMock.Setup(d => d.GetStoredProcCommand(It.IsAny<string>()))
+				.Returns((string name) =>
+				{
+					var cmd = new MockDbCommand();
+					cmd.CommandType = CommandType.StoredProcedure;
+					cmd.CommandText = name;
+					return cmd;
+				});
+			dbMock.Setup(d => d.GetSqlCommand(It.IsAny<string>()))
+				.Returns((string sql) =>
+				{
+					var cmd = new MockDbCommand();
+					cmd.CommandType = CommandType.Text;
+					cmd.CommandText = sql;
+					return cmd;
+				});
+			connection = new Connection(dbMock.Object, this);
 		}
 
 		[TearDown]
@@ -100,7 +120,7 @@ namespace Voyager.DBConnection.Test
 	}
 
 
-	class ConnectionTest
+	abstract class ConnectionTest
 	{
 		Connection connection;
 
@@ -119,7 +139,25 @@ namespace Voyager.DBConnection.Test
 
 		protected virtual Connection GetConn()
 		{
-			return new Connection(new MockDataBase());
+			var factory = new DbProviderFactoryMock();
+			var dbMock = new Mock<Database>("Data Source=mockSql; Initial Catalog=TestDB; Integrated Security = true;", factory) { CallBase = true };
+			dbMock.Setup(d => d.GetStoredProcCommand(It.IsAny<string>()))
+				.Returns((string name) =>
+				{
+					var cmd = new MockDbCommand();
+					cmd.CommandType = CommandType.StoredProcedure;
+					cmd.CommandText = name;
+					return cmd;
+				});
+			dbMock.Setup(d => d.GetSqlCommand(It.IsAny<string>()))
+				.Returns((string sql) =>
+				{
+					var cmd = new MockDbCommand();
+					cmd.CommandType = CommandType.Text;
+					cmd.CommandText = sql;
+					return cmd;
+				});
+			return new Connection(dbMock.Object);
 		}
 
 		[Test]

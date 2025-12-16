@@ -18,15 +18,6 @@ namespace Voyager.DBConnection
 		private TransactionHolder transactionHolder;
 		private bool disposed;
 
-		/// <summary>
-		/// Default constructor uses mock provider and a mock connection string
-		/// </summary>
-		[Obsolete("This constructor is only for mock purposes", true)]
-		public Database() : this("Data Source=mockSql; Initial Catalog=FanyDB; Integrated Security = true;", new DbProviderFactoryMock())
-		{
-
-		}
-
 
 		/// <summary>
 		/// Initializes a new instance of the Database class with the specified connection string and provider factory.

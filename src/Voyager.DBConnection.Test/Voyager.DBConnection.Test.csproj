@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Voyager.DBConnection\Voyager.DBConnection.csproj" />
-    <ProjectReference Include="..\Voyager.MockDBProvider\Voyager.MockDBProvider.csproj" />
   </ItemGroup>
 
 </Project>
