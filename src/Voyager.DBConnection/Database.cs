@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.Common;
 using Voyager.DBConnection.MockServcie;
@@ -51,6 +51,11 @@ namespace Voyager.DBConnection
 			return new Transaction(transactionHolder, () => transactionHolder = null);
 		}
 
+		/// <summary>
+		/// Creates a database command configured for executing a stored procedure.
+		/// </summary>
+		/// <param name="procedureName">The name of the stored procedure.</param>
+		/// <returns>A DbCommand configured to execute the specified stored procedure.</returns>
 		public virtual DbCommand GetStoredProcCommand(string procedureName)
 		{
 			DbCommand cmd = this.dbProviderFactory.GetStroredProcedure(procedureName);
@@ -58,6 +63,11 @@ namespace Voyager.DBConnection
 		}
 
 
+		/// <summary>
+		/// Creates a database command configured for executing SQL text.
+		/// </summary>
+		/// <param name="procedureName">The SQL command text to execute.</param>
+		/// <returns>A DbCommand configured to execute the specified SQL text.</returns>
 		public virtual DbCommand GetSqlCommand(string procedureName)
 		{
 			DbCommand cmd = this.dbProviderFactory.GetSqlCommand(procedureName);
