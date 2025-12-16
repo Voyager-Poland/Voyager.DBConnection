@@ -1,6 +1,6 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Moq;
-using Voyager.DBConnection.MockServcie;
 
 namespace Voyager.DBConnection.Test
 {
@@ -12,12 +12,11 @@ namespace Voyager.DBConnection.Test
 		[SetUp]
 		public void PrepareDB()
 		{
-			var factory = new DbProviderFactoryMock();
-			var dbMock = new Mock<Database>("Data Source=mockSql; Initial Catalog=TestDB; Integrated Security = true;", factory) { CallBase = true };
+			var dbMock = new Mock<Database>("Data Source=mockSql; Initial Catalog=TestDB; Integrated Security = true;", new TestDbProviderFactory()) { CallBase = true };
 			dbMock.Setup(d => d.GetStoredProcCommand(It.IsAny<string>()))
 				.Returns((string name) =>
 				{
-					var cmd = new MockDbCommand();
+					var cmd = new TestDbCommand();
 					cmd.CommandType = CommandType.StoredProcedure;
 					cmd.CommandText = name;
 					return cmd;
@@ -25,7 +24,7 @@ namespace Voyager.DBConnection.Test
 			dbMock.Setup(d => d.GetSqlCommand(It.IsAny<string>()))
 				.Returns((string sql) =>
 				{
-					var cmd = new MockDbCommand();
+					var cmd = new TestDbCommand();
 					cmd.CommandType = CommandType.Text;
 					cmd.CommandText = sql;
 					return cmd;
