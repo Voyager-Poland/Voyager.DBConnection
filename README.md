@@ -1,180 +1,212 @@
+
+
 # Voyager.DBConnection
-Library providing connection to SQL database using DbProviderFactory.
 
-## How to use it
 
-Implement interface  Voyager.DBConnection.Interfaces.ICommandFactory:
+**Why use this library?**
 
-```C#
-	public interface ICommandFactory : IReadOutParameters
+- **Unified API for all ADO.NET providers**: Write code once, use with SQL Server, PostgreSQL, Oracle, MySQL, SQLite, and more.
+- **Result-based error handling**: Modern, functional Result<T> pattern (no nulls, no exceptions for business logic) for robust, predictable code.
+- **Fluent, type-safe parameters**: Add parameters with clear, discoverable extension methods—no more stringly-typed or error-prone code.
+- **Async and sync parity**: Every operation is available in both synchronous and asynchronous versions, with identical API.
+- **Testability**: Easy to mock and test commands without a real database (see: test doubles in the repository).
+- **Extensibility**: Add your own features and subscribe to SQL events without modifying business code.
+- **Transaction management**: Simple, safe transaction model with automatic command enlistment.
+- **No vendor lock-in**: Change provider or database—no need to change your application code.
+- **Organizational standards**: Enforces Result<T>, no nulls, XML-docs, and clean separation of responsibilities (SOLID).
+
+---
+
+Provider-agnostic ADO.NET wrapper over `DbProviderFactory` for building and executing SQL commands. The preferred execution style is Result-based via `DbCommandExecutor`.
+
+## Why this library
+- One abstraction across providers: pass your `DbProviderFactory` and connection string.
+- Two calling styles when executing commands:
+  - Preferred: `DbCommandExecutor` returning `Voyager.Common.Results.Result<T>`.
+  - Legacy: `Connection` that throws exceptions (kept for interop).
+
+Targets: net48, net6.0, net8.0 (see [Directory.Build.props](src/Voyager.DBConnection/../Directory.Build.props)).
+
+
+## Quickstart: Step-by-step Examples
+
+### 1. Call a stored procedure without parameters
+```csharp
+// Define a command factory for a procedure with no parameters
+internal sealed class SimpleProc : IDbCommandFactory
+{
+	public DbCommand ConstructDbCommand(IDatabase db)
+		=> db.GetStoredProcCommand("MySimpleProcedure");
+}
+
+// Execute (sync)
+var result = executor.ExecuteNonQuery(new SimpleProc());
+result.Switch(
+	onSuccess: rows => Console.WriteLine($"Affected: {rows}"),
+	onFailure: err => Console.WriteLine(err.Message)
+);
+```
+
+### 2. Add parameters to a command
+```csharp
+internal sealed class WithParams : IDbCommandFactory
+{
+	public DbCommand ConstructDbCommand(IDatabase db)
 	{
-		DbCommand ConstructDbCommand(Database db);
+		var cmd = db.GetStoredProcCommand("MyProcWithParams");
+		cmd.WithInputParameter("UserId", DbType.Int32, 123)
+		   .WithInputParameter("Name", DbType.String, "Alice");
+		return cmd;
 	}
+}
+
+var result = executor.ExecuteNonQuery(new WithParams());
 ```
 
-Example code is like:
-
-```C#
-	internal class SetPilotiDoPowiadomieniaFactory : Voyager.DBConnection.Interfaces.ICommandFactory
+### 3. Read a scalar result
+```csharp
+internal sealed class GetCount : IDbCommandFactory
+{
+	public DbCommand ConstructDbCommand(IDatabase db)
 	{
-		private readonly int idBusMapRNo;
-		private readonly DateTime busMapDate;
-		private readonly string idAkwizytor;
-		private readonly string raport;
-
-		public SetPilotiDoPowiadomieniaFactory(int idBusMapRNo, DateTime busMapDate, string idAkwizytor, string raport)
-		{
-			this.idBusMapRNo = idBusMapRNo;
-			this.busMapDate = busMapDate;
-			this.idAkwizytor = idAkwizytor;
-			this.raport = raport;
-		}
-		public DbCommand ConstructDbCommand(Database db)
-		{
-			var cmd = db.GetStoredProcCommand("BusMap.p_SetPilotiDoPowiadomienia");
-			db.AddInParameter(cmd, "IdBusMapRNo", DbType.Int32, this.idBusMapRNo);
-			db.AddInParameter(cmd, "BusMapDate", DbType.Date, this.busMapDate);
-			db.AddInParameter(cmd, "IdAkwizytor", DbType.AnsiString, this.idAkwizytor);
-			db.AddInParameter(cmd, "Raport", DbType.AnsiString, this.raport);
-
-			return cmd;
-		}
-
-		public void ReadOutParameters(Database db, DbCommand command)
-		{
-		}
+		var cmd = db.GetStoredProcCommand("GetUserCount");
+		return cmd;
 	}
+}
 
+var result = executor.ExecuteScalar(new GetCount());
+result.Match(
+	onSuccess: count => Console.WriteLine($"User count: {count}"),
+	onFailure: err => Console.WriteLine(err.Message)
+);
 ```
-Using your DbProviderFactory create your type of database object Voyager.DBConnection.Database and Voyager.DBConnection.Connection. On the connection object call ExecuteNonQuery the command factory:
 
-```C#
-			SetPilotiDoPowiadomieniaFactory factory = new SetPilotiDoPowiadomieniaFactory(tagItem.IdBusMapRNp, tagItem.BusMapDate, tagItem.IdAkwizytor, tagItem.Raport);
-			con.ExecuteNonQuery(factory);
-```
+### 4. Read results with a data reader
+```csharp
+internal sealed class GetUsers : IDbCommandFactory
+{
+	public DbCommand ConstructDbCommand(IDatabase db)
+		=> db.GetStoredProcCommand("GetAllUsers");
+}
 
-For reading data implement IGetConsumer interface:
-
-```C#
-internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFactory, IGetConsumer<SaleItem[]>
+internal sealed class UserConsumer : IGetConsumer<List<User>>
+{
+	public List<User> GetResults(IDataReader dr)
 	{
-		private RaportRequest request;
-
-		public RegionalSaleCommand(RaportRequest request)
+		var users = new List<User>();
+		while (dr.Read())
 		{
-			this.request = request;
-		}
-		public DbCommand ConstructDbCommand(Database db)
-		{
-			var cmd = db.GetStoredProcCommand("[dbo].[TestSaleReport]");
-			db.AddInParameter(cmd, "IdAkwizytorRowNo", System.Data.DbType.Int32, request.IdAkwizytorRowNo);
-			db.AddInParameter(cmd, "IdPrzewoznikRowNo", System.Data.DbType.Int32, request.IdPrzewoznikRowNo);
-			db.AddInParameter(cmd, "DataPocz", System.Data.DbType.DateTime, request.DateFrom);
-			db.AddInParameter(cmd, "DataKon", System.Data.DbType.DateTime, request.DateTo);
-
-			return cmd;
-		}
-
-		public SaleItem[] GetResults(IDataReader dataReader)
-		{
-			List<SaleItem> lista = new List<SaleItem>();
-
-			while (dataReader.Read())
+			users.Add(new User
 			{
-				int col = 0;
-				SaleItem item = new SaleItem();
-				item.GidRezerwacji = dataReader.GetString(col++);
-				item.GIDL = dataReader.GetString(col++);
+				Id = dr.GetInt32(0),
+				Name = dr.GetString(1)
+			});
+		}
+		return users;
+	}
+}
 
-				DateTime data = dataReader.GetDateTime(col++);
+var result = executor.ExecuteReader(new GetUsers(), new UserConsumer());
+result.Match(
+	onSuccess: users => Console.WriteLine($"Users: {users.Count}"),
+	onFailure: err => Console.WriteLine(err.Message)
+);
+```
 
-				var ts = dataReader.GetValue(col++);
+// All overloads are available for ExecuteNonQuery, ExecuteScalar, ExecuteAndBind, ExecuteReader (sync and async):
+// - By IDbCommandFactory
+executor.ExecuteNonQuery(factory);
+executor.ExecuteScalar(factory);
+executor.ExecuteReader(factory, consumer);
+// - By Func<IDatabase, DbCommand>
+executor.ExecuteNonQuery(db => ...);
+executor.ExecuteScalar(db => ...);
+executor.ExecuteReader(db => ..., consumer);
+// - By procedure name + parameter action
+executor.ExecuteNonQuery("procName", cmd => { /* add params */ });
+executor.ExecuteScalar("procName", cmd => { /* add params */ });
+executor.ExecuteReader("procName", cmd => { /* add params */ }, consumer);
 
-				TimeSpan czas = ts.ToString().CastTimeSpan();
+// Async variants (all overloads):
+await executor.ExecuteNonQueryAsync(factory);
+await executor.ExecuteNonQueryAsync(db => ...);
+await executor.ExecuteNonQueryAsync("procName", cmd => { /* add params */ });
+await executor.ExecuteScalarAsync(factory);
+await executor.ExecuteScalarAsync(db => ...);
+await executor.ExecuteScalarAsync("procName", cmd => { /* add params */ });
+await executor.ExecuteReaderAsync(factory, consumer);
+await executor.ExecuteReaderAsync(db => ..., consumer);
+await executor.ExecuteReaderAsync("procName", cmd => { /* add params */ }, consumer);
+```
 
-				item.DataSprzedazy = data.AddTicks(czas.Ticks);
-				item.IdWaluta = dataReader.GetString(col++);
-				item.IdWalutaBazowa = DBSafeCast.CastEmptyString(dataReader.GetValue(col++));
-				item.KursDniaBaz = (Double)DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 1);
-				item.NettoZ = DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 0);
-				item.WalutaZcennika = dataReader.GetBoolean(col++);
 
-				lista.Add(item);
+			## Reading data (Result pattern)
+			`DbCommandExecutor.ExecuteReader` and `ExecuteReaderAsync` take an `IDbCommandFactory`, a `Func<IDatabase, DbCommand>`, or a procedure name + parameter action, and an `IGetConsumer<T>` that projects from `IDataReader` to your domain type.
+
+			```csharp
+			internal sealed class RegionalSaleCommand : IDbCommandFactory
+			{
+				private readonly Request req;
+				public RegionalSaleCommand(Request req) { this.req = req; }
+				public DbCommand ConstructDbCommand(IDatabase db)
+				{
+					var cmd = db.GetStoredProcCommand("[dbo].[TestSaleReport]");
+					cmd.WithInputParameter("IdAkwizytorRowNo", DbType.Int32, req.IdAkwizytorRowNo)
+					   .WithInputParameter("IdPrzewoznikRowNo", DbType.Int32, req.IdPrzewoznikRowNo)
+					   .WithInputParameter("DataPocz", DbType.DateTime, req.DateFrom)
+					   .WithInputParameter("DataKon", DbType.DateTime, req.DateTo);
+					return cmd;
+				}
 			}
 
-
-			return lista.ToArray();
-		}
-
-		public void ReadOutParameters(Database db, DbCommand command)
-		{
-
-		}
-	}
-```
-
-Next, call the GetReader method:
-
-```C#
-		public class RaportDB : Voyager.Raport.DBEntity.Store.Raport
-	{
-		private readonly Connection connection;
-
-		public RaportDB(Voyager.DBConnection.Connection connection)
-		{
-			this.connection = connection;
-		}
-		public RaportResponse GetRaport(RaportRequest request)
-		{
-			RegionalSaleCommand raport = new RegionalSaleCommand(request);
-			return new RaportResponse()
+			internal sealed class RegionalSaleConsumer : IGetConsumer<SaleItem[]>
 			{
-				Items = connection.GetReader(raport, raport)
-			};
-		}
-	}
-```
-## Logging
+				public SaleItem[] GetResults(IDataReader dr)
+				{
+					var items = new List<SaleItem>();
+					while (dr.Read())
+					{
+						// Map columns → SaleItem (example only)
+						items.Add(new SaleItem { /* ... */ });
+					}
+					return items.ToArray();
+				}
+			}
 
-There is an extension used to log operations. Voyager.DBConnection.Logging. After installing on the connection obcjet is needed to call extension:
+			// Synchronous
+			var result = executor.ExecuteReader(new RegionalSaleCommand(request), new RegionalSaleConsumer());
+			result.Match(
+				onSuccess: items => Use(items),
+				onFailure: err => Log(err)
+			);
 
-```C#
+			// Asynchronous
+			var resultAsync = await executor.ExecuteReaderAsync(new RegionalSaleCommand(request), new RegionalSaleConsumer());
+			resultAsync.Match(
+				onSuccess: items => Use(items),
+				onFailure: err => Log(err)
+			);
+			```
 
-namespace Voyager.DBConnection
-{
-	public static class ConnectionLogger
-	{
-		public static void AddLogger(this Connection connection, ILogger logger)
-		{
-			connection.AddFeature(new LogFeature(logger, connection));
-		}
-	}
-}
-```
+			## Fluent parameters and provider prefixes
+			Use extension methods from [src/Voyager.DBConnection/Extensions/DbCommandExtensions.cs](src/Voyager.DBConnection/Extensions/DbCommandExtensions.cs):
+			- `WithInputParameter(name, dbType, value)` / overloads with `size`.
+			- `WithOutputParameter(name, dbType, size)` and `WithInputOutputParameter(...)`.
+			- `GetParameterValue<T>(name)` to read outputs.
 
-## MS Sql provider
+			Pass parameter names without `@`/`:`. The extension infers the correct prefix from the command type (e.g., `@` for SQL Server/Postgres/MySQL/SQLite; `:` for Oracle).
 
-For using MS SQL Provider is prepared the Nuget Voyager.DBConnection.MySql. There is provided implementation of the connection object:
+			## Transactions, events, features
+			- Begin/commit with `using var tx = executor.BeginTransaction();` and your subsequent commands will enlist.
+			- Subscribe to SQL call events via `IRegisterEvents.AddEvent(Action<SqlCallEvent>)`.
+			- Attach cross‑cutting behavior with `AddFeature(IFeature)`.
 
-```C#
-namespace Voyager.DBConnection.MsSql
-{
-	public class SqlConnection : Connection
-	{
-		public SqlConnection(string sqlConnectionString) : base(new SqlDatabase(sqlConnectionString), new ExceptionFactory())
-		{
-		}
-	}
-}
+			## Legacy exception style
+			`Connection` exposes `ExecuteNonQuery`, `ExecuteScalar`, and `GetReader` that throw mapped exceptions via `IExceptionPolicy`. Prefer `DbCommandExecutor` for new code.
 
-```
+			## Packages and CI
+			- NuGet package includes this README and targets multiple TFMs. Versioning is driven by MinVer tags (prefix `v`) — see [build/Build.Versioning.props](build/Build.Versioning.props).
+			- CI builds Release, tests net6.0/net8.0, then packs/publishes on main/tags — see [.github/workflows/ci.yml](.github/workflows/ci.yml).
 
-## ✍️ Authors 
-
-- [@andrzejswistowski](https://github.com/AndrzejSwistowski) - Idea & work. Please let me know if you find out an error or suggestions.
-
-[contributors](https://github.com/Voyager-Poland).
-
-## 🎉 Acknowledgements 
-
-- Przemysław Wróbel - for the icon.
+			## Credits
+			- [@andrzejswistowski](https://github.com/AndrzejSwistowski)
