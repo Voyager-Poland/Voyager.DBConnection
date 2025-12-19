@@ -1,3 +1,5 @@
+
+
 # Voyager.DBConnection
 
 ## Overview
@@ -11,7 +13,6 @@ Voyager.DBConnection is a library providing a structured and type-safe way to co
 - MS SQL Server provider implementation included
 - Clean separation between command construction and execution
 
-## How to use it
 
 ### Step 1: Implement ICommandFactory Interface
 
@@ -189,12 +190,5 @@ namespace Voyager.DBConnection.MsSql
 }
 ```
 
-## ✍️ Authors 
-
-- [@andrzejswistowski](https://github.com/AndrzejSwistowski) - Idea & work. Please let me know if you find out an error or suggestions.
-
-[contributors](https://github.com/Voyager-Poland).
-
-## 🎉 Acknowledgements 
-
-- Przemysław Wróbel - for the icon.
+			## Credits
+			- [@andrzejswistowski](https://github.com/AndrzejSwistowski)
