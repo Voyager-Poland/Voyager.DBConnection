@@ -1,172 +1,192 @@
 # Voyager.DBConnection
-Library providing connection to SQL database using DbProviderFactory.
+
+## Overview
+
+Voyager.DBConnection is a library providing a structured and type-safe way to connect to SQL databases using `DbProviderFactory`. It implements the Command Factory pattern to encapsulate database operations and provides a clean abstraction over ADO.NET.
+
+**Key Features:**
+- Type-safe database command construction using the Command Factory pattern
+- Support for stored procedures and parameterized queries
+- Built-in logging support through extensions
+- MS SQL Server provider implementation included
+- Clean separation between command construction and execution
 
 ## How to use it
 
-Implement interface  Voyager.DBConnection.Interfaces.ICommandFactory:
+### Step 1: Implement ICommandFactory Interface
 
-```C#
-	public interface ICommandFactory : IReadOutParameters
-	{
-		DbCommand ConstructDbCommand(Database db);
-	}
+First, implement the `Voyager.DBConnection.Interfaces.ICommandFactory` interface:
+
+```csharp
+public interface ICommandFactory : IReadOutParameters
+{
+    DbCommand ConstructDbCommand(Database db);
+}
 ```
 
-Example code is like:
+### Step 2: Create Command Factory Implementation
 
-```C#
-	internal class SetPilotiDoPowiadomieniaFactory : Voyager.DBConnection.Interfaces.ICommandFactory
-	{
-		private readonly int idBusMapRNo;
-		private readonly DateTime busMapDate;
-		private readonly string idAkwizytor;
-		private readonly string raport;
+Here's an example implementation for executing a stored procedure:
 
-		public SetPilotiDoPowiadomieniaFactory(int idBusMapRNo, DateTime busMapDate, string idAkwizytor, string raport)
-		{
-			this.idBusMapRNo = idBusMapRNo;
-			this.busMapDate = busMapDate;
-			this.idAkwizytor = idAkwizytor;
-			this.raport = raport;
-		}
-		public DbCommand ConstructDbCommand(Database db)
-		{
-			var cmd = db.GetStoredProcCommand("BusMap.p_SetPilotiDoPowiadomienia");
-			db.AddInParameter(cmd, "IdBusMapRNo", DbType.Int32, this.idBusMapRNo);
-			db.AddInParameter(cmd, "BusMapDate", DbType.Date, this.busMapDate);
-			db.AddInParameter(cmd, "IdAkwizytor", DbType.AnsiString, this.idAkwizytor);
-			db.AddInParameter(cmd, "Raport", DbType.AnsiString, this.raport);
+```csharp
+internal class SetPilotiDoPowiadomieniaFactory : Voyager.DBConnection.Interfaces.ICommandFactory
+{
+    private readonly int idBusMapRNo;
+    private readonly DateTime busMapDate;
+    private readonly string idAkwizytor;
+    private readonly string raport;
 
-			return cmd;
-		}
+    public SetPilotiDoPowiadomieniaFactory(int idBusMapRNo, DateTime busMapDate, string idAkwizytor, string raport)
+    {
+        this.idBusMapRNo = idBusMapRNo;
+        this.busMapDate = busMapDate;
+        this.idAkwizytor = idAkwizytor;
+        this.raport = raport;
+    }
 
-		public void ReadOutParameters(Database db, DbCommand command)
-		{
-		}
-	}
+    public DbCommand ConstructDbCommand(Database db)
+    {
+        var cmd = db.GetStoredProcCommand("BusMap.p_SetPilotiDoPowiadomienia");
+        db.AddInParameter(cmd, "IdBusMapRNo", DbType.Int32, this.idBusMapRNo);
+        db.AddInParameter(cmd, "BusMapDate", DbType.Date, this.busMapDate);
+        db.AddInParameter(cmd, "IdAkwizytor", DbType.AnsiString, this.idAkwizytor);
+        db.AddInParameter(cmd, "Raport", DbType.AnsiString, this.raport);
 
+        return cmd;
+    }
+
+    public void ReadOutParameters(Database db, DbCommand command)
+    {
+    }
+}
 ```
-Using your DbProviderFactory create your type of database object Voyager.DBConnection.Database and Voyager.DBConnection.Connection. On the connection object call ExecuteNonQuery the command factory:
+### Step 3: Execute the Command
 
-```C#
-			SetPilotiDoPowiadomieniaFactory factory = new SetPilotiDoPowiadomieniaFactory(tagItem.IdBusMapRNp, tagItem.BusMapDate, tagItem.IdAkwizytor, tagItem.Raport);
-			con.ExecuteNonQuery(factory);
+Using your `DbProviderFactory`, create your database object (`Voyager.DBConnection.Database`) and connection (`Voyager.DBConnection.Connection`). Then call `ExecuteNonQuery` with the command factory:
+
+```csharp
+SetPilotiDoPowiadomieniaFactory factory = new SetPilotiDoPowiadomieniaFactory(
+    tagItem.IdBusMapRNp,
+    tagItem.BusMapDate,
+    tagItem.IdAkwizytor,
+    tagItem.Raport
+);
+con.ExecuteNonQuery(factory);
 ```
 
-For reading data implement IGetConsumer interface:
+## Reading Data
 
-```C#
+For reading data, implement the `IGetConsumer` interface:
+
+```csharp
 internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFactory, IGetConsumer<SaleItem[]>
-	{
-		private RaportRequest request;
+{
+    private RaportRequest request;
 
-		public RegionalSaleCommand(RaportRequest request)
-		{
-			this.request = request;
-		}
-		public DbCommand ConstructDbCommand(Database db)
-		{
-			var cmd = db.GetStoredProcCommand("[dbo].[TestSaleReport]");
-			db.AddInParameter(cmd, "IdAkwizytorRowNo", System.Data.DbType.Int32, request.IdAkwizytorRowNo);
-			db.AddInParameter(cmd, "IdPrzewoznikRowNo", System.Data.DbType.Int32, request.IdPrzewoznikRowNo);
-			db.AddInParameter(cmd, "DataPocz", System.Data.DbType.DateTime, request.DateFrom);
-			db.AddInParameter(cmd, "DataKon", System.Data.DbType.DateTime, request.DateTo);
+    public RegionalSaleCommand(RaportRequest request)
+    {
+        this.request = request;
+    }
 
-			return cmd;
-		}
+    public DbCommand ConstructDbCommand(Database db)
+    {
+        var cmd = db.GetStoredProcCommand("[dbo].[TestSaleReport]");
+        db.AddInParameter(cmd, "IdAkwizytorRowNo", System.Data.DbType.Int32, request.IdAkwizytorRowNo);
+        db.AddInParameter(cmd, "IdPrzewoznikRowNo", System.Data.DbType.Int32, request.IdPrzewoznikRowNo);
+        db.AddInParameter(cmd, "DataPocz", System.Data.DbType.DateTime, request.DateFrom);
+        db.AddInParameter(cmd, "DataKon", System.Data.DbType.DateTime, request.DateTo);
 
-		public SaleItem[] GetResults(IDataReader dataReader)
-		{
-			List<SaleItem> lista = new List<SaleItem>();
+        return cmd;
+    }
 
-			while (dataReader.Read())
-			{
-				int col = 0;
-				SaleItem item = new SaleItem();
-				item.GidRezerwacji = dataReader.GetString(col++);
-				item.GIDL = dataReader.GetString(col++);
+    public SaleItem[] GetResults(IDataReader dataReader)
+    {
+        List<SaleItem> lista = new List<SaleItem>();
 
-				DateTime data = dataReader.GetDateTime(col++);
+        while (dataReader.Read())
+        {
+            int col = 0;
+            SaleItem item = new SaleItem();
+            item.GidRezerwacji = dataReader.GetString(col++);
+            item.GIDL = dataReader.GetString(col++);
 
-				var ts = dataReader.GetValue(col++);
+            DateTime data = dataReader.GetDateTime(col++);
+            var ts = dataReader.GetValue(col++);
+            TimeSpan czas = ts.ToString().CastTimeSpan();
 
-				TimeSpan czas = ts.ToString().CastTimeSpan();
+            item.DataSprzedazy = data.AddTicks(czas.Ticks);
+            item.IdWaluta = dataReader.GetString(col++);
+            item.IdWalutaBazowa = DBSafeCast.CastEmptyString(dataReader.GetValue(col++));
+            item.KursDniaBaz = (Double)DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 1);
+            item.NettoZ = DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 0);
+            item.WalutaZcennika = dataReader.GetBoolean(col++);
 
-				item.DataSprzedazy = data.AddTicks(czas.Ticks);
-				item.IdWaluta = dataReader.GetString(col++);
-				item.IdWalutaBazowa = DBSafeCast.CastEmptyString(dataReader.GetValue(col++));
-				item.KursDniaBaz = (Double)DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 1);
-				item.NettoZ = DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 0);
-				item.WalutaZcennika = dataReader.GetBoolean(col++);
+            lista.Add(item);
+        }
 
-				lista.Add(item);
-			}
+        return lista.ToArray();
+    }
 
-
-			return lista.ToArray();
-		}
-
-		public void ReadOutParameters(Database db, DbCommand command)
-		{
-
-		}
-	}
+    public void ReadOutParameters(Database db, DbCommand command)
+    {
+    }
+}
 ```
 
-Next, call the GetReader method:
+Then call the `GetReader` method on the connection object:
 
-```C#
-		public class RaportDB : Voyager.Raport.DBEntity.Store.Raport
-	{
-		private readonly Connection connection;
+```csharp
+public class RaportDB : Voyager.Raport.DBEntity.Store.Raport
+{
+    private readonly Connection connection;
 
-		public RaportDB(Voyager.DBConnection.Connection connection)
-		{
-			this.connection = connection;
-		}
-		public RaportResponse GetRaport(RaportRequest request)
-		{
-			RegionalSaleCommand raport = new RegionalSaleCommand(request);
-			return new RaportResponse()
-			{
-				Items = connection.GetReader(raport, raport)
-			};
-		}
-	}
+    public RaportDB(Voyager.DBConnection.Connection connection)
+    {
+        this.connection = connection;
+    }
+
+    public RaportResponse GetRaport(RaportRequest request)
+    {
+        RegionalSaleCommand raport = new RegionalSaleCommand(request);
+        return new RaportResponse()
+        {
+            Items = connection.GetReader(raport, raport)
+        };
+    }
+}
 ```
 ## Logging
 
-There is an extension used to log operations. Voyager.DBConnection.Logging. After installing on the connection obcjet is needed to call extension:
+The `Voyager.DBConnection.Logging` extension provides logging capabilities for database operations. After installing the package, call the extension method on the connection object:
 
-```C#
-
+```csharp
 namespace Voyager.DBConnection
 {
-	public static class ConnectionLogger
-	{
-		public static void AddLogger(this Connection connection, ILogger logger)
-		{
-			connection.AddFeature(new LogFeature(logger, connection));
-		}
-	}
+    public static class ConnectionLogger
+    {
+        public static void AddLogger(this Connection connection, ILogger logger)
+        {
+            connection.AddFeature(new LogFeature(logger, connection));
+        }
+    }
 }
 ```
 
-## MS Sql provider
+## MS SQL Provider
 
-For using MS SQL Provider is prepared the Nuget Voyager.DBConnection.MySql. There is provided implementation of the connection object:
+The NuGet package `Voyager.DBConnection.MsSql` provides a ready-to-use implementation for MS SQL Server connections:
 
-```C#
+```csharp
 namespace Voyager.DBConnection.MsSql
 {
-	public class SqlConnection : Connection
-	{
-		public SqlConnection(string sqlConnectionString) : base(new SqlDatabase(sqlConnectionString), new ExceptionFactory())
-		{
-		}
-	}
+    public class SqlConnection : Connection
+    {
+        public SqlConnection(string sqlConnectionString)
+            : base(new SqlDatabase(sqlConnectionString), new ExceptionFactory())
+        {
+        }
+    }
 }
-
 ```
 
 ## ✍️ Authors 
