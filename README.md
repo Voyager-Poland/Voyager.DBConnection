@@ -12,6 +12,34 @@ Voyager.DBConnection is a library providing a structured and type-safe way to co
 - Built-in logging support through extensions
 - MS SQL Server provider implementation included
 - Clean separation between command construction and execution
+- Result-based error handling with Result monad pattern
+- Docker support for multi-database integration testing
+
+## Docker Support
+
+The project includes Docker Compose configuration for testing against multiple database providers:
+- SQL Server 2022
+- PostgreSQL 16
+- MySQL 8.0
+- Oracle XE 21
+- SQLite (file-based)
+
+See [README.Docker.md](README.Docker.md) for detailed Docker setup and usage instructions.
+
+**Quick Start:**
+```bash
+# Start all databases
+docker-compose up -d
+
+# Initialize test schema (SQL Server)
+.\scripts\run-init-script.ps1 -Database mssql
+
+# Run integration tests
+dotnet test --filter "Category=Integration"
+
+# Stop all databases
+docker-compose down
+```
 
 
 ### Step 1: Implement ICommandFactory Interface
