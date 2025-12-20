@@ -185,6 +185,27 @@ namespace Voyager.DBConnection.Interfaces
         Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
+        /// Executes a command using a function and processes the result set using a consumer.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the result produced by the consumer.</typeparam>
+        /// <param name="commandFunction">Function that creates the database command using the database instance.</param>
+        /// <param name="consumer">The consumer that processes the data reader.</param>
+        /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
+        /// <returns>A result containing the processed value, or an error if the operation failed.</returns>
+        Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+
+        /// <summary>
+        /// Executes a stored procedure and processes the result set using a consumer.
+        /// </summary>
+        /// <typeparam name="TValue">The type of the result produced by the consumer.</typeparam>
+        /// <param name="procedureName">The name of the stored procedure to execute.</param>
+        /// <param name="actionAddParams">Optional callback to add parameters to the command.</param>
+        /// <param name="consumer">The consumer that processes the data reader.</param>
+        /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
+        /// <returns>A result containing the processed value, or an error if the operation failed.</returns>
+        Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+
+        /// <summary>
         /// Asynchronously executes a command and processes the result set using a consumer.
         /// </summary>
         /// <typeparam name="TValue">The type of the result produced by the consumer.</typeparam>
