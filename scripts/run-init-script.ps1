@@ -6,8 +6,14 @@ param(
 
 function Initialize-SqlServer {
     Write-Host "Initializing SQL Server..." -ForegroundColor Green
+
+    # First, ensure the database exists
+    Write-Host "Creating testdb database if not exists..." -ForegroundColor Yellow
+    docker exec voyager-mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'testdb') CREATE DATABASE testdb"
+
+    # Then run the initialization script
     $scriptPath = Join-Path $PSScriptRoot "init-databases.sql"
-    Get-Content $scriptPath | docker exec -i voyager-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd"
+    Get-Content $scriptPath | docker exec -i voyager-mssql /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -d testdb -C
     if ($LASTEXITCODE -eq 0) {
         Write-Host "SQL Server initialized successfully!" -ForegroundColor Green
     } else {

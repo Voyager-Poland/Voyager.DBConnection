@@ -13,12 +13,20 @@ services:
       - "1433:1433"
     volumes:
       - mssql-data:/var/opt/mssql
+      - ./scripts/mssql-init.sh:/docker-entrypoint-initdb.d/mssql-init.sh
+    command: >
+      bash -c "
+      /opt/mssql/bin/sqlservr &
+      sleep 30 &&
+      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -C -Q 'IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'\''testdb'\'') CREATE DATABASE testdb' &&
+      wait
+      "
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 3s
       retries: 10
-      start_period: 10s
+      start_period: 40s
 
   # PostgreSQL
   postgres:

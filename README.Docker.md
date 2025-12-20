@@ -18,7 +18,31 @@ This directory contains Docker Compose configuration for testing `Voyager.DBConn
 docker-compose up -d
 ```
 
-### 2. Check Database Health
+**Note**: SQL Server will automatically create the `testdb` database on first startup. This may take 30-40 seconds.
+
+### 2. Initialize Databases with Test Schema
+
+After the databases are healthy, run the initialization script:
+
+**PowerShell**:
+```powershell
+.\scripts\run-init-script.ps1
+```
+
+**Bash**:
+```bash
+./scripts/run-init-script.sh
+```
+
+Or initialize a specific database:
+```powershell
+.\scripts\run-init-script.ps1 -Database mssql
+.\scripts\run-init-script.ps1 -Database postgres
+.\scripts\run-init-script.ps1 -Database mysql
+.\scripts\run-init-script.ps1 -Database oracle
+```
+
+### 3. Check Database Health
 
 ```bash
 docker-compose ps
@@ -26,7 +50,13 @@ docker-compose ps
 
 All services should show status as `healthy` after startup.
 
-### 3. Stop All Databases
+### 4. Run Integration Tests
+
+```bash
+dotnet test --filter "Category=Integration"
+```
+
+### 5. Stop All Databases
 
 ```bash
 docker-compose down
