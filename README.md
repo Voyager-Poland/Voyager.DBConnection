@@ -166,6 +166,10 @@ The library provides `DbCommandExecutor` class that implements the `IDbCommandEx
 - **Testable and Mockable**: The `IDbCommandExecutor` interface makes it easy to mock database operations in unit tests
 - **Multiple Command Patterns**: Supports command factories, function-based commands, and direct stored procedure calls
 - **Async Support**: Full async/await support with CancellationToken
+- **Implicit Conversions**: Result types support implicit conversions from values and errors, making code cleaner:
+  - `TValue` → `Result<TValue>` (success)
+  - `Error` → `Result<TValue>` (failure)
+  - No need to explicitly call `Result<T>.Success()` or `Result<T>.Failure()`
 
 ### Usage Examples
 
@@ -235,18 +239,19 @@ executor.ExecuteReader(consumer, consumer)
 #### ExecuteAndBind - Binding Results
 
 ```csharp
-Result<int> result = executor.ExecuteAndBind(
+executor.ExecuteAndBind(
     factory,
     cmd =>
     {
         int outputId = cmd.GetParameterValue<int>("OutputId");
         if (outputId > 0)
-        {
-            return Result<int>.Success(outputId);
-        }
-        return Result<int>.Failure(new Error("No output parameter"));
+            return outputId; // Implicit conversion to Result<int>
+
+        return new Error("No output parameter"); // Implicit conversion to Result<int>
     }
-);
+)
+.Tap(id => Console.WriteLine($"Output ID: {id}"))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
 ```
 
 #### Async Operations
@@ -282,6 +287,440 @@ All execution methods (`ExecuteNonQuery`, `ExecuteScalar`, `ExecuteReader`, `Exe
 3. **string procedureName**: Direct stored procedure call with parameter configuration
 
 Each pattern has both synchronous and asynchronous versions, with async versions supporting `CancellationToken`.
+
+### Advanced Result Monad Usage
+
+The Result type provides powerful functional programming methods for validation, transformation, and error handling.
+
+#### Input Validation with Ensure
+
+Use `Ensure` to validate input parameters before executing database operations. Use typed errors (`Error.ValidationError`, `Error.BusinessError`, etc.) to categorize failures:
+
+```csharp
+// Validate user input before database operation
+Result<User> CreateUser(string username, string email, int age)
+{
+    return Result<User>.Success(new User { Username = username, Email = email, Age = age })
+        .Ensure(u => !string.IsNullOrWhiteSpace(u.Username),
+            Error.ValidationError("User.InvalidUsername", "Username cannot be empty"))
+        .Ensure(u => u.Username.Length >= 3,
+            Error.ValidationError("User.UsernameTooShort", "Username must be at least 3 characters"))
+        .Ensure(u => u.Email.Contains("@"),
+            Error.ValidationError("User.InvalidEmail", "Invalid email format"))
+        .Ensure(u => u.Age >= 18,
+            Error.BusinessError("User.AgeLimitNotMet", "User must be 18 or older"))
+        .Bind(user => executor.ExecuteAndBind(
+            db => db.GetStoredProcCommand("CreateUser")
+                .WithInputParameter("Username", DbType.String, 50, user.Username)
+                .WithInputParameter("Email", DbType.String, 100, user.Email)
+                .WithInputParameter("Age", DbType.Int32, user.Age)
+                .WithOutputParameter("UserId", DbType.Int32, 0),
+            cmd => new User
+            {
+                UserId = cmd.GetParameterValue<int>("UserId"),
+                Username = user.Username,
+                Email = user.Email,
+                Age = user.Age
+            }
+        ));
+}
+
+// Usage
+CreateUser("john", "john@example.com", 25)
+    .Tap(user => Console.WriteLine($"User created: {user.UserId}"))
+    .TapError(error => Console.WriteLine($"[{error.Type}] {error.Code}: {error.Message}"));
+```
+
+#### Result Mapping and Transformation
+
+Use `Map` to transform successful results without unwrapping:
+
+```csharp
+// Map database result to DTO
+executor.ExecuteAndBind(
+    db => db.GetStoredProcCommand("GetUserById")
+        .WithInputParameter("UserId", DbType.Int32, userId),
+    cmd => new User
+    {
+        UserId = cmd.GetParameterValue<int>("UserId"),
+        Username = cmd.GetParameterValue<string>("Username"),
+        Email = cmd.GetParameterValue<string>("Email"),
+        IsActive = cmd.GetParameterValue<bool>("IsActive")
+    }
+)
+.Map(user => new UserDTO  // Transform User to UserDTO
+{
+    Id = user.UserId,
+    DisplayName = user.Username.ToUpper(),
+    ContactEmail = user.Email,
+    Status = user.IsActive ? "Active" : "Inactive"
+})
+.Tap(dto => Console.WriteLine($"User: {dto.DisplayName} ({dto.Status})"))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
+```
+
+#### Chaining Multiple Operations with Bind
+
+Use `Bind` to chain dependent database operations:
+
+```csharp
+// Create order and then add order items
+Result<Order> CreateOrderWithItems(int userId, List<OrderItem> items)
+{
+    return executor.ExecuteAndBind(
+        db => db.GetStoredProcCommand("CreateOrder")
+            .WithInputParameter("UserId", DbType.Int32, userId)
+            .WithInputParameter("OrderDate", DbType.DateTime, DateTime.Now)
+            .WithOutputParameter("OrderId", DbType.Int32, 0),
+        cmd => new Order
+        {
+            OrderId = cmd.GetParameterValue<int>("OrderId"),
+            UserId = userId,
+            OrderDate = DateTime.Now
+        }
+    )
+    .Bind(order =>
+    {
+        // Chain: Add items to the created order
+        var itemResults = items.Select(item =>
+            executor.ExecuteNonQuery(
+                db => db.GetStoredProcCommand("AddOrderItem")
+                    .WithInputParameter("OrderId", DbType.Int32, order.OrderId)
+                    .WithInputParameter("ProductId", DbType.Int32, item.ProductId)
+                    .WithInputParameter("Quantity", DbType.Int32, item.Quantity)
+                    .WithInputParameter("Price", DbType.Decimal, item.Price)
+            )
+        ).ToList();
+
+        // If any item failed, return error; otherwise return order
+        var failedItem = itemResults.FirstOrDefault(r => !r.IsSuccess);
+        return failedItem != null
+            ? failedItem.Error  // Implicit conversion Error -> Result<Order>
+            : order;            // Implicit conversion Order -> Result<Order>
+    });
+}
+
+// Usage with validation
+CreateOrderWithItems(userId, orderItems)
+    .Ensure(order => order.OrderId > 0,
+        Error.BusinessError("Order.InvalidId", "Invalid order ID"))
+    .Tap(order => Console.WriteLine($"Order created: {order.OrderId}"))
+    .TapError(error => Console.WriteLine($"Order creation failed: {error.Message}"));
+```
+
+#### Fallback with OrElse
+
+Use `OrElse` to provide fallback values or alternative operations. **Important**: Use `TapError` before `OrElse` for logging, as `OrElse` always returns success and subsequent `TapError` won't execute:
+
+```csharp
+// Try to get user from database, fallback to default user
+Result<User> GetUserOrDefault(int userId)
+{
+    return executor.ExecuteAndBind(
+        db => db.GetStoredProcCommand("GetUserById")
+            .WithInputParameter("UserId", DbType.Int32, userId),
+        cmd =>
+        {
+            var id = cmd.GetParameterValue<int>("UserId");
+            if (id == 0)
+                return Error.NotFoundError("User.NotFound", $"User {userId} not found");
+
+            return new User
+            {
+                UserId = id,
+                Username = cmd.GetParameterValue<string>("Username"),
+                Email = cmd.GetParameterValue<string>("Email")
+            };
+        }
+    )
+    .TapError(error => _logger.LogWarning($"User not found, using guest: {error.Message}"))
+    .OrElse(() => new User  // Fallback to guest user
+    {
+        UserId = 0,
+        Username = "Guest",
+        Email = "guest@example.com"
+    });
+}
+
+// Usage - TapError won't execute because OrElse always succeeds
+GetUserOrDefault(userId)
+    .Tap(user => Console.WriteLine($"User: {user.Username}"));
+
+// Fallback to alternative database query
+Result<Product> GetProductWithFallback(int productId)
+{
+    return executor.ExecuteAndBind(
+        db => db.GetStoredProcCommand("GetActiveProduct")
+            .WithInputParameter("ProductId", DbType.Int32, productId),
+        cmd => MapProduct(cmd)
+    )
+    .TapError(error => _logger.LogInformation($"Active product not found, trying archived: {error.Message}"))
+    .OrElse(() =>
+        // Fallback: Try to get archived product
+        executor.ExecuteAndBind(
+            db => db.GetStoredProcCommand("GetArchivedProduct")
+                .WithInputParameter("ProductId", DbType.Int32, productId),
+            cmd => MapProduct(cmd)
+        )
+    );
+}
+
+static Product MapProduct(DbCommand cmd) => new Product
+{
+    ProductId = cmd.GetParameterValue<int>("ProductId"),
+    Name = cmd.GetParameterValue<string>("Name"),
+    Price = cmd.GetParameterValue<decimal>("Price")
+};
+```
+
+#### Complex Example: Validation, Transformation, and Logging
+
+```csharp
+// Complete workflow with validation, mapping, and error logging
+Result<OrderSummary> ProcessOrder(OrderRequest request)
+{
+    // Step 1: Validate input
+    return Result<OrderRequest>.Success(request)
+        .Ensure(r => r.UserId > 0,
+            Error.ValidationError("Order.InvalidUserId", "Invalid user ID"))
+        .Ensure(r => r.Items?.Count > 0,
+            Error.ValidationError("Order.EmptyItems", "Order must contain at least one item"))
+        .Ensure(r => r.Items.All(i => i.Quantity > 0),
+            Error.ValidationError("Order.InvalidQuantity", "All items must have positive quantity"))
+
+        // Step 2: Execute database operation
+        .Bind(validRequest => executor.ExecuteAndBind(
+            db => db.GetStoredProcCommand("CreateOrder")
+                .WithInputParameter("UserId", DbType.Int32, validRequest.UserId)
+                .WithInputParameter("TotalAmount", DbType.Decimal, validRequest.TotalAmount)
+                .WithOutputParameter("OrderId", DbType.Int32, 0)
+                .WithOutputParameter("OrderNumber", DbType.String, 50),
+            cmd => new OrderResult
+            {
+                OrderId = cmd.GetParameterValue<int>("OrderId"),
+                OrderNumber = cmd.GetParameterValue<string>("OrderNumber"),
+                TotalAmount = validRequest.TotalAmount
+            }
+        ))
+
+        // Step 3: Ensure database operation succeeded
+        .Ensure(result => result.OrderId > 0,
+            Error.DatabaseError("Order.CreationFailed", "Order creation failed"))
+
+        // Step 4: Transform to summary DTO
+        .Map(orderResult => new OrderSummary
+        {
+            OrderId = orderResult.OrderId,
+            OrderNumber = orderResult.OrderNumber,
+            Total = orderResult.TotalAmount,
+            Status = "Created",
+            CreatedDate = DateTime.Now
+        });
+}
+
+// Usage - TapError is useful here since we don't use OrElse
+ProcessOrder(orderRequest)
+    .Tap(summary =>
+    {
+        _logger.LogInformation($"Order processed: {summary.OrderNumber} - ${summary.Total}");
+        Console.WriteLine($"Order #{summary.OrderNumber} created successfully");
+    })
+    .TapError(error =>
+    {
+        _logger.LogError($"[{error.Type}] {error.Code}: {error.Message}");
+        Console.WriteLine($"Failed to process order: {error.Message}");
+    });
+
+// Alternative: Using fallback with TapError BEFORE OrElse for logging
+Result<OrderSummary> ProcessOrderWithFallback(OrderRequest request)
+{
+    return ProcessOrder(request)
+        .TapError(error => _logger.LogWarning($"Order creation failed, creating draft: {error.Message}"))
+        .OrElse(() => new OrderSummary  // Fallback to draft order
+        {
+            OrderId = 0,
+            OrderNumber = "DRAFT",
+            Total = request.TotalAmount,
+            Status = "Draft",
+            CreatedDate = DateTime.Now
+        });
+}
+
+// Usage - After OrElse, TapError won't execute
+ProcessOrderWithFallback(orderRequest)
+    .Tap(summary => Console.WriteLine($"Order: {summary.OrderNumber} ({summary.Status})"));
+```
+
+These patterns enable:
+- **Defensive Programming**: Validate inputs before expensive database operations
+- **Composability**: Chain multiple operations without nested if-statements
+- **Error Recovery**: Provide fallback values or alternative data sources
+- **Transformation**: Map database results to DTOs cleanly
+- **Maintainability**: Clear, declarative code flow
+
+### Error Type Categorization
+
+The library uses typed errors to categorize failures:
+
+- **`Error.ValidationError`**: Input validation failures (empty fields, format errors)
+- **`Error.BusinessError`**: Business rule violations (age restrictions, insufficient funds)
+- **`Error.DatabaseError`**: Database operation failures (mapped from exceptions via `IMapErrorPolicy`)
+- **`Error.NotFoundError`**: Entity not found errors
+- **`Error.ConflictError`**: Concurrency or uniqueness violations
+- **`Error.UnauthorizedError`**: Authentication failures
+- **`Error.PermissionError`**: Authorization failures
+- **`Error.TimeoutError`**: Operation timeout
+- **`Error.CancelledError`**: Operation cancelled
+- **`Error.UnavailableError`**: Service temporarily unavailable
+- **`Error.UnexpectedError`**: Unexpected system errors
+
+### Custom Error Mapping with IMapErrorPolicy
+
+The `DbCommandExecutor` uses `IMapErrorPolicy` to map database exceptions to domain-specific errors. This ensures that low-level database exceptions are converted to meaningful, typed errors.
+
+```csharp
+public interface IMapErrorPolicy
+{
+    Error MapError(Exception ex);
+}
+
+// Example: Custom error policy for SQL Server
+public class SqlServerErrorPolicy : IMapErrorPolicy
+{
+    public Error MapError(Exception ex)
+    {
+        return ex switch
+        {
+            // Unique constraint violations - conflicts that can be handled by application logic
+            SqlException sqlEx when sqlEx.Number == 2627 || sqlEx.Number == 2601 =>
+                Error.ConflictError("Database.UniqueConstraint", "Record already exists"),
+
+            // Foreign key constraint violations - business rule violations, not retryable
+            SqlException sqlEx when sqlEx.Number == 547 =>
+                Error.BusinessError("Database.ForeignKeyViolation", "Referenced record does not exist or cannot be deleted due to existing references"),
+
+            // Deadlock - transient error, can be retried
+            SqlException sqlEx when sqlEx.Number == 1205 =>
+                Error.DatabaseError("Database.Deadlock", "Deadlock detected, operation can be retried"),
+
+            // Timeout - transient error, can be retried
+            SqlException sqlEx when sqlEx.Number == -2 =>
+                Error.TimeoutError("Database.Timeout", "Database operation timed out"),
+
+            TimeoutException =>
+                Error.TimeoutError("Database.ConnectionTimeout", ex.Message),
+
+            InvalidOperationException =>
+                Error.DatabaseError("Database.InvalidOperation", ex.Message),
+
+            _ =>
+                Error.UnexpectedError("Database.UnexpectedError", ex.Message)
+        };
+    }
+}
+
+// Usage: Create executor with custom error policy
+var errorPolicy = new SqlServerErrorPolicy();
+var executor = new DbCommandExecutor(database, errorPolicy);
+
+// Database errors are automatically mapped
+executor.ExecuteNonQuery(
+    "InsertUser",
+    cmd => cmd
+        .WithInputParameter("Email", DbType.String, 100, email)
+        .WithInputParameter("Username", DbType.String, 50, username)
+)
+.TapError(error =>
+{
+    // Error is typed based on the exception - handle differently based on whether retry makes sense
+    switch (error.Type)
+    {
+        case ErrorType.Conflict:
+            _logger.LogWarning($"Duplicate user: {error.Message}");
+            // Conflict (unique constraint) - can be handled by application logic, no retry
+            break;
+
+        case ErrorType.Business:
+            _logger.LogWarning($"Business rule violation: {error.Message}");
+            // Business error (e.g., foreign key violation) - indicates domain rule violation, no retry
+            break;
+
+        case ErrorType.Timeout:
+            _logger.LogError($"Database timeout: {error.Message}");
+            // Timeout - transient error, can be retried
+            break;
+
+        case ErrorType.Database:
+            // Database errors (e.g., deadlock) - transient errors that can be retried
+            if (error.Code.Contains("Deadlock"))
+            {
+                _logger.LogWarning($"Deadlock detected, will retry: {error.Message}");
+            }
+            else
+            {
+                _logger.LogError($"Database error: {error.Message}");
+            }
+            break;
+
+        default:
+            _logger.LogError($"Unexpected error: {error.Message}");
+            break;
+    }
+});
+
+// Example: Retry logic for transient errors only
+Result<int> InsertUserWithRetry(string email, string username)
+{
+    int maxRetries = 3;
+    int attempt = 0;
+
+    while (attempt < maxRetries)
+    {
+        var result = executor.ExecuteNonQuery(
+            "InsertUser",
+            cmd => cmd
+                .WithInputParameter("Email", DbType.String, 100, email)
+                .WithInputParameter("Username", DbType.String, 50, username)
+        );
+
+        if (result.IsSuccess)
+            return result;
+
+        // Only retry for transient errors (Database, Timeout)
+        var shouldRetry = result.Error.Type == ErrorType.Database ||
+                         result.Error.Type == ErrorType.Timeout;
+
+        if (!shouldRetry || attempt >= maxRetries - 1)
+        {
+            _logger.LogError($"Operation failed: {result.Error.Message}");
+            return result;
+        }
+
+        attempt++;
+        _logger.LogWarning($"Transient error, retrying (attempt {attempt}/{maxRetries}): {result.Error.Message}");
+        Thread.Sleep(TimeSpan.FromMilliseconds(100 * attempt)); // Exponential backoff
+    }
+
+    return Error.UnexpectedError("Retry.MaxAttemptsExceeded", "Maximum retry attempts exceeded");
+}
+```
+
+**Error Type Guidelines for Retry Logic:**
+
+- **Retryable** (transient errors):
+  - `ErrorType.Database` - Deadlocks, connection issues
+  - `ErrorType.Timeout` - Operation timeouts
+  - `ErrorType.Unavailable` - Service temporarily unavailable
+
+- **Not Retryable** (permanent errors):
+  - `ErrorType.Validation` - Input validation failures
+  - `ErrorType.Business` - Business rule violations (including foreign key constraints)
+  - `ErrorType.Conflict` - Unique constraint violations
+  - `ErrorType.NotFound` - Entity not found
+  - `ErrorType.Permission` - Authorization failures
+  - `ErrorType.Unauthorized` - Authentication failures
+
+If no custom policy is provided, `DbCommandExecutor` uses `DefaultMapError` which maps all exceptions to generic database errors.
 
 ## Fluent Parameter Management
 
@@ -325,7 +764,7 @@ var result = executor.ExecuteAndBind(
     db => db.GetStoredProcCommand("CreateUser")
         .WithInputParameter("UserName", DbType.String, 50, "John Doe")
         .WithOutputParameter("NewId", DbType.Int32, 0),
-    cmd => Result<int>.Success(cmd.GetParameterValue<int>("NewId"))
+    cmd => cmd.GetParameterValue<int>("NewId") // Implicit conversion to Result<int>
 );
 ```
 
@@ -343,7 +782,7 @@ var result = executor.ExecuteAndBind(
     db => db.GetStoredProcCommand("ProcessOrder")
         .WithInputParameter("OrderId", DbType.Int32, orderId)
         .WithInputOutputParameter("Status", DbType.String, 20, "Processing"),
-    cmd => Result<string>.Success(cmd.GetParameterValue<string>("Status"))
+    cmd => cmd.GetParameterValue<string>("Status") // Implicit conversion to Result<string>
 );
 ```
 
@@ -419,7 +858,7 @@ executor.ExecuteAndBind(
         .WithInputParameter("Price", DbType.Decimal, 999.99m)
         .WithInputParameter("CategoryId", DbType.Int32, 5)
         .WithOutputParameter("ProductId", DbType.Int32, 0),
-    cmd => Result<int>.Success(cmd.GetParameterValue<int>("ProductId"))
+    cmd => cmd.GetParameterValue<int>("ProductId") // Implicit conversion to Result<int>
 )
 .Tap(productId => Console.WriteLine($"New Product ID: {productId}"))
 .TapError(error => Console.WriteLine($"Error: {error.Message}"));
@@ -429,7 +868,7 @@ executor.ExecuteAndBind(
     db => db.GetStoredProcCommand("UpdateInventory")
         .WithInputParameter("ProductId", DbType.Int32, productId)
         .WithInputOutputParameter("Quantity", DbType.Int32, requestedQuantity),
-    cmd => Result<int>.Success(cmd.GetParameterValue<int>("Quantity"))
+    cmd => cmd.GetParameterValue<int>("Quantity") // Implicit conversion to Result<int>
 )
 .Tap(actualQuantity => Console.WriteLine($"Actual quantity updated: {actualQuantity}"))
 .TapError(error => Console.WriteLine($"Error: {error.Message}"));
@@ -443,18 +882,11 @@ executor.ExecuteAndBind(
         .WithOutputParameter("TransactionId", DbType.Int32, 0)
         .WithOutputParameter("Status", DbType.String, 50)
         .WithInputOutputParameter("AvailableCredit", DbType.Decimal, currentCredit),
-    cmd =>
+    cmd => new OrderProcessingResult // Implicit conversion to Result<OrderProcessingResult>
     {
-        var transactionId = cmd.GetParameterValue<int>("TransactionId");
-        var status = cmd.GetParameterValue<string>("Status");
-        var remainingCredit = cmd.GetParameterValue<decimal>("AvailableCredit");
-
-        return Result<OrderProcessingResult>.Success(new OrderProcessingResult
-        {
-            TransactionId = transactionId,
-            Status = status,
-            RemainingCredit = remainingCredit
-        });
+        TransactionId = cmd.GetParameterValue<int>("TransactionId"),
+        Status = cmd.GetParameterValue<string>("Status"),
+        RemainingCredit = cmd.GetParameterValue<decimal>("AvailableCredit")
     }
 )
 .Tap(result => Console.WriteLine($"Order processed: TX#{result.TransactionId}, Status: {result.Status}, Credit: {result.RemainingCredit}"))
