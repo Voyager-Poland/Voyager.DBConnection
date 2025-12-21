@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Voyager.DBConnection.Interfaces;
 using Voyager.DBConnection.Tools;
 
 namespace Voyager.DBConnection
@@ -9,7 +10,7 @@ namespace Voyager.DBConnection
 	/// Provides database connection and command execution functionality.
 	/// Manages database connections, transactions, and command creation with support for stored procedures and SQL text commands.
 	/// </summary>
-	public class Database : IDisposable, IDatabase
+	public class Database : IDisposable, IDatabase, IDatabaseInternal
 	{
 		private readonly DbProviderFactory dbProviderFactory;
 		private readonly string sqlConnectionString;
@@ -255,6 +256,18 @@ namespace Voyager.DBConnection
 			if (transactionHolder?.IsActive == true)
 				cmd.Transaction = transactionHolder.Transaction;
 		}
+
+		/// <summary>
+		/// Explicit interface implementation for IDatabaseInternal.OpenCmd
+		/// Delegates to the internal OpenCmd method.
+		/// </summary>
+		void IDatabaseInternal.OpenCmd(DbCommand cmd) => OpenCmd(cmd);
+
+		/// <summary>
+		/// Explicit interface implementation for IDatabaseInternal.BeginTransaction
+		/// Delegates to the internal BeginTransaction method.
+		/// </summary>
+		Transaction IDatabaseInternal.BeginTransaction(IsolationLevel isolationLevel) => BeginTransaction(isolationLevel);
 	}
 
 }

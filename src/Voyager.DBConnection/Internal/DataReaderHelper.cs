@@ -16,9 +16,9 @@ namespace Voyager.DBConnection.Internal
 	{
 		private readonly EventHost eventHost;
 		private readonly IErrorMappingHelper errorMapper;
-		private readonly Database database;
+		private readonly IDatabaseInternal database;
 
-		public DataReaderHelper(Database database, EventHost eventHost, IErrorMappingHelper errorMapper)
+		public DataReaderHelper(IDatabaseInternal database, EventHost eventHost, IErrorMappingHelper errorMapper)
 		{
 			this.database = database;
 			this.eventHost = eventHost;

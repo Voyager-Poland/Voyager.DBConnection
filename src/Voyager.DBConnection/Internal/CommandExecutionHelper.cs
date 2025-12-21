@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Voyager.Common.Results;
 using Voyager.DBConnection.Events;
+using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection.Internal
 {
@@ -13,11 +14,11 @@ namespace Voyager.DBConnection.Internal
 	/// </summary>
 	internal class CommandExecutionHelper : ICommandExecutionHelper
 	{
-		private readonly Database database;
+		private readonly IDatabaseInternal database;
 		private readonly EventHost eventHost;
 		private readonly IErrorMappingHelper errorMapper;
 
-		public CommandExecutionHelper(Database database, EventHost eventHost, IErrorMappingHelper errorMapper)
+		public CommandExecutionHelper(IDatabaseInternal database, EventHost eventHost, IErrorMappingHelper errorMapper)
 		{
 			this.database = database;
 			this.eventHost = eventHost;

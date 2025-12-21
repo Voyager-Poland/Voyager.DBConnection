@@ -11,7 +11,7 @@ namespace Voyager.DBConnection
 {
 	public class DbCommandExecutor : IDisposable, IRegisterEvents, IFeatureHost, IDbCommandExecutor
 	{
-		private readonly Database db;
+		private readonly IDatabaseInternal db;
 		private readonly IMapErrorPolicy errorPolicy;
 		private readonly EventHost eventHost;
 		private readonly FeatureHost featureHost;
@@ -32,7 +32,7 @@ namespace Voyager.DBConnection
 			this.eventHost = new EventHost();
 			this.featureHost = new FeatureHost();
 
-			// Initialize helpers
+			// Initialize helpers - Database implements IDatabaseInternal
 			this.commandFactoryHelper = new CommandFactoryHelper(db);
 			this.errorMappingHelper = new ErrorMappingHelper(errorPolicy);
 			this.commandExecutionHelper = new CommandExecutionHelper(db, eventHost, errorMappingHelper);
@@ -47,7 +47,7 @@ namespace Voyager.DBConnection
 			this.eventHost = new EventHost();
 			this.featureHost = new FeatureHost();
 
-			// Initialize helpers
+			// Initialize helpers - Database implements IDatabaseInternal
 			this.commandFactoryHelper = new CommandFactoryHelper(db);
 			this.errorMappingHelper = new ErrorMappingHelper(errorPolicy);
 			this.commandExecutionHelper = new CommandExecutionHelper(db, eventHost, errorMappingHelper);
@@ -56,10 +56,10 @@ namespace Voyager.DBConnection
 
 		/// <summary>
 		/// Internal constructor for unit testing.
-		/// Allows injection of mock helpers for testing purposes.
+		/// Allows injection of mock helpers and database for testing purposes.
 		/// </summary>
 		internal DbCommandExecutor(
-			Database db,
+			IDatabaseInternal db,
 			IMapErrorPolicy errorPolicy,
 			ICommandFactoryHelper commandFactoryHelper,
 			IErrorMappingHelper errorMappingHelper,

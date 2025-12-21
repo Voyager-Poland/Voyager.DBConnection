@@ -10,9 +10,9 @@ namespace Voyager.DBConnection.Internal
 	/// </summary>
 	internal class CommandFactoryHelper : ICommandFactoryHelper
 	{
-		private readonly IDatabase database;
+		private readonly IDatabaseInternal database;
 
-		public CommandFactoryHelper(IDatabase database)
+		public CommandFactoryHelper(IDatabaseInternal database)
 		{
 			this.database = database;
 		}
