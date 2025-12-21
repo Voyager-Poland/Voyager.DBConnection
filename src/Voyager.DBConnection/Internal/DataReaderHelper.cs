@@ -12,13 +12,13 @@ namespace Voyager.DBConnection.Internal
 	/// Helper class responsible for DataReader operations.
 	/// Separates DataReader handling logic from DbCommandExecutor.
 	/// </summary>
-	internal class DataReaderHelper
+	internal class DataReaderHelper : IDataReaderHelper
 	{
 		private readonly EventHost eventHost;
-		private readonly ErrorMappingHelper errorMapper;
+		private readonly IErrorMappingHelper errorMapper;
 		private readonly Database database;
 
-		public DataReaderHelper(Database database, EventHost eventHost, ErrorMappingHelper errorMapper)
+		public DataReaderHelper(Database database, EventHost eventHost, IErrorMappingHelper errorMapper)
 		{
 			this.database = database;
 			this.eventHost = eventHost;

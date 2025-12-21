@@ -13,14 +13,14 @@ namespace Voyager.DBConnection
 	{
 		private readonly Database db;
 		private readonly IMapErrorPolicy errorPolicy;
-		private readonly EventHost eventHost = new EventHost();
-		private readonly FeatureHost featureHost = new FeatureHost();
+		private readonly EventHost eventHost;
+		private readonly FeatureHost featureHost;
 
 		// Helper classes for separation of concerns
-		private readonly CommandFactoryHelper commandFactoryHelper;
-		private readonly ErrorMappingHelper errorMappingHelper;
-		private readonly CommandExecutionHelper commandExecutionHelper;
-		private readonly DataReaderHelper dataReaderHelper;
+		private readonly ICommandFactoryHelper commandFactoryHelper;
+		private readonly IErrorMappingHelper errorMappingHelper;
+		private readonly ICommandExecutionHelper commandExecutionHelper;
+		private readonly IDataReaderHelper dataReaderHelper;
 
 		public DbCommandExecutor(Database db, IMapErrorPolicy errorPolicy)
 		{
@@ -29,6 +29,8 @@ namespace Voyager.DBConnection
 
 			this.db = db;
 			this.errorPolicy = errorPolicy;
+			this.eventHost = new EventHost();
+			this.featureHost = new FeatureHost();
 
 			// Initialize helpers
 			this.commandFactoryHelper = new CommandFactoryHelper(db);
@@ -42,12 +44,38 @@ namespace Voyager.DBConnection
 			ParameterValidator.DbGuard(db);
 			this.db = db;
 			this.errorPolicy = new DefaultMapError();
+			this.eventHost = new EventHost();
+			this.featureHost = new FeatureHost();
 
 			// Initialize helpers
 			this.commandFactoryHelper = new CommandFactoryHelper(db);
 			this.errorMappingHelper = new ErrorMappingHelper(errorPolicy);
 			this.commandExecutionHelper = new CommandExecutionHelper(db, eventHost, errorMappingHelper);
 			this.dataReaderHelper = new DataReaderHelper(db, eventHost, errorMappingHelper);
+		}
+
+		/// <summary>
+		/// Internal constructor for unit testing.
+		/// Allows injection of mock helpers for testing purposes.
+		/// </summary>
+		internal DbCommandExecutor(
+			Database db,
+			IMapErrorPolicy errorPolicy,
+			ICommandFactoryHelper commandFactoryHelper,
+			IErrorMappingHelper errorMappingHelper,
+			ICommandExecutionHelper commandExecutionHelper,
+			IDataReaderHelper dataReaderHelper,
+			EventHost eventHost,
+			FeatureHost featureHost)
+		{
+			this.db = db;
+			this.errorPolicy = errorPolicy;
+			this.commandFactoryHelper = commandFactoryHelper;
+			this.errorMappingHelper = errorMappingHelper;
+			this.commandExecutionHelper = commandExecutionHelper;
+			this.dataReaderHelper = dataReaderHelper;
+			this.eventHost = eventHost;
+			this.featureHost = featureHost;
 		}
 
 		public void Dispose()

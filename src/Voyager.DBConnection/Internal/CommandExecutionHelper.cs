@@ -11,13 +11,13 @@ namespace Voyager.DBConnection.Internal
 	/// Helper class responsible for executing database commands with event publishing.
 	/// Separates command execution logic from DbCommandExecutor.
 	/// </summary>
-	internal class CommandExecutionHelper
+	internal class CommandExecutionHelper : ICommandExecutionHelper
 	{
 		private readonly Database database;
 		private readonly EventHost eventHost;
-		private readonly ErrorMappingHelper errorMapper;
+		private readonly IErrorMappingHelper errorMapper;
 
-		public CommandExecutionHelper(Database database, EventHost eventHost, ErrorMappingHelper errorMapper)
+		public CommandExecutionHelper(Database database, EventHost eventHost, IErrorMappingHelper errorMapper)
 		{
 			this.database = database;
 			this.eventHost = eventHost;

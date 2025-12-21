@@ -8,7 +8,7 @@ namespace Voyager.DBConnection.Internal
 	/// Helper class responsible for mapping exceptions to Error objects.
 	/// Separates error mapping logic from DbCommandExecutor.
 	/// </summary>
-	internal class ErrorMappingHelper
+	internal class ErrorMappingHelper : IErrorMappingHelper
 	{
 		private readonly IMapErrorPolicy errorPolicy;
 

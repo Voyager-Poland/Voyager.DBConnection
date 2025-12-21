@@ -8,7 +8,7 @@ namespace Voyager.DBConnection.Internal
 	/// Helper class responsible for creating DbCommand instances from various sources.
 	/// Separates command creation logic from DbCommandExecutor.
 	/// </summary>
-	internal class CommandFactoryHelper
+	internal class CommandFactoryHelper : ICommandFactoryHelper
 	{
 		private readonly IDatabase database;
 

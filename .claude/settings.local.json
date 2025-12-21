@@ -9,7 +9,11 @@
       "Bash(docker logs:*)",
       "Bash(docker exec:*)",
       "Bash(cat:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(where:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(dotnet script:*)"
     ]
   }
 }

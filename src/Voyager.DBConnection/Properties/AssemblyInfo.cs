@@ -1,0 +1,5 @@
+using System.Runtime.CompilerServices;
+
+// Allow test project to access internal members
+// Both assemblies are signed with the same strong-name key
+[assembly: InternalsVisibleTo("Voyager.DBConnection.Test, PublicKey=0024000004800000940000000602000000240000525341310004000001000100c92c51f38b5bc3f323ad8851db36b061f6928c23b76242f0fe16aa685c91a09790de4eaa61f519365024757a79088042be9a15a3a29d08af884e882edbdb32222c1d541d0b3100e1b50e6591a8f7b44505aabab62ca1aaaa1e00a75b046092c369c0398724dfa4806a93fa3d723e67306a22a841a7aef5b28786bb279e8eb2d9")]
