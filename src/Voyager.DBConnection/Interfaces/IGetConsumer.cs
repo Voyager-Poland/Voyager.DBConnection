@@ -1,18 +1,14 @@
-﻿using System.Data;
+﻿using System;
 
 namespace Voyager.DBConnection.Interfaces
 {
 	/// <summary>
-	/// Defines a consumer that processes data from a database reader and produces a domain object.
+	/// Obsolete: Use IResultsConsumer instead.
+	/// This interface is maintained for backward compatibility and will be removed in version 5.0.
 	/// </summary>
 	/// <typeparam name="TDomainObject">The type of domain object produced by this consumer.</typeparam>
-	public interface IGetConsumer<TDomainObject>
+	[Obsolete("Use IResultsConsumer<TDomainObject> instead. This interface will be removed in version 5.0.", false)]
+	public interface IGetConsumer<TDomainObject> : IResultsConsumer<TDomainObject>
 	{
-		/// <summary>
-		/// Processes the data reader and produces a domain object.
-		/// </summary>
-		/// <param name="dataReader">The data reader containing the result set to process.</param>
-		/// <returns>A domain object of type <typeparamref name="TDomainObject"/> populated from the data reader.</returns>
-		TDomainObject GetResults(IDataReader dataReader);
 	}
 }

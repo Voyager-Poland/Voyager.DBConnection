@@ -25,6 +25,6 @@ namespace Voyager.DBConnection.Internal
 		/// <summary>
 		/// Processes a DataReader using the provided consumer.
 		/// </summary>
-		TDomain HandleReader<TDomain>(IGetConsumer<TDomain> consumer, IDataReader reader);
+		TDomain HandleReader<TDomain>(IResultsConsumer<TDomain> consumer, IDataReader reader);
 	}
 }

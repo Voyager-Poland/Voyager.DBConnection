@@ -182,7 +182,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="consumer">The consumer that processes the data reader.</param>
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <returns>A result containing the processed value, or an error if the operation failed.</returns>
-        Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+        Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
         /// Executes a command using a function and processes the result set using a consumer.
@@ -192,7 +192,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="consumer">The consumer that processes the data reader.</param>
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <returns>A result containing the processed value, or an error if the operation failed.</returns>
-        Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+        Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
         /// Executes a stored procedure and processes the result set using a consumer.
@@ -203,7 +203,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="consumer">The consumer that processes the data reader.</param>
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <returns>A result containing the processed value, or an error if the operation failed.</returns>
-        Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+        Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
         /// Asynchronously executes a command and processes the result set using a consumer.
@@ -213,7 +213,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="consumer">The consumer that processes the data reader.</param>
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <returns>A task representing the asynchronous operation with the result containing the processed value or an error.</returns>
-        Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+        Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
         /// Asynchronously executes a command and processes the result set with cancellation support.
@@ -224,7 +224,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
         /// <returns>A task representing the asynchronous operation with the result containing the processed value or an error.</returns>
-        Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken);
+        Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken);
 
         /// <summary>
         /// Asynchronously executes a command using a function and processes the result set.
@@ -234,7 +234,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="consumer">The consumer that processes the data reader.</param>
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <returns>A task representing the asynchronous operation with the result containing the processed value or an error.</returns>
-        Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+        Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
         /// Asynchronously executes a command using a function and processes the result set with cancellation support.
@@ -245,7 +245,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
         /// <returns>A task representing the asynchronous operation with the result containing the processed value or an error.</returns>
-        Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken);
+        Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken);
 
         /// <summary>
         /// Asynchronously executes a stored procedure and processes the result set.
@@ -256,7 +256,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="consumer">The consumer that processes the data reader.</param>
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <returns>A task representing the asynchronous operation with the result containing the processed value or an error.</returns>
-        Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
+        Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null);
 
         /// <summary>
         /// Asynchronously executes a stored procedure and processes the result set with cancellation support.
@@ -268,7 +268,7 @@ namespace Voyager.DBConnection.Interfaces
         /// <param name="afterCall">Optional callback invoked after successful execution with the command.</param>
         /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
         /// <returns>A task representing the asynchronous operation with the result containing the processed value or an error.</returns>
-        Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken);
+        Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken);
 
         /// <summary>
         /// Executes a non-query command and binds the result using the provided callback.

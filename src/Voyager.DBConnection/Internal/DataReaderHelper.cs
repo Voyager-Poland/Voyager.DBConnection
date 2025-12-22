@@ -73,7 +73,7 @@ namespace Voyager.DBConnection.Internal
 		/// <summary>
 		/// Processes a DataReader using the provided consumer.
 		/// </summary>
-		public TDomain HandleReader<TDomain>(IGetConsumer<TDomain> consumer, IDataReader reader)
+		public TDomain HandleReader<TDomain>(IResultsConsumer<TDomain> consumer, IDataReader reader)
 		{
 			TDomain result = consumer.GetResults(reader);
 			while (reader.NextResult())

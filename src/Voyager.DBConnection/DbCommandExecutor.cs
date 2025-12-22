@@ -252,7 +252,7 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+		public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 		{
 			using (DbCommand command = commandFactoryHelper.CreateCommand(commandFactory))
 			{
@@ -269,7 +269,7 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		public Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+		public Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 		{
 			using (DbCommand command = commandFunction(db))
 			{
@@ -286,7 +286,7 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		public Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+		public Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 		{
 			using (DbCommand command = db.GetStoredProcCommand(procedureName))
 			{
@@ -304,25 +304,25 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(commandFactory), null, consumer, afterCall, CancellationToken.None);
 
-		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(commandFactory), null, consumer, afterCall, cancellationToken);
 
-		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(commandFunction), null, consumer, afterCall, CancellationToken.None);
 
-		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(commandFunction), null, consumer, afterCall, cancellationToken);
 
-		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(procedureName), actionAddParams, consumer, afterCall, CancellationToken.None);
 
-		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(procedureName), actionAddParams, consumer, afterCall, cancellationToken);
 
-		private async Task<Result<TValue>> ExecuteReaderAsyncCore<TValue>(Func<DbCommand> commandFactory, Action<DbCommand> beforeExecute, IGetConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+		private async Task<Result<TValue>> ExecuteReaderAsyncCore<TValue>(Func<DbCommand> commandFactory, Action<DbCommand> beforeExecute, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
 		{
 			using (DbCommand command = commandFactory())
 			{

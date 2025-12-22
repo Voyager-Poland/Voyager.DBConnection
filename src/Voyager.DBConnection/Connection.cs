@@ -131,7 +131,7 @@ namespace Voyager.DBConnection
 		/// <param name="consumer">The consumer that processes the data reader.</param>
 		/// <returns>A task representing the asynchronous operation, containing the processed result.</returns>
 		/// <exception cref="ArgumentNullException">Thrown when factory or consumer is null.</exception>
-		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
+		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IResultsConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
 
 		/// <summary>
 		/// Asynchronously executes a command and processes the result set using a consumer.
@@ -142,7 +142,7 @@ namespace Voyager.DBConnection
 		/// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
 		/// <returns>A task representing the asynchronous operation, containing the processed result.</returns>
 		/// <exception cref="ArgumentNullException">Thrown when factory or consumer is null.</exception>
-		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
+		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IResultsConsumer<TDomain> consumer, CancellationToken cancellationToken)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
 			if (consumer == null) throw new ArgumentNullException(nameof(consumer));
@@ -158,7 +158,7 @@ namespace Voyager.DBConnection
 		/// <returns>The result produced by the consumer after processing the data reader.</returns>
 		/// <exception cref="ArgumentNullException">Thrown when factory or consumer is null.</exception>
 		/// <exception cref="Exception">Throws transformed exceptions according to the exception policy.</exception>
-		public virtual TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
+		public virtual TDomain GetReader<TDomain>(ICommandFactory factory, IResultsConsumer<TDomain> consumer)
 		{
 			if (factory == null) throw new ArgumentNullException(nameof(factory));
 			if (consumer == null) throw new ArgumentNullException(nameof(consumer));
@@ -263,7 +263,7 @@ namespace Voyager.DBConnection
 			return result;
 		}
 
-		private TDomain ProcessReader<TDomain>(IReadOutParameters factory, IGetConsumer<TDomain> consumer, DbCommand command)
+		private TDomain ProcessReader<TDomain>(IReadOutParameters factory, IResultsConsumer<TDomain> consumer, DbCommand command)
 		{
 			using (IDataReader dr = GetDataReader(command))
 			{
@@ -273,7 +273,7 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		private TDomain HandleReader<TDomain>(IGetConsumer<TDomain> consumer, IDataReader dr)
+		private TDomain HandleReader<TDomain>(IResultsConsumer<TDomain> consumer, IDataReader dr)
 		{
 			TDomain result = consumer.GetResults(dr);
 			while (dr.NextResult())
