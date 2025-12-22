@@ -211,7 +211,7 @@ namespace Voyager.DBConnection.Test
 		}
 	}
 
-	class CmdReader : Interfaces.IGetConsumer<int>
+	class CmdReader : Interfaces.IResultsConsumer<int>
 	{
 		public int GetResults(IDataReader dataReader)
 		{
