@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.Integr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.MsSql", "src\Voyager.DBConnection.MsSql\Voyager.DBConnection.MsSql.csproj", "{0BD9B2CD-4F87-4787-A17A-41FFE88658CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.MsSql.IntegrationTests", "tests\Voyager.DBConnection.MsSql.IntegrationTests\Voyager.DBConnection.MsSql.IntegrationTests.csproj", "{34848270-BC70-426D-9574-6484D6A40C9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,18 @@ Global
 		{0BD9B2CD-4F87-4787-A17A-41FFE88658CD}.Release|x64.Build.0 = Release|Any CPU
 		{0BD9B2CD-4F87-4787-A17A-41FFE88658CD}.Release|x86.ActiveCfg = Release|Any CPU
 		{0BD9B2CD-4F87-4787-A17A-41FFE88658CD}.Release|x86.Build.0 = Release|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Debug|x64.Build.0 = Debug|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Debug|x86.Build.0 = Debug|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Release|x64.ActiveCfg = Release|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Release|x64.Build.0 = Release|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Release|x86.ActiveCfg = Release|Any CPU
+		{34848270-BC70-426D-9574-6484D6A40C9E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,6 +98,7 @@ Global
 		{8C1AFB40-01F6-46D6-B745-5C8952AE767E} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{301DD113-6EED-443D-8AAF-99D61EC1CD31} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{0BD9B2CD-4F87-4787-A17A-41FFE88658CD} = {925A5098-028F-44D9-9AFE-0314C34A678D}
+		{34848270-BC70-426D-9574-6484D6A40C9E} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0690B12-FB9B-4D30-B8BB-5C9ABFA5A8C4}
