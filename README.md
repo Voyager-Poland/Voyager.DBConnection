@@ -15,6 +15,24 @@ Voyager.DBConnection is a library providing a structured and type-safe way to co
 - Result-based error handling with Result monad pattern
 - Docker support for multi-database integration testing
 
+## NuGet Packages
+
+This repository provides multiple NuGet packages in a monorepo structure:
+
+| Package | Description | NuGet |
+|---------|-------------|-------|
+| **Voyager.DBConnection** | Core library with DbProviderFactory support for all databases | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.svg)](https://www.nuget.org/packages/Voyager.DBConnection/) |
+| **Voyager.DBConnection.MsSql** | SQL Server-specific implementation with SqlConnection, SqlDatabase, and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.MsSql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.MsSql/) |
+
+### Monorepo Benefits
+
+All packages are developed and versioned together:
+- ✅ **Synchronized Versioning** - All packages share the same version number
+- ✅ **Single Build** - `dotnet build` builds all packages at once
+- ✅ **ProjectReference in Development** - Use project references locally for immediate changes
+- ✅ **PackageReference in NuGet** - Published packages correctly reference each other as NuGet dependencies
+- ✅ **Unified CI/CD** - Single GitHub Actions workflow for all packages
+
 ## Docker Support
 
 The project includes Docker Compose configuration for testing against multiple database providers:
