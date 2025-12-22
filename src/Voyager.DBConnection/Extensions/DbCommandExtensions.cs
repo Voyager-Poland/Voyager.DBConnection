@@ -108,8 +108,13 @@ namespace Voyager.DBConnection
             if (typeName.Contains("Oracle"))
                 return ":";
 
-            // MS SQL, PostgreSQL, MySQL, SQLite używają @
-            if (typeName.Contains("Sql") || typeName.Contains("Npgsql") || typeName.Contains("MySql") || typeName.Contains("SQLite"))
+            // MS SQL, PostgreSQL, MySQL, SQLite, ODBC używają @
+            // ODBC: System.Data.Odbc.OdbcCommand wspiera nazwane parametry z @
+            if (typeName.Contains("Sql") ||
+                typeName.Contains("Npgsql") ||
+                typeName.Contains("MySql") ||
+                typeName.Contains("SQLite") ||
+                typeName.Contains("Odbc"))
                 return "@";
 
             // Nieznany provider - brak prefixu

@@ -11,7 +11,7 @@
 
   <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>database;ado.net;dbproviderfactory;result-monad;command-pattern;testable;mocking;sqlserver;postgresql;mysql;oracle;sqlite;error-handling;functional-programming</PackageTags>
+    <PackageTags>database;ado.net;dbproviderfactory;result-monad;command-pattern;testable;mocking;sqlserver;postgresql;mysql;oracle;sqlite;odbc;error-handling;functional-programming</PackageTags>
     <PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
   </PropertyGroup>
 

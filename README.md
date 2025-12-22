@@ -1028,6 +1028,80 @@ namespace Voyager.DBConnection
 }
 ```
 
+## ODBC Support
+
+Voyager.DBConnection fully supports ODBC connections through `System.Data.Odbc`. ODBC enables connectivity to virtually any database with an ODBC driver, including legacy systems and databases without native .NET providers.
+
+### Using ODBC Connections
+
+```csharp
+using System.Data.Common;
+using System.Data.Odbc;
+using Voyager.DBConnection;
+
+// Register ODBC provider (if not already registered)
+DbProviderFactories.RegisterFactory("System.Data.Odbc", OdbcFactory.Instance);
+
+// Create database with ODBC
+var factory = DbProviderFactories.GetFactory("System.Data.Odbc");
+
+// DSN-based connection string
+var connectionString = "DSN=MyDataSource;UID=user;PWD=password";
+// OR driver-based connection string
+// var connectionString = "Driver={PostgreSQL Unicode};Server=localhost;Port=5432;Database=mydb;Uid=user;Pwd=password;";
+
+var database = new Database(factory, connectionString);
+var executor = new DbCommandExecutor(database, new DefaultMapError());
+
+// Use fluent API with named parameters - ODBC supports @ prefix
+executor.ExecuteNonQuery(
+    "INSERT INTO Users (Username, Email, Age) VALUES (@Username, @Email, @Age)",
+    cmd => cmd
+        .WithInputParameter("Username", DbType.String, 50, "john")
+        .WithInputParameter("Email", DbType.String, 100, "john@example.com")
+        .WithInputParameter("Age", DbType.Int32, 25)
+)
+.Tap(rows => Console.WriteLine($"{rows} row(s) inserted"))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
+
+// Reading data
+executor.ExecuteReader(
+    "SELECT Username, Email FROM Users WHERE Age > @MinAge",
+    cmd => cmd.WithInputParameter("MinAge", DbType.Int32, 18),
+    new UserListConsumer()
+)
+.Tap(users => users.ForEach(u => Console.WriteLine($"{u.Username}: {u.Email}")))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
+```
+
+### ODBC Parameter Handling
+
+System.Data.Odbc in .NET supports **named parameters** using the `@` prefix, even though native ODBC uses positional `?` parameters. The .NET provider automatically converts named parameters to the correct format.
+
+**Key points:**
+- ✅ Use `@` prefix for parameter names (handled automatically by fluent API)
+- ✅ Named parameters work with all ODBC drivers
+- ✅ Parameter order must match the order in SQL for some drivers
+- ✅ Stored procedures are supported
+- ⚠️ Requires ODBC driver installation for target database
+
+### Supported Databases via ODBC
+
+- **PostgreSQL** - PostgreSQL ODBC Driver (psqlODBC)
+- **MySQL** - MySQL Connector/ODBC
+- **Oracle** - Oracle ODBC Driver
+- **SQL Server** - SQL Server Native Client / ODBC Driver
+- **IBM DB2** - IBM DB2 ODBC Driver
+- **SAP HANA** - SAP HANA ODBC Driver
+- **Teradata** - Teradata ODBC Driver
+- **Legacy systems** - Any database with ODBC driver support
+
+### Cross-Platform ODBC
+
+ODBC works on all platforms:
+- **Windows**: Windows ODBC Driver Manager
+- **Linux/macOS**: unixODBC driver manager
+
 ## MS SQL Provider
 
 The NuGet package `Voyager.DBConnection.MsSql` provides a ready-to-use implementation for MS SQL Server connections:
@@ -1045,5 +1119,5 @@ namespace Voyager.DBConnection.MsSql
 }
 ```
 
-			## Credits
-			- [@andrzejswistowski](https://github.com/AndrzejSwistowski)
+## Credits
+- [@andrzejswistowski](https://github.com/AndrzejSwistowski)
