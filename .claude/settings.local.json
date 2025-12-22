@@ -13,7 +13,9 @@
       "Bash(ls:*)",
       "Bash(where:*)",
       "Bash(powershell -Command:*)",
-      "Bash(dotnet script:*)"
+      "Bash(dotnet script:*)",
+      "Bash(dotnet add:*)",
+      "Bash(findstr:*)"
     ]
   }
 }
