@@ -18,7 +18,8 @@
       "Bash(findstr:*)",
       "Bash(dotnet pack:*)",
       "Bash(unzip:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
