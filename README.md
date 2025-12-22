@@ -105,10 +105,10 @@ con.ExecuteNonQuery(factory);
 
 ## Reading Data
 
-For reading data, implement the `IGetConsumer` interface:
+For reading data, implement the `IResultsConsumer` interface:
 
 ```csharp
-internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFactory, IGetConsumer<SaleItem[]>
+internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFactory, IResultsConsumer<SaleItem[]>
 {
     private RaportRequest request;
 
@@ -161,6 +161,8 @@ internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFac
     }
 }
 ```
+
+> **Note**: The legacy `IGetConsumer<T>` interface is still supported but deprecated. It will be removed in version 5.0. Please use `IResultsConsumer<T>` instead.
 
 Then call the `GetReader` method on the connection object:
 
