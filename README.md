@@ -41,165 +41,102 @@ dotnet test --filter "Category=Integration"
 docker-compose down
 ```
 
+## Getting Started - Recommended Approach
 
-### Step 1: Implement ICommandFactory Interface
+The modern way to use Voyager.DBConnection is through the `DbCommandExecutor` class with the `IDbCommandExecutor` interface. This approach provides:
 
-First, implement the `Voyager.DBConnection.Interfaces.ICommandFactory` interface:
+- **Excellent Testability**: Easy to mock with `IDbCommandExecutor` interface - no need for complex database mocking
+- **Separation of Concerns**: Command factories (`IDbCommandFactory`) keep command construction separate from execution logic
+- **Result Monad Pattern**: Explicit error handling with `Result<T>` - no hidden exceptions or try-catch blocks
+- **Multiple Command Patterns**: Use command factories, lambda functions, or direct stored procedure calls
+- **Full Async Support**: Built-in async/await with CancellationToken support
+
+### Basic Usage Example
 
 ```csharp
-public interface ICommandFactory : IReadOutParameters
+// Create executor
+var errorPolicy = new SqlServerErrorPolicy(); // Maps SQL exceptions to typed errors
+var executor = new DbCommandExecutor(database, errorPolicy);
+
+// Execute with fluent API and Result monad
+executor.ExecuteNonQuery(
+    "InsertUser",
+    cmd => cmd
+        .WithInputParameter("Username", DbType.String, 50, username)
+        .WithInputParameter("Email", DbType.String, 100, email)
+        .WithOutputParameter("UserId", DbType.Int32, 0)
+)
+.Tap(rowsAffected => Console.WriteLine($"User created, {rowsAffected} rows affected"))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
+```
+
+### Why This Approach?
+
+**Better Testability**: With `IDbCommandExecutor` interface, you can easily create unit tests:
+
+```csharp
+// Unit test with mock - no real database needed
+var mockExecutor = new Mock<IDbCommandExecutor>();
+mockExecutor.Setup(x => x.ExecuteNonQuery(It.IsAny<IDbCommandFactory>(), null))
+    .Returns(Result<int>.Success(1));
+
+var service = new UserService(mockExecutor.Object);
+var result = service.CreateUser("john", "john@example.com");
+
+Assert.That(result.IsSuccess, Is.True);
+```
+
+**Separation of Responsibilities**: Command factories encapsulate command construction:
+
+```csharp
+// Command factory - single responsibility: build the command
+public class CreateUserCommandFactory : IDbCommandFactory
 {
-    DbCommand ConstructDbCommand(Database db);
+    private readonly string username;
+    private readonly string email;
+
+    public CreateUserCommandFactory(string username, string email)
+    {
+        this.username = username;
+        this.email = email;
+    }
+
+    public DbCommand ConstructDbCommand(IDatabase db)
+    {
+        return db.GetStoredProcCommand("CreateUser")
+            .WithInputParameter("Username", DbType.String, 50, username)
+            .WithInputParameter("Email", DbType.String, 100, email);
+    }
 }
-```
 
-### Step 2: Create Command Factory Implementation
-
-Here's an example implementation for executing a stored procedure:
-
-```csharp
-internal class SetPilotiDoPowiadomieniaFactory : Voyager.DBConnection.Interfaces.ICommandFactory
+// Service class - single responsibility: business logic
+public class UserService
 {
-    private readonly int idBusMapRNo;
-    private readonly DateTime busMapDate;
-    private readonly string idAkwizytor;
-    private readonly string raport;
+    private readonly IDbCommandExecutor executor;
 
-    public SetPilotiDoPowiadomieniaFactory(int idBusMapRNo, DateTime busMapDate, string idAkwizytor, string raport)
+    public UserService(IDbCommandExecutor executor) => this.executor = executor;
+
+    public Result<int> CreateUser(string username, string email)
     {
-        this.idBusMapRNo = idBusMapRNo;
-        this.busMapDate = busMapDate;
-        this.idAkwizytor = idAkwizytor;
-        this.raport = raport;
-    }
-
-    public DbCommand ConstructDbCommand(Database db)
-    {
-        var cmd = db.GetStoredProcCommand("BusMap.p_SetPilotiDoPowiadomienia");
-        db.AddInParameter(cmd, "IdBusMapRNo", DbType.Int32, this.idBusMapRNo);
-        db.AddInParameter(cmd, "BusMapDate", DbType.Date, this.busMapDate);
-        db.AddInParameter(cmd, "IdAkwizytor", DbType.AnsiString, this.idAkwizytor);
-        db.AddInParameter(cmd, "Raport", DbType.AnsiString, this.raport);
-
-        return cmd;
-    }
-
-    public void ReadOutParameters(Database db, DbCommand command)
-    {
-    }
-}
-```
-### Step 3: Execute the Command
-
-Using your `DbProviderFactory`, create your database object (`Voyager.DBConnection.Database`) and connection (`Voyager.DBConnection.Connection`). Then call `ExecuteNonQuery` with the command factory:
-
-```csharp
-SetPilotiDoPowiadomieniaFactory factory = new SetPilotiDoPowiadomieniaFactory(
-    tagItem.IdBusMapRNp,
-    tagItem.BusMapDate,
-    tagItem.IdAkwizytor,
-    tagItem.Raport
-);
-con.ExecuteNonQuery(factory);
-```
-
-## Reading Data
-
-For reading data, implement the `IResultsConsumer` interface:
-
-```csharp
-internal class RegionalSaleCommand : Voyager.DBConnection.Interfaces.ICommandFactory, IResultsConsumer<SaleItem[]>
-{
-    private RaportRequest request;
-
-    public RegionalSaleCommand(RaportRequest request)
-    {
-        this.request = request;
-    }
-
-    public DbCommand ConstructDbCommand(Database db)
-    {
-        var cmd = db.GetStoredProcCommand("[dbo].[TestSaleReport]");
-        db.AddInParameter(cmd, "IdAkwizytorRowNo", System.Data.DbType.Int32, request.IdAkwizytorRowNo);
-        db.AddInParameter(cmd, "IdPrzewoznikRowNo", System.Data.DbType.Int32, request.IdPrzewoznikRowNo);
-        db.AddInParameter(cmd, "DataPocz", System.Data.DbType.DateTime, request.DateFrom);
-        db.AddInParameter(cmd, "DataKon", System.Data.DbType.DateTime, request.DateTo);
-
-        return cmd;
-    }
-
-    public SaleItem[] GetResults(IDataReader dataReader)
-    {
-        List<SaleItem> lista = new List<SaleItem>();
-
-        while (dataReader.Read())
-        {
-            int col = 0;
-            SaleItem item = new SaleItem();
-            item.GidRezerwacji = dataReader.GetString(col++);
-            item.GIDL = dataReader.GetString(col++);
-
-            DateTime data = dataReader.GetDateTime(col++);
-            var ts = dataReader.GetValue(col++);
-            TimeSpan czas = ts.ToString().CastTimeSpan();
-
-            item.DataSprzedazy = data.AddTicks(czas.Ticks);
-            item.IdWaluta = dataReader.GetString(col++);
-            item.IdWalutaBazowa = DBSafeCast.CastEmptyString(dataReader.GetValue(col++));
-            item.KursDniaBaz = (Double)DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 1);
-            item.NettoZ = DBSafeCast.Cast<Decimal>(dataReader.GetValue(col++), 0);
-            item.WalutaZcennika = dataReader.GetBoolean(col++);
-
-            lista.Add(item);
-        }
-
-        return lista.ToArray();
-    }
-
-    public void ReadOutParameters(Database db, DbCommand command)
-    {
+        var factory = new CreateUserCommandFactory(username, email);
+        return executor.ExecuteNonQuery(factory);
     }
 }
 ```
 
-> **Note**: The legacy `IGetConsumer<T>` interface is still supported but deprecated. It will be removed in version 5.0. Please use `IResultsConsumer<T>` instead.
+## Result-Based Error Handling
 
-Then call the `GetReader` method on the connection object:
+The `DbCommandExecutor` uses the Result monad pattern to encapsulate either a successful value or an error, eliminating the need for exception handling.
 
-```csharp
-public class RaportDB : Voyager.Raport.DBEntity.Store.Raport
-{
-    private readonly Connection connection;
-
-    public RaportDB(Voyager.DBConnection.Connection connection)
-    {
-        this.connection = connection;
-    }
-
-    public RaportResponse GetRaport(RaportRequest request)
-    {
-        RegionalSaleCommand raport = new RegionalSaleCommand(request);
-        return new RaportResponse()
-        {
-            Items = connection.GetReader(raport, raport)
-        };
-    }
-}
-```
-## Result-Based Error Handling with DbCommandExecutor
-
-The library provides `DbCommandExecutor` class that implements the `IDbCommandExecutor` interface for executing database commands with Result-based error handling instead of throwing exceptions. This approach uses the Result monad pattern to encapsulate either a successful value or an error.
-
-### Key Benefits
+### Key Concepts
 
 - **No Exception Throwing**: All methods return `Result<T>` which contains either a success value or an error
-- **Testable and Mockable**: The `IDbCommandExecutor` interface makes it easy to mock database operations in unit tests
-- **Multiple Command Patterns**: Supports command factories, function-based commands, and direct stored procedure calls
-- **Async Support**: Full async/await support with CancellationToken
-- **Implicit Conversions**: Result types support implicit conversions from values and errors, making code cleaner:
+- **Implicit Conversions**: Cleaner code with automatic conversions:
   - `TValue` → `Result<TValue>` (success)
   - `Error` → `Result<TValue>` (failure)
   - No need to explicitly call `Result<T>.Success()` or `Result<T>.Failure()`
+- **Typed Errors**: Categorize failures (ValidationError, DatabaseError, BusinessError, etc.)
+- **Composable**: Chain operations with `Bind`, `Map`, `Ensure`, `OrElse`
 
 ### Usage Examples
 
@@ -930,6 +867,149 @@ executor.ExecuteAndBind(
 - **Automatic Prefix Handling**: No need to remember provider-specific parameter prefixes
 - **Simplified Output Reading**: Generic `GetParameterValue<T>` handles type conversion and null values
 - **Cleaner Code**: Reduces boilerplate code for parameter management
+
+## Legacy API - Connection Class (Deprecated)
+
+> **⚠️ Warning**: The `Connection` class API is being phased out. While still supported, it is recommended to use `DbCommandExecutor` with `IDbCommandExecutor` interface for new development.
+>
+> **Why switch to DbCommandExecutor?**
+> - **Better Testability**: `IDbCommandExecutor` interface makes unit testing easier with mocking frameworks
+> - **Separation of Concerns**: Command factories (`IDbCommandFactory`) separate command construction from execution
+> - **No Exception Handling**: Result monad pattern (`Result<T>`) provides explicit error handling without try-catch blocks
+> - **Cleaner Code**: Fluent parameter API and implicit conversions reduce boilerplate
+
+### Legacy: Using ICommandFactory with Connection
+
+The `ICommandFactory` interface allows you to encapsulate database command construction:
+
+```csharp
+public interface ICommandFactory : IReadOutParameters
+{
+    DbCommand ConstructDbCommand(Database db);
+}
+```
+
+Example implementation for executing a stored procedure:
+
+```csharp
+internal class SetPilotiDoPowiadomieniaFactory : ICommandFactory
+{
+    private readonly int idBusMapRNo;
+    private readonly DateTime busMapDate;
+    private readonly string idAkwizytor;
+    private readonly string raport;
+
+    public SetPilotiDoPowiadomieniaFactory(int idBusMapRNo, DateTime busMapDate, string idAkwizytor, string raport)
+    {
+        this.idBusMapRNo = idBusMapRNo;
+        this.busMapDate = busMapDate;
+        this.idAkwizytor = idAkwizytor;
+        this.raport = raport;
+    }
+
+    public DbCommand ConstructDbCommand(Database db)
+    {
+        var cmd = db.GetStoredProcCommand("BusMap.p_SetPilotiDoPowiadomienia");
+        db.AddInParameter(cmd, "IdBusMapRNo", DbType.Int32, this.idBusMapRNo);
+        db.AddInParameter(cmd, "BusMapDate", DbType.Date, this.busMapDate);
+        db.AddInParameter(cmd, "IdAkwizytor", DbType.AnsiString, this.idAkwizytor);
+        db.AddInParameter(cmd, "Raport", DbType.AnsiString, this.raport);
+        return cmd;
+    }
+
+    public void ReadOutParameters(Database db, DbCommand command) { }
+}
+```
+
+Execute the command using `Connection`:
+
+```csharp
+var factory = new SetPilotiDoPowiadomieniaFactory(
+    tagItem.IdBusMapRNp,
+    tagItem.BusMapDate,
+    tagItem.IdAkwizytor,
+    tagItem.Raport
+);
+connection.ExecuteNonQuery(factory); // Throws exception on error
+```
+
+### Legacy: Reading Data with Connection
+
+For reading data, implement the `IResultsConsumer` interface:
+
+```csharp
+internal class RegionalSaleCommand : ICommandFactory, IResultsConsumer<SaleItem[]>
+{
+    private RaportRequest request;
+
+    public RegionalSaleCommand(RaportRequest request)
+    {
+        this.request = request;
+    }
+
+    public DbCommand ConstructDbCommand(Database db)
+    {
+        var cmd = db.GetStoredProcCommand("[dbo].[TestSaleReport]");
+        db.AddInParameter(cmd, "IdAkwizytorRowNo", DbType.Int32, request.IdAkwizytorRowNo);
+        db.AddInParameter(cmd, "IdPrzewoznikRowNo", DbType.Int32, request.IdPrzewoznikRowNo);
+        db.AddInParameter(cmd, "DataPocz", DbType.DateTime, request.DateFrom);
+        db.AddInParameter(cmd, "DataKon", DbType.DateTime, request.DateTo);
+        return cmd;
+    }
+
+    public SaleItem[] GetResults(IDataReader dataReader)
+    {
+        var lista = new List<SaleItem>();
+        while (dataReader.Read())
+        {
+            int col = 0;
+            var item = new SaleItem
+            {
+                GidRezerwacji = dataReader.GetString(col++),
+                GIDL = dataReader.GetString(col++),
+                // ... more field mappings
+            };
+            lista.Add(item);
+        }
+        return lista.ToArray();
+    }
+
+    public void ReadOutParameters(Database db, DbCommand command) { }
+}
+```
+
+Call the `GetReader` method:
+
+```csharp
+public class RaportDB
+{
+    private readonly Connection connection;
+
+    public RaportDB(Connection connection)
+    {
+        this.connection = connection;
+    }
+
+    public RaportResponse GetRaport(RaportRequest request)
+    {
+        var command = new RegionalSaleCommand(request);
+        return new RaportResponse
+        {
+            Items = connection.GetReader(command, command) // Throws exception on error
+        };
+    }
+}
+```
+
+> **Migration Tip**: To migrate from `Connection` to `DbCommandExecutor`:
+> 1. Keep your `ICommandFactory` implementations unchanged
+> 2. Replace `Connection` with `IDbCommandExecutor` in your constructors
+> 3. Change method calls to use `Result<T>` return types:
+>    - `connection.ExecuteNonQuery(factory)` → `executor.ExecuteNonQuery(factory).Tap(...).TapError(...)`
+>    - `connection.GetReader(factory, consumer)` → `executor.ExecuteReader(factory, consumer).Tap(...).TapError(...)`
+> 4. Replace try-catch blocks with `.TapError()` for error handling
+>
+> **Note**: The legacy `IGetConsumer<T>` interface is still supported but deprecated. It will be removed in version 5.0. Please use `IResultsConsumer<T>` instead.
 
 ## Logging
 

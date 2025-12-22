@@ -3,16 +3,16 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Product>Voyager.DBConnection</Product>
-		<Description>Library providing connection to SQL database using DbProviderFactory</Description>
+		<Description>Modern, testable database access library using DbProviderFactory with Result monad pattern for explicit error handling. Features IDbCommandExecutor interface for easy mocking, command factory pattern for separation of concerns, and fluent parameter API. Supports SQL Server, PostgreSQL, MySQL, Oracle, and SQLite.</Description>
 		<RepositoryType>git</RepositoryType>
 
-		<Title>Voyager.DBConnection</Title>
+		<Title>Voyager.DBConnection - Testable Database Access with Result Pattern</Title>
 
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
 		<Authors>Andrzej Świstowski</Authors>
+		<PackageTags>database;ado.net;dbproviderfactory;result-monad;command-pattern;testable;mocking;sqlserver;postgresql;mysql;oracle;sqlite;error-handling;functional-programming</PackageTags>
 	</PropertyGroup>
-
 
 </Project>
