@@ -15,7 +15,10 @@
       "Bash(powershell -Command:*)",
       "Bash(dotnet script:*)",
       "Bash(dotnet add:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(dotnet pack:*)",
+      "Bash(unzip:*)",
+      "Bash(git add:*)"
     ]
   }
 }
