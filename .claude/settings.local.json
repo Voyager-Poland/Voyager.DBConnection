@@ -19,7 +19,9 @@
       "Bash(dotnet pack:*)",
       "Bash(unzip:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dir /S /B *.csproj)",
+      "Bash(git mv:*)"
     ]
   }
 }
