@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.Postgr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.MySql.IntegrationTests", "tests\Voyager.DBConnection.MySql.IntegrationTests\Voyager.DBConnection.MySql.IntegrationTests.csproj", "{9C6BA156-09DC-43A6-8349-66C1C7C4F193}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.Logging", "src\Voyager.DBConnection.Logging\Voyager.DBConnection.Logging.csproj", "{B2434FD6-C0EC-409E-A572-499BDA574B1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -173,6 +175,18 @@ Global
 		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x64.Build.0 = Release|Any CPU
 		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x86.ActiveCfg = Release|Any CPU
 		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x86.Build.0 = Release|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Debug|x64.Build.0 = Debug|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Debug|x86.Build.0 = Debug|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Release|x64.ActiveCfg = Release|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Release|x64.Build.0 = Release|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Release|x86.ActiveCfg = Release|Any CPU
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -189,6 +203,7 @@ Global
 		{DD02E30B-A189-439E-B422-6B143C48E8D1} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{39909C87-DAAE-4732-B4D8-7F61369752D7} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{9C6BA156-09DC-43A6-8349-66C1C7C4F193} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{B2434FD6-C0EC-409E-A572-499BDA574B1D} = {925A5098-028F-44D9-9AFE-0314C34A678D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0690B12-FB9B-4D30-B8BB-5C9ABFA5A8C4}

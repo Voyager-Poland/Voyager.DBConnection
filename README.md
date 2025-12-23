@@ -26,6 +26,7 @@ This repository provides multiple NuGet packages in a monorepo structure:
 | **Voyager.DBConnection.Oracle** | Oracle Database-specific implementation with OracleDbCommandExecutor and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.Oracle.svg)](https://www.nuget.org/packages/Voyager.DBConnection.Oracle/) |
 | **Voyager.DBConnection.PostgreSql** | PostgreSQL-specific implementation with PostgreSqlDbCommandExecutor and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.PostgreSql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.PostgreSql/) |
 | **Voyager.DBConnection.MySql** | MySQL-specific implementation with MySqlDbCommandExecutor and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.MySql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.MySql/) |
+| **Voyager.DBConnection.Logging** | Logging extension with support for both DbCommandExecutor and Connection | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.Logging.svg)](https://www.nuget.org/packages/Voyager.DBConnection.Logging/) |
 
 ### Monorepo Benefits
 
@@ -1033,20 +1034,48 @@ public class RaportDB
 
 ## Logging
 
-The `Voyager.DBConnection.Logging` extension provides logging capabilities for database operations. After installing the package, call the extension method on the connection object:
+The `Voyager.DBConnection.Logging` extension provides logging capabilities for database operations. It supports both the modern `DbCommandExecutor` and legacy `Connection` classes.
+
+### Using with DbCommandExecutor (Recommended)
 
 ```csharp
-namespace Voyager.DBConnection
-{
-    public static class ConnectionLogger
-    {
-        public static void AddLogger(this Connection connection, ILogger logger)
-        {
-            connection.AddFeature(new LogFeature(logger, connection));
-        }
-    }
-}
+using Microsoft.Extensions.Logging;
+using Voyager.DBConnection;
+
+// Create executor with logging
+var database = new Database(factory, connectionString);
+var executor = new DbCommandExecutor(database, errorPolicy);
+
+// Add logger - logs all database operations
+executor.AddLogger(logger);
+
+// Now all operations are automatically logged
+executor.ExecuteNonQuery(
+    "InsertUser",
+    cmd => cmd
+        .WithInputParameter("Username", DbType.String, 50, "john")
+        .WithInputParameter("Email", DbType.String, 100, "john@example.com")
+)
+.Tap(rows => Console.WriteLine($"{rows} row(s) inserted"))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
 ```
+
+### Using with Connection (Legacy)
+
+```csharp
+using Microsoft.Extensions.Logging;
+using Voyager.DBConnection;
+
+var connection = new Connection(database, exceptionPolicy);
+connection.AddLogger(logger);
+```
+
+The logging extension automatically logs:
+- SQL command execution (stored procedures, queries)
+- Execution time
+- Parameters
+- Errors and exceptions
+- Success/failure status
 
 ## ODBC Support
 
