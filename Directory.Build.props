@@ -12,6 +12,10 @@
 	<!-- Import project-specific NuGet metadata -->
 	<Import Project="build/Build.NuGet.props" Condition="'$(MSBuildProjectName)' == 'Voyager.DBConnection'" />
 	<Import Project="build/Build.NuGet.MsSql.props" Condition="'$(MSBuildProjectName)' == 'Voyager.DBConnection.MsSql'" />
+	<Import Project="build/Build.NuGet.Oracle.props" Condition="'$(MSBuildProjectName)' == 'Voyager.DBConnection.Oracle'" />
+	<Import Project="build/Build.NuGet.PostgreSql.props" Condition="'$(MSBuildProjectName)' == 'Voyager.DBConnection.PostgreSql'" />
+	<Import Project="build/Build.NuGet.MySql.props" Condition="'$(MSBuildProjectName)' == 'Voyager.DBConnection.MySql'" />
+	<Import Project="build/Build.NuGet.Sqlite.props" Condition="'$(MSBuildProjectName)' == 'Voyager.DBConnection.Sqlite'" />
 
 	<PropertyGroup>
 		<!-- Target Frameworks - Always multi-target for .NET 8 and .NET Framework 4.8 -->

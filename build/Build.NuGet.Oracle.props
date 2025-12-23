@@ -1,0 +1,18 @@
+<Project>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<Product>Voyager.DBConnection.Oracle</Product>
+		<Description>Oracle Database implementation for Voyager.DBConnection. Provides OracleDatabase and OracleDbCommandExecutor with Result monad pattern for testable database operations. Includes Oracle-specific error mapping and provider implementation.</Description>
+		<RepositoryType>git</RepositoryType>
+
+		<Title>Voyager.DBConnection.Oracle - Oracle Database Extension</Title>
+
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
+		<Authors>Andrzej Świstowski</Authors>
+		<PackageTags>database;oracle;ado.net;dbproviderfactory;voyager;result-monad;testable</PackageTags>
+	</PropertyGroup>
+
+</Project>
