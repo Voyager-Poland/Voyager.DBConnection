@@ -12,6 +12,9 @@ namespace Voyager.DBConnection.MySql
 			MySqlException mySqlException = ex as MySqlException;
 			if (mySqlException != null)
 			{
+				if (mySqlException.Number == ErrorCodes.DuplicateEntry)
+					return Error.ConflictError(mySqlException.Number.ToString(), mySqlException.Message);
+
 				if (mySqlException.Number == ErrorCodes.DeadlockFound)
 					return Error.UnavailableError(mySqlException.Number.ToString(), mySqlException.Message);
 

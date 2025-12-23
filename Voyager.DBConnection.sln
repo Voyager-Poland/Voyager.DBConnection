@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.Oracle
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.PostgreSql.IntegrationTests", "tests\Voyager.DBConnection.PostgreSql.IntegrationTests\Voyager.DBConnection.PostgreSql.IntegrationTests.csproj", "{39909C87-DAAE-4732-B4D8-7F61369752D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Voyager.DBConnection.MySql.IntegrationTests", "tests\Voyager.DBConnection.MySql.IntegrationTests\Voyager.DBConnection.MySql.IntegrationTests.csproj", "{9C6BA156-09DC-43A6-8349-66C1C7C4F193}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -159,6 +161,18 @@ Global
 		{39909C87-DAAE-4732-B4D8-7F61369752D7}.Release|x64.Build.0 = Release|Any CPU
 		{39909C87-DAAE-4732-B4D8-7F61369752D7}.Release|x86.ActiveCfg = Release|Any CPU
 		{39909C87-DAAE-4732-B4D8-7F61369752D7}.Release|x86.Build.0 = Release|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Debug|x64.Build.0 = Debug|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Debug|x86.Build.0 = Debug|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x64.ActiveCfg = Release|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x64.Build.0 = Release|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x86.ActiveCfg = Release|Any CPU
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -174,6 +188,7 @@ Global
 		{AFA93B49-5881-40EB-8BDD-122D86FAAC4C} = {925A5098-028F-44D9-9AFE-0314C34A678D}
 		{DD02E30B-A189-439E-B422-6B143C48E8D1} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{39909C87-DAAE-4732-B4D8-7F61369752D7} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{9C6BA156-09DC-43A6-8349-66C1C7C4F193} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0690B12-FB9B-4D30-B8BB-5C9ABFA5A8C4}
