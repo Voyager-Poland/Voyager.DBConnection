@@ -88,10 +88,11 @@ public abstract class PostgreSqlTestBase
 
     protected void CleanupTestData()
     {
-        // PostgreSQL uses lowercase table names by default
-        ExecuteNonQuery("DELETE FROM orderitems");
-        ExecuteNonQuery("DELETE FROM orders");
-        ExecuteNonQuery("DELETE FROM products WHERE productid > 4"); // Keep initial test data
-        ExecuteNonQuery("DELETE FROM users WHERE userid > 3"); // Keep initial test data
+        // Table names are case-sensitive in PostgreSQL when defined with quotes
+        // Our schema uses PascalCase: Users, Products, Orders, OrderItems
+        ExecuteNonQuery("DELETE FROM OrderItems");
+        ExecuteNonQuery("DELETE FROM Orders");
+        ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
+        ExecuteNonQuery("DELETE FROM Users WHERE UserId > 3"); // Keep initial test data
     }
 }
