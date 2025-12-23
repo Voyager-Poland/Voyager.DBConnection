@@ -22,7 +22,10 @@ This repository provides multiple NuGet packages in a monorepo structure:
 | Package | Description | NuGet |
 |---------|-------------|-------|
 | **Voyager.DBConnection** | Core library with DbProviderFactory support for all databases | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.svg)](https://www.nuget.org/packages/Voyager.DBConnection/) |
-| **Voyager.DBConnection.MsSql** | SQL Server-specific implementation with SqlConnection, SqlDatabase, and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.MsSql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.MsSql/) |
+| **Voyager.DBConnection.MsSql** | SQL Server-specific implementation with error mapping for both .NET Framework 4.8 and .NET 6.0+ | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.MsSql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.MsSql/) |
+| **Voyager.DBConnection.Oracle** | Oracle Database-specific implementation with OracleDbCommandExecutor and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.Oracle.svg)](https://www.nuget.org/packages/Voyager.DBConnection.Oracle/) |
+| **Voyager.DBConnection.PostgreSql** | PostgreSQL-specific implementation with PostgreSqlDbCommandExecutor and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.PostgreSql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.PostgreSql/) |
+| **Voyager.DBConnection.MySql** | MySQL-specific implementation with MySqlDbCommandExecutor and error mapping | [![NuGet](https://img.shields.io/nuget/v/Voyager.DBConnection.MySql.svg)](https://www.nuget.org/packages/Voyager.DBConnection.MySql/) |
 
 ### Monorepo Benefits
 
@@ -40,7 +43,6 @@ The project includes Docker Compose configuration for testing against multiple d
 - PostgreSQL 16
 - MySQL 8.0
 - Oracle XE 21
-- SQLite (file-based)
 
 See [README.Docker.md](README.Docker.md) for detailed Docker setup and usage instructions.
 
