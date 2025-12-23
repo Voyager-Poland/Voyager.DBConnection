@@ -4,16 +4,10 @@ namespace Voyager.DBConnection.PostgreSql
 {
 	public class DBProvider
 	{
-		static DBProvider()
-		{
-#if NETCORE
-			DbProviderFactories.RegisterFactory("Npgsql", global::Npgsql.NpgsqlFactory.Instance);
-#endif
-		}
-
 		public DbProviderFactory GetPostgreSqlProvider()
 		{
-			return DbProviderFactories.GetFactory("Npgsql");
+			// Directly return the factory instance
+			return global::Npgsql.NpgsqlFactory.Instance;
 		}
 	}
 }

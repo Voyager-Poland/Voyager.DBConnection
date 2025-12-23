@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;net8.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks></TargetFrameworks> <!-- Override multi-targeting from Directory.Build.props -->
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -17,8 +18,8 @@
     <PackageReference Include="NUnit.Analyzers" Version="4.7.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
 
-    <!-- SQL Server provider -->
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <!-- Oracle provider -->
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.7.0" />
 
     <!-- Configuration -->
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1" />
@@ -34,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Voyager.DBConnection.MsSql\Voyager.DBConnection.MsSql.csproj" />
+    <ProjectReference Include="..\\..\\src\\Voyager.DBConnection.Oracle\\Voyager.DBConnection.Oracle.csproj" />
   </ItemGroup>
 
   <ItemGroup>

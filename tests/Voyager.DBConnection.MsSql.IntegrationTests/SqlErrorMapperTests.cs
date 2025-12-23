@@ -1,5 +1,9 @@
 using System.Data;
+#if NETFRAMEWORK
+using System.Data.SqlClient;
+#else
 using Microsoft.Data.SqlClient;
+#endif
 using Voyager.Common.Results;
 using Voyager.DBConnection.MsSql;
 
@@ -36,7 +40,7 @@ public class SqlErrorMapperTests : SqlServerTestBase
 
         // Assert
         Assert.That(result.IsSuccess, Is.False);
-        Assert.That(result.Error.Type, Is.EqualTo(ErrorType.Database));
+        Assert.That(result.Error.Type, Is.EqualTo(ErrorType.Conflict));
         Assert.That(result.Error.Code, Is.Not.Null);
 
         // SQL Server error code for unique constraint violation is typically 2627 or 2601
@@ -116,25 +120,54 @@ public class SqlErrorMapperTests : SqlServerTestBase
     {
         // Use reflection to create SqlException with specific error number
         // This is a common pattern for testing SQL Server error handling
-        var collection = typeof(SqlErrorCollection)
+
+        var collectionConstructor = typeof(SqlErrorCollection)
             .GetConstructor(
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
                 null,
                 Type.EmptyTypes,
-                null)!
-            .Invoke(null);
+                null);
 
-        var error = typeof(SqlError)
+        if (collectionConstructor == null)
+            throw new InvalidOperationException("Could not find SqlErrorCollection constructor");
+
+        var collection = collectionConstructor.Invoke(null);
+
+        // Microsoft.Data.SqlClient has a different SqlError constructor signature
+        var errorConstructor = typeof(SqlError)
             .GetConstructor(
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
                 null,
                 new[] { typeof(int), typeof(byte), typeof(byte), typeof(string), typeof(string), typeof(string), typeof(int), typeof(uint) },
-                null)!
-            .Invoke(new object[] { errorNumber, (byte)0, (byte)0, "server", "message", "procedure", 0, (uint)0 });
+                null);
 
-        typeof(SqlErrorCollection)
-            .GetMethod("Add", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .Invoke(collection, new[] { error });
+        // If not found, try alternative constructor (for Microsoft.Data.SqlClient 5.x)
+        if (errorConstructor == null)
+        {
+            errorConstructor = typeof(SqlError)
+                .GetConstructor(
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
+                    null,
+                    new[] { typeof(int), typeof(byte), typeof(byte), typeof(string), typeof(string), typeof(string), typeof(int), typeof(uint), typeof(Exception) },
+                    null);
+
+            if (errorConstructor == null)
+                throw new InvalidOperationException("Could not find SqlError constructor");
+
+            var error = errorConstructor.Invoke(new object[] { errorNumber, (byte)0, (byte)0, "server", "message", "procedure", 0, (uint)0, null! });
+
+            typeof(SqlErrorCollection)
+                .GetMethod("Add", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .Invoke(collection, new[] { error });
+        }
+        else
+        {
+            var error = errorConstructor.Invoke(new object[] { errorNumber, (byte)0, (byte)0, "server", "message", "procedure", 0, (uint)0 });
+
+            typeof(SqlErrorCollection)
+                .GetMethod("Add", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                .Invoke(collection, new[] { error });
+        }
 
         var exception = typeof(SqlException)
             .GetConstructor(

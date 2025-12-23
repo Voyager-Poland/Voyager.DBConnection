@@ -46,8 +46,6 @@ jobs:
       run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.PostgreSql/Voyager.DBConnection.PostgreSql.csproj
     - name: Pack Voyager.DBConnection.MySql
       run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.MySql/Voyager.DBConnection.MySql.csproj
-    - name: Pack Voyager.DBConnection.Sqlite
-      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.Sqlite/Voyager.DBConnection.Sqlite.csproj
     - name: Upload artifacts for deployment job
       uses: actions/upload-artifact@v4
       with:

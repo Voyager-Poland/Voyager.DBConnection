@@ -1,5 +1,9 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Data.SqlClient;
+#else
+using Microsoft.Data.SqlClient;
+#endif
 using Voyager.Common.Results;
 using Voyager.DBConnection.Exceptions;
 using Voyager.DBConnection.Interfaces;

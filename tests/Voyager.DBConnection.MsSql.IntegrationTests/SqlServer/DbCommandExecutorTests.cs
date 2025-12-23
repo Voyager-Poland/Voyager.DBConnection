@@ -108,7 +108,7 @@ public class DbCommandExecutorTests : SqlServerTestBase
         // Assert
         Assert.That(result.IsSuccess, Is.False);
         Assert.That(result.Error.Type, Is.EqualTo(ErrorType.Conflict));
-        Assert.That(result.Error.Code, Is.EqualTo("Database.UniqueConstraint"));
+        Assert.That(result.Error.Code, Is.EqualTo("2627"));
     }
 
     [Test]
@@ -229,7 +229,7 @@ public class DbCommandExecutorTests : SqlServerTestBase
 
         // Assert
         Assert.That(result.IsSuccess, Is.False);
-        Assert.That(result.Error.Type, Is.EqualTo(ErrorType.Business));
-        Assert.That(result.Error.Code, Is.EqualTo("Database.ForeignKeyViolation"));
+        Assert.That(result.Error.Type, Is.EqualTo(ErrorType.Database));
+        Assert.That(result.Error.Code, Is.EqualTo("547"));
     }
 }

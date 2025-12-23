@@ -1,11 +1,15 @@
 ﻿using System;
+#if NETFRAMEWORK
 using System.Data.SqlClient;
+#else
+using Microsoft.Data.SqlClient;
+#endif
 using Voyager.Common.Results;
 using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection.MsSql
 {
-    public class SqlErrorMapper : IMapErrorPolicy
+	public class SqlErrorMapper : IMapErrorPolicy
 	{
 		public Error MapError(Exception ex)
 		{
@@ -19,6 +23,8 @@ namespace Voyager.DBConnection.MsSql
 				if (sqlException.Number == ErrorCodes.Timeout_adonetNumber)
 					return Error.TimeoutError(sqlException.Number.ToString(), sqlException.Message);
 
+				if (sqlException.Number == ErrorCodes.SqlUniqueConstraintViolation)
+					return Error.ConflictError(sqlException.Number.ToString(), sqlException.Message);
 				return Error.DatabaseError(sqlException.Number.ToString(), sqlException.Message);
 
 			}

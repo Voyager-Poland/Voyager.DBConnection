@@ -17,7 +17,9 @@ namespace Voyager.DBConnection.Oracle
 
 				if (oracleException.Number == ErrorCodes.Timeout)
 					return Error.TimeoutError(oracleException.Number.ToString(), oracleException.Message);
-
+				
+				if (oracleException.Number == ErrorCodes.UniqueConstraintViolation)
+					return Error.ConflictError(oracleException.Number.ToString(), oracleException.Message);
 				return Error.DatabaseError(oracleException.Number.ToString(), oracleException.Message);
 			}
 			return Error.FromException(ex);

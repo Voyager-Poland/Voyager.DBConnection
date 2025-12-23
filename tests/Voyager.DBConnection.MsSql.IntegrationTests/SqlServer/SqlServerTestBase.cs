@@ -48,27 +48,19 @@ public abstract class SqlServerTestBase
     [SetUp]
     public virtual void SetUp()
     {
-        // Can be overridden for test-specific setup
     }
 
     [TearDown]
     public virtual void TearDown()
     {
-        // Can be overridden for test-specific cleanup
+        CleanupTestData();
     }
 
     private void EnsureDatabaseExists()
     {
-        try
-        {
-            // Test connection by executing a simple query
-            Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
-                .TapError(error => throw new InvalidOperationException(error.Message));
-        }
-        catch
-        {
-            Assert.Ignore("SQL Server database is not available. Please ensure Docker container is running.");
-        }
+        // Test connection by executing a simple query
+        Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
+            .TapError(error => throw new InvalidOperationException(error.Message));
     }
 
     protected void CleanupTestData()

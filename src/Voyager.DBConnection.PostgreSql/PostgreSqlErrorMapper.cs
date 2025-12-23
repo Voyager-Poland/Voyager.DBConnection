@@ -18,6 +18,9 @@ namespace Voyager.DBConnection.PostgreSql
 				if (postgresException.SqlState == ErrorCodes.QueryCanceled)
 					return Error.TimeoutError(postgresException.SqlState, postgresException.Message);
 
+				if (postgresException.SqlState == ErrorCodes.UniqueViolation)
+					return Error.ConflictError(postgresException.SqlState, postgresException.Message);
+
 				return Error.DatabaseError(postgresException.SqlState, postgresException.Message);
 			}
 			return Error.FromException(ex);
