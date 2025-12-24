@@ -26,6 +26,11 @@
     <Description>Logging and telemetry extension for Voyager.DBConnection. Provides rich database event monitoring through SqlCallEvent with support for Application Insights, custom metrics, performance monitoring, and audit trails. Compatible with DbCommandExecutor and Connection.</Description>
     <PackageTags>SQL;Database;Logging;Telemetry;ApplicationInsights;Monitoring;DbProviderFactory;Observability;Performance;Audit</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
