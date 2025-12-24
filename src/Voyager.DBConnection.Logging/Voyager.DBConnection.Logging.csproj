@@ -21,11 +21,10 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
-    <Company>Voyager.com sp. z o.o.</Company>
     <Title>Voyager.DBConnection.Logging</Title>
     <Authors>Andrzej Świstowski</Authors>
-    <Description>Logging extension for Voyager.DBConnection with DbCommandExecutor and Connection support</Description>
-    <PackageTags>SQL,DbProviderFactory,Logging,Voyager.DBConnection</PackageTags>
+    <Description>Logging and telemetry extension for Voyager.DBConnection. Provides rich database event monitoring through SqlCallEvent with support for Application Insights, custom metrics, performance monitoring, and audit trails. Compatible with DbCommandExecutor and Connection.</Description>
+    <PackageTags>SQL;Database;Logging;Telemetry;ApplicationInsights;Monitoring;DbProviderFactory;Observability;Performance;Audit</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
