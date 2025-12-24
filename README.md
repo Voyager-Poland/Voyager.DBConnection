@@ -9,6 +9,7 @@ Voyager.DBConnection is a library providing a structured and type-safe way to co
 **Key Features:**
 - Type-safe database command construction using the Command Factory pattern
 - Support for stored procedures and parameterized queries
+- **Event-driven architecture** - `SqlCallEvent` provides rich telemetry for logging, monitoring, and custom analytics
 - Built-in logging support through extensions
 - MS SQL Server provider implementation included
 - Clean separation between command construction and execution
@@ -1034,7 +1035,14 @@ public class RaportDB
 
 ## Logging
 
+> **Note**: `Voyager.DBConnection.Logging` is available as a separate NuGet package with comprehensive documentation including Application Insights integration. See [src/Voyager.DBConnection.Logging/README.md](src/Voyager.DBConnection.Logging/README.md) for detailed usage examples and advanced scenarios.
+
 The `Voyager.DBConnection.Logging` extension provides logging capabilities for database operations. It supports both the modern `DbCommandExecutor` and legacy `Connection` classes.
+
+**Installation**:
+```bash
+dotnet add package Voyager.DBConnection.Logging
+```
 
 ### Using with DbCommandExecutor (Recommended)
 
@@ -1070,12 +1078,27 @@ var connection = new Connection(database, exceptionPolicy);
 connection.AddLogger(logger);
 ```
 
-The logging extension automatically logs:
-- SQL command execution (stored procedures, queries)
-- Execution time
-- Parameters
-- Errors and exceptions
-- Success/failure status
+### Database Events and Telemetry
+
+The logging extension uses the `SqlCallEvent` event system, which provides rich telemetry data for each database operation:
+
+**Available event data (`SqlCallEvent`)**:
+- `CommandText` - SQL command or stored procedure name
+- `CommandType` - Type of command (StoredProcedure, Text, etc.)
+- `ExecutionTime` - Precise execution duration (TimeSpan)
+- `Parameters` - Dictionary of parameter names and values
+- `DatabaseName` - Target database name
+- `IsError` - Success/failure indicator
+- `ErrorMessage` - Detailed error information (if failed)
+
+**Use cases for events**:
+- **Logging**: Built-in support via `AddLogger()` extension
+- **Application Insights**: Track database operations as dependencies with custom telemetry
+- **Performance monitoring**: Measure and alert on slow queries
+- **Audit trails**: Record all database operations for compliance
+- **Custom metrics**: Export to Prometheus, DataDog, or other monitoring systems
+
+See the [Voyager.DBConnection.Logging README](src/Voyager.DBConnection.Logging/README.md) for detailed examples of Application Insights integration and custom telemetry features
 
 ## ODBC Support
 
