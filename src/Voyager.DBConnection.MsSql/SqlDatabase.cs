@@ -13,6 +13,10 @@
 		public SqlDatabase(string sqlConnectionString)
 			: base(sqlConnectionString, new DBProvider().GetSqlProvider())
 		{
+
 		}
+
+		[System.Obsolete]
+		protected override string GetParameterToken() => "@";
 	}
 }
