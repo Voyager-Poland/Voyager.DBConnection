@@ -3,7 +3,6 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Voyager.Common.Results;
 using Voyager.DBConnection.Events;
 using Voyager.DBConnection.Exceptions;
 using Voyager.DBConnection.Interfaces;
@@ -123,6 +122,25 @@ namespace Voyager.DBConnection
 			return Task.Run(() => ExecuteNonQuery(factory), cancellationToken);
 		}
 
+		[Obsolete("Use IResultsConsumer<TDomain> instead.")]
+		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer) => GetReaderAsync(factory, consumer, CancellationToken.None);
+
+		[Obsolete("Use IResultsConsumer<TDomain> instead.")]
+		public virtual Task<TDomain> GetReaderAsync<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer, CancellationToken cancellationToken)
+		{
+			return Task.Run(() =>
+			{
+				return GetReader(factory, consumer);
+			}, cancellationToken);
+		}
+
+		[Obsolete("Use IResultsConsumer<TDomain> instead.")]
+		public virtual TDomain GetReader<TDomain>(ICommandFactory factory, IGetConsumer<TDomain> consumer)
+		{
+			using (DbCommand command = GetCommand(factory))
+				return ProcessReader(factory, consumer, command);
+		}
+
 		/// <summary>
 		/// Asynchronously executes a command and processes the result set using a consumer.
 		/// </summary>
@@ -165,6 +183,8 @@ namespace Voyager.DBConnection
 			using (DbCommand command = GetCommand(factory))
 				return ProcessReader(factory, consumer, command);
 		}
+
+
 
 		public virtual void Dispose()
 		{
