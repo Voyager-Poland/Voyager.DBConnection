@@ -89,9 +89,14 @@ public abstract class MySqlTestBase
     protected void CleanupTestData()
     {
         // MySQL table names are case-insensitive on Windows, case-sensitive on Linux
-        ExecuteNonQuery("DELETE FROM OrderItems");
-        ExecuteNonQuery("DELETE FROM Orders");
+        // Clean up test data in correct order (respect foreign keys)
+        // Ignore errors if tables are empty or records don't exist
+        ExecuteNonQuery("DELETE FROM OrderItems WHERE 1=1");
+        ExecuteNonQuery("DELETE FROM Orders WHERE 1=1");
         ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
-        ExecuteNonQuery("DELETE FROM Users WHERE UserId > 3"); // Keep initial test data
+        
+        // Delete test users created during tests (keep only the 3 initial users)
+        // Use single-line string for MySQL compatibility
+        ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
     }
 }

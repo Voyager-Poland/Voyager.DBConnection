@@ -119,8 +119,8 @@ public class SqlErrorMapperTests : SqlServerTestBase
     private static SqlException CreateSqlException(int errorNumber)
     {
         // Use reflection to create SqlException with specific error number
-        // This is a common pattern for testing SQL Server error handling
-
+        // Microsoft.Data.SqlClient has different constructor signatures across versions
+        
         var collectionConstructor = typeof(SqlErrorCollection)
             .GetConstructor(
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
@@ -133,41 +133,59 @@ public class SqlErrorMapperTests : SqlServerTestBase
 
         var collection = collectionConstructor.Invoke(null);
 
-        // Microsoft.Data.SqlClient has a different SqlError constructor signature
-        var errorConstructor = typeof(SqlError)
-            .GetConstructor(
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                null,
-                new[] { typeof(int), typeof(byte), typeof(byte), typeof(string), typeof(string), typeof(string), typeof(int), typeof(uint) },
-                null);
+        // Get all non-public constructors and try them in order of parameter count (most params first)
+        var errorConstructors = typeof(SqlError)
+            .GetConstructors(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            .OrderByDescending(c => c.GetParameters().Length)
+            .ToArray();
 
-        // If not found, try alternative constructor (for Microsoft.Data.SqlClient 5.x)
-        if (errorConstructor == null)
+        object? error = null;
+        
+        foreach (var constructor in errorConstructors)
         {
-            errorConstructor = typeof(SqlError)
-                .GetConstructor(
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-                    null,
-                    new[] { typeof(int), typeof(byte), typeof(byte), typeof(string), typeof(string), typeof(string), typeof(int), typeof(uint), typeof(Exception) },
-                    null);
-
-            if (errorConstructor == null)
-                throw new InvalidOperationException("Could not find SqlError constructor");
-
-            var error = errorConstructor.Invoke(new object[] { errorNumber, (byte)0, (byte)0, "server", "message", "procedure", 0, (uint)0, null! });
-
-            typeof(SqlErrorCollection)
-                .GetMethod("Add", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-                .Invoke(collection, new[] { error });
+            var parameters = constructor.GetParameters();
+            
+            // Try to match common constructor patterns
+            if (parameters.Length >= 8)
+            {
+                // Build arguments array based on parameter types
+                var args = new List<object?>();
+                
+                foreach (var param in parameters)
+                {
+                    if (param.ParameterType == typeof(int))
+                        args.Add(param.Position == 0 ? errorNumber : 0);
+                    else if (param.ParameterType == typeof(byte))
+                        args.Add((byte)0);
+                    else if (param.ParameterType == typeof(string))
+                        args.Add(param.Name == "message" ? "Test error message" : "test");
+                    else if (param.ParameterType == typeof(uint))
+                        args.Add((uint)0);
+                    else if (param.ParameterType == typeof(Exception))
+                        args.Add(null);
+                    else
+                        args.Add(null);
+                }
+                
+                try
+                {
+                    error = constructor.Invoke(args.ToArray());
+                    break; // Success!
+                }
+                catch
+                {
+                    // Try next constructor
+                    continue;
+                }
+            }
         }
-        else
-        {
-            var error = errorConstructor.Invoke(new object[] { errorNumber, (byte)0, (byte)0, "server", "message", "procedure", 0, (uint)0 });
 
-            typeof(SqlErrorCollection)
-                .GetMethod("Add", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-                .Invoke(collection, new[] { error });
-        }
+        if (error == null)
+            throw new InvalidOperationException($"Could not create SqlError. Available constructors: {string.Join(", ", errorConstructors.Select(c => $"({string.Join(", ", c.GetParameters().Select(p => p.ParameterType.Name))})"))}");
+
+        typeof(SqlErrorCollection)
+            .GetMethod("Add", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .Invoke(collection, new[] { error });
 
         var exception = typeof(SqlException)
             .GetConstructor(
