@@ -3,7 +3,7 @@
 # Wait for SQL Server to start
 sleep 30s
 
-# Create database
-/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -Q "IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'testdb') CREATE DATABASE testdb"
+# Run the initialization script
+/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -C -i /docker-entrypoint-initdb.d/init-databases.sql
 
-echo "Database testdb initialized"
+echo "Database testdb initialized with schema and test data"

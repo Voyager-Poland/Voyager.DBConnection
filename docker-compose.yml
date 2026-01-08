@@ -14,15 +14,16 @@ services:
     volumes:
       - mssql-data:/var/opt/mssql
       - ./scripts/mssql-init.sh:/docker-entrypoint-initdb.d/mssql-init.sh
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
     command: >
       bash -c "
       /opt/mssql/bin/sqlservr &
       sleep 30 &&
-      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -C -Q 'IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'\''testdb'\'') CREATE DATABASE testdb' &&
+      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -C -i /docker-entrypoint-initdb.d/init-databases.sql &&
       wait
       "
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -C -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 3s
       retries: 10
@@ -40,6 +41,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -60,6 +62,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./scripts/init-mysql.sql:/docker-entrypoint-initdb.d/init-mysql.sql
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
@@ -68,24 +71,26 @@ services:
       retries: 10
       start_period: 10s
 
-  # Oracle Database (XE - Express Edition)
+  # Oracle Database (FREE - 23ai)
   oracle:
-    image: gvenzl/oracle-xe:21-slim
+    image: gvenzl/oracle-free:latest
     container_name: voyager-oracle
     environment:
       ORACLE_PASSWORD: oracle
+      ORACLE_DATABASE: testdb
       APP_USER: testuser
       APP_USER_PASSWORD: testpass
     ports:
       - "1521:1521"
     volumes:
       - oracle-data:/opt/oracle/oradata
+      - ./scripts/init-oracle.sql:/container-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "healthcheck.sh"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 60s
 
   # SQLite - no container needed, file-based
   # Tests will create local SQLite database files

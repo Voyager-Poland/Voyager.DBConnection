@@ -90,9 +90,12 @@ public abstract class PostgreSqlTestBase
     {
         // Table names are case-sensitive in PostgreSQL when defined with quotes
         // Our schema uses PascalCase: Users, Products, Orders, OrderItems
+        // Clean up test data in correct order (respect foreign keys)
         ExecuteNonQuery("DELETE FROM OrderItems");
         ExecuteNonQuery("DELETE FROM Orders");
         ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
-        ExecuteNonQuery("DELETE FROM Users WHERE UserId > 3"); // Keep initial test data
+        
+        // Delete test users created during tests (keep only the 3 initial users)
+        ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
     }
 }

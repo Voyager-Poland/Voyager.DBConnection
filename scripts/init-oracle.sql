@@ -3,7 +3,8 @@
 -- Creates test tables for integration testing
 -- =============================================
 
--- Note: Connect as testuser/testpass@XEPDB1
+-- This script runs as TESTUSER (APP_USER)
+-- after gvenzl/oracle-xe creates the user
 
 -- Drop tables if they exist (for clean re-runs)
 BEGIN
@@ -33,41 +34,6 @@ EXCEPTION
    WHEN OTHERS THEN NULL;
 END;
 /
-
--- Drop sequences
-BEGIN
-   EXECUTE IMMEDIATE 'DROP SEQUENCE Users_Seq';
-EXCEPTION
-   WHEN OTHERS THEN NULL;
-END;
-/
-
-BEGIN
-   EXECUTE IMMEDIATE 'DROP SEQUENCE Products_Seq';
-EXCEPTION
-   WHEN OTHERS THEN NULL;
-END;
-/
-
-BEGIN
-   EXECUTE IMMEDIATE 'DROP SEQUENCE Orders_Seq';
-EXCEPTION
-   WHEN OTHERS THEN NULL;
-END;
-/
-
-BEGIN
-   EXECUTE IMMEDIATE 'DROP SEQUENCE OrderItems_Seq';
-EXCEPTION
-   WHEN OTHERS THEN NULL;
-END;
-/
-
--- Create sequences
-CREATE SEQUENCE Users_Seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE Products_Seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE Orders_Seq START WITH 1 INCREMENT BY 1;
-CREATE SEQUENCE OrderItems_Seq START WITH 1 INCREMENT BY 1;
 
 -- Users table
 CREATE TABLE Users (
@@ -192,5 +158,7 @@ INSERT INTO Products (ProductName, Price, CategoryId) VALUES ('Monitor', 299.99,
 COMMIT;
 
 -- Print success message
-DBMS_OUTPUT.PUT_LINE('Database initialized successfully!');
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Database initialized successfully for ' || USER || '!');
+END;
 /

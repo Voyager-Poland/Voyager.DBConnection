@@ -46,7 +46,7 @@ function Initialize-MySQL {
 function Initialize-Oracle {
     Write-Host "Initializing Oracle..." -ForegroundColor Green
     $scriptPath = Join-Path $PSScriptRoot "init-oracle.sql"
-    Get-Content $scriptPath | docker exec -i voyager-oracle sqlplus -S testuser/testpass@XEPDB1
+    Get-Content $scriptPath | docker exec -i voyager-oracle sqlplus -S testuser/testpass@FREEPDB1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "Oracle initialized successfully!" -ForegroundColor Green
     } else {
