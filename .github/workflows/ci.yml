@@ -75,35 +75,40 @@ jobs:
         with:
           name: NuGetPackages
           
+      - name: List downloaded packages (debug)
+        run: ls -la *.nupkg
+          
       - name: Publish Voyager.DBConnection to GitHub Packages
         run: |
-          # Publish core package first
-          dotnet nuget push Voyager.DBConnection/Voyager.DBConnection.*.nupkg -s Voyager-Poland --skip-duplicate
+          # Publish core package first (exact name match without provider suffixes)
+          dotnet nuget push Voyager.DBConnection.[0-9]*.nupkg -s Voyager-Poland --skip-duplicate || echo "Core package already exists or failed"
  
       - name: Publish dependent packages to GitHub Packages
         run: |
-          # Publish all other packages
-          dotnet nuget push Voyager.DBConnection.MsSql/*.nupkg -s Voyager-Poland --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.Oracle/*.nupkg -s Voyager-Poland --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.PostgreSql/*.nupkg -s Voyager-Poland --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.MySql/*.nupkg -s Voyager-Poland --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.Logging/*.nupkg -s Voyager-Poland --skip-duplicate
+          # Publish all provider packages
+          for pkg in Voyager.DBConnection.MsSql*.nupkg Voyager.DBConnection.Oracle*.nupkg Voyager.DBConnection.PostgreSql*.nupkg Voyager.DBConnection.MySql*.nupkg Voyager.DBConnection.Logging*.nupkg; do
+            if [ -f "$pkg" ]; then
+              echo "Publishing: $pkg"
+              dotnet nuget push "$pkg" -s Voyager-Poland --skip-duplicate || echo "$pkg already exists or failed"
+            fi
+          done
  
       - name: Publish Voyager.DBConnection to NuGet.org
         if: github.event.repository.visibility == 'public'
         run: |
-          # Publish core package first
-          dotnet nuget push Voyager.DBConnection/Voyager.DBConnection.*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          # Publish core package first (exact name match without provider suffixes)
+          dotnet nuget push Voyager.DBConnection.[0-9]*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate || echo "Core package already exists or failed"
  
       - name: Publish dependent packages to NuGet.org
         if: github.event.repository.visibility == 'public'
         run: |
-          # Publish all other packages
-          dotnet nuget push Voyager.DBConnection.MsSql/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.Oracle/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.PostgreSql/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.MySql/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
-          dotnet nuget push Voyager.DBConnection.Logging/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          # Publish all provider packages
+          for pkg in Voyager.DBConnection.MsSql*.nupkg Voyager.DBConnection.Oracle*.nupkg Voyager.DBConnection.PostgreSql*.nupkg Voyager.DBConnection.MySql*.nupkg Voyager.DBConnection.Logging*.nupkg; do
+            if [ -f "$pkg" ]; then
+              echo "Publishing: $pkg"
+              dotnet nuget push "$pkg" --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate || echo "$pkg already exists or failed"
+            fi
+          done
 
   release:
     runs-on: ubuntu-latest
