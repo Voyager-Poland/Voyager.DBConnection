@@ -19,7 +19,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
 
     <!-- MySQL provider -->
-    <PackageReference Include="MySql.Data" Version="9.1.0" />
+    <PackageReference Include="MySql.Data" Version="9.5.0" />
 
     <!-- Configuration -->
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1" />

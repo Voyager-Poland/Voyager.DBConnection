@@ -19,7 +19,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
 
     <!-- Oracle provider -->
-    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.7.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="23.26.0" />
 
     <!-- Configuration -->
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.1" />

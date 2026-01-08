@@ -75,12 +75,35 @@ jobs:
         with:
           name: NuGetPackages
           
-      - name: Publish to GitHub Packages
-        run: dotnet nuget push **/*.nupkg -s Voyager-Poland --skip-duplicate
-        
-      - name: Publish to NuGet.org
+      - name: Publish Voyager.DBConnection to GitHub Packages
+        run: |
+          # Publish core package first
+          dotnet nuget push Voyager.DBConnection/Voyager.DBConnection.*.nupkg -s Voyager-Poland --skip-duplicate
+ 
+      - name: Publish dependent packages to GitHub Packages
+        run: |
+          # Publish all other packages
+          dotnet nuget push Voyager.DBConnection.MsSql/*.nupkg -s Voyager-Poland --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.Oracle/*.nupkg -s Voyager-Poland --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.PostgreSql/*.nupkg -s Voyager-Poland --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.MySql/*.nupkg -s Voyager-Poland --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.Logging/*.nupkg -s Voyager-Poland --skip-duplicate
+ 
+      - name: Publish Voyager.DBConnection to NuGet.org
         if: github.event.repository.visibility == 'public'
-        run: dotnet nuget push **/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: |
+          # Publish core package first
+          dotnet nuget push Voyager.DBConnection/Voyager.DBConnection.*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+ 
+      - name: Publish dependent packages to NuGet.org
+        if: github.event.repository.visibility == 'public'
+        run: |
+          # Publish all other packages
+          dotnet nuget push Voyager.DBConnection.MsSql/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.Oracle/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.PostgreSql/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.MySql/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push Voyager.DBConnection.Logging/*.nupkg --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   release:
     runs-on: ubuntu-latest
