@@ -87,24 +87,50 @@ jobs:
       - name: Publish Voyager.DBConnection to GitHub Packages
         run: |
           # Publish core package first (exact name match without provider suffixes)
-          find . -name "Voyager.DBConnection.[0-9]*.nupkg" ! -name "*MsSql*" ! -name "*Oracle*" ! -name "*PostgreSql*" ! -name "*MySql*" ! -name "*Logging*" -exec dotnet nuget push {} -s Voyager-Poland --skip-duplicate \; || echo "Core package already exists or failed"
+          CORE_PKG=$(find ./Voyager.DBConnection/bin/Release -name "Voyager.DBConnection.4.*.nupkg" -type f | head -n 1)
+          if [ -n "$CORE_PKG" ]; then
+            echo "Publishing core package: $CORE_PKG"
+            dotnet nuget push "$CORE_PKG" -s Voyager-Poland --skip-duplicate
+          else
+            echo "Core package not found!"
+            exit 1
+          fi
  
       - name: Publish dependent packages to GitHub Packages
         run: |
-          # Publish all provider packages
-          find . -name "Voyager.DBConnection.*.nupkg" -exec dotnet nuget push {} -s Voyager-Poland --skip-duplicate \; || echo "Dependent packages already exist or failed"
+          # Publish all provider packages in order
+          for project in MsSql Oracle PostgreSql MySql Logging; do
+            PKG=$(find "./Voyager.DBConnection.$project/bin/Release" -name "*.nupkg" -type f | head -n 1)
+            if [ -n "$PKG" ]; then
+              echo "Publishing: $PKG"
+              dotnet nuget push "$PKG" -s Voyager-Poland --skip-duplicate
+            fi
+          done
  
       - name: Publish Voyager.DBConnection to NuGet.org
         if: github.event.repository.visibility == 'public'
         run: |
           # Publish core package first (exact name match without provider suffixes)
-          find . -name "Voyager.DBConnection.[0-9]*.nupkg" ! -name "*MsSql*" ! -name "*Oracle*" ! -name "*PostgreSql*" ! -name "*MySql*" ! -name "*Logging*" -exec dotnet nuget push {} --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \; || echo "Core package already exists or failed"
+          CORE_PKG=$(find ./Voyager.DBConnection/bin/Release -name "Voyager.DBConnection.4.*.nupkg" -type f | head -n 1)
+          if [ -n "$CORE_PKG" ]; then
+            echo "Publishing core package: $CORE_PKG"
+            dotnet nuget push "$CORE_PKG" --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          else
+            echo "Core package not found!"
+            exit 1
+          fi
  
       - name: Publish dependent packages to NuGet.org
         if: github.event.repository.visibility == 'public'
         run: |
-          # Publish all provider packages
-          find . -name "Voyager.DBConnection.*.nupkg" -exec dotnet nuget push {} --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate \; || echo "Dependent packages already exist or failed"
+          # Publish all provider packages in order
+          for project in MsSql Oracle PostgreSql MySql Logging; do
+            PKG=$(find "./Voyager.DBConnection.$project/bin/Release" -name "*.nupkg" -type f | head -n 1)
+            if [ -n "$PKG" ]; then
+              echo "Publishing: $PKG"
+              dotnet nuget push "$PKG" --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            fi
+          done
 
   release:
     runs-on: ubuntu-latest
