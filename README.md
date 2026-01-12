@@ -213,6 +213,7 @@ executor.ExecuteScalar(
 #### ExecuteReader - Reading Data
 
 ```csharp
+// Using IResultsConsumer (classic approach)
 var consumer = new RegionalSaleCommand(request);
 executor.ExecuteReader(consumer, consumer)
     .Tap(items =>
@@ -223,6 +224,50 @@ executor.ExecuteReader(consumer, consumer)
         }
     })
     .TapError(error => Console.WriteLine($"Error: {error.Message}"));
+
+// Using Func<IDataReader, TValue> (functional approach - recommended for simple cases)
+executor.ExecuteReader(
+    "GetUsers",
+    cmd => cmd.WithInputParameter("Active", DbType.Boolean, true),
+    reader =>
+    {
+        var users = new List<User>();
+        while (reader.Read())
+        {
+            users.Add(new User
+            {
+                Id = reader.GetInt32(0),
+                Name = reader.GetString(1),
+                Email = reader.GetString(2)
+            });
+        }
+        return users;
+    }
+)
+.Tap(users => users.ForEach(u => Console.WriteLine($"{u.Name}: {u.Email}")))
+.TapError(error => Console.WriteLine($"Error: {error.Message}"));
+
+// Async version with functional approach
+var result = await executor.ExecuteReaderAsync(
+    "GetActiveUsers",
+    cmd => cmd.WithInputParameter("MinAge", DbType.Int32, 18),
+    reader =>
+    {
+        var users = new List<User>();
+        while (reader.Read())
+        {
+            users.Add(new User
+            {
+                Id = reader.GetInt32(reader.GetOrdinal("UserId")),
+                Name = reader.GetString(reader.GetOrdinal("Name")),
+                Age = reader.GetInt32(reader.GetOrdinal("Age"))
+            });
+        }
+        return users;
+    },
+    afterCall: null,
+    cancellationToken
+);
 ```
 
 #### ExecuteAndBind - Binding Results
@@ -275,7 +320,77 @@ All execution methods (`ExecuteNonQuery`, `ExecuteScalar`, `ExecuteReader`, `Exe
 2. **Func<IDatabase, DbCommand>**: Using a function to create the command
 3. **string procedureName**: Direct stored procedure call with parameter configuration
 
+**ExecuteReader** additionally supports two ways to process results:
+- **IResultsConsumer<TValue>**: Interface-based approach (recommended for complex scenarios, reusable consumers)
+- **Func<IDataReader, TValue>**: Functional approach (recommended for simple, inline processing)
+
 Each pattern has both synchronous and asynchronous versions, with async versions supporting `CancellationToken`.
+
+**Example - All ExecuteReader patterns:**
+
+```csharp
+// Pattern 1: IDbCommandFactory + IResultsConsumer
+var factory = new GetUsersCommandFactory(activeOnly: true);
+var consumer = new UserListConsumer();
+Result<List<User>> result1 = executor.ExecuteReader(factory, consumer);
+
+// Pattern 2: IDbCommandFactory + Func<IDataReader, TValue>
+var factory2 = new GetUsersCommandFactory(activeOnly: true);
+Result<List<User>> result2 = executor.ExecuteReader(factory2, reader =>
+{
+    var users = new List<User>();
+    while (reader.Read())
+        users.Add(MapUser(reader));
+    return users;
+});
+
+// Pattern 3: Func<IDatabase, DbCommand> + IResultsConsumer
+Result<List<User>> result3 = executor.ExecuteReader(
+    db => db.GetStoredProcCommand("GetUsers")
+          .WithInputParameter("Active", DbType.Boolean, true),
+    new UserListConsumer()
+);
+
+// Pattern 4: Func<IDatabase, DbCommand> + Func<IDataReader, TValue>
+Result<List<User>> result4 = executor.ExecuteReader(
+    db => db.GetStoredProcCommand("GetUsers")
+          .WithInputParameter("Active", DbType.Boolean, true),
+    reader =>
+    {
+        var users = new List<User>();
+        while (reader.Read())
+            users.Add(MapUser(reader));
+        return users;
+    }
+);
+
+// Pattern 5: string procedureName + IResultsConsumer
+Result<List<User>> result5 = executor.ExecuteReader(
+    "GetUsers",
+    cmd => cmd.WithInputParameter("Active", DbType.Boolean, true),
+    new UserListConsumer()
+);
+
+// Pattern 6: string procedureName + Func<IDataReader, TValue> (most concise)
+Result<List<User>> result6 = executor.ExecuteReader(
+    "GetUsers",
+    cmd => cmd.WithInputParameter("Active", DbType.Boolean, true),
+    reader =>
+    {
+        var users = new List<User>();
+        while (reader.Read())
+            users.Add(MapUser(reader));
+        return users;
+    }
+);
+
+static User MapUser(IDataReader reader) => new User
+{
+    Id = reader.GetInt32(0),
+    Name = reader.GetString(1),
+    Email = reader.GetString(2)
+};
+```
 
 ### Advanced Result Monad Usage
 
