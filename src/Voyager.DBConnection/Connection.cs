@@ -283,15 +283,19 @@ namespace Voyager.DBConnection
 			return result;
 		}
 
-		private TDomain ProcessReader<TDomain>(IReadOutParameters factory, IResultsConsumer<TDomain> consumer, DbCommand command)
+	private TDomain ProcessReader<TDomain>(IReadOutParameters factory, IResultsConsumer<TDomain> consumer, DbCommand command)
+	{
+		TDomain result;
+		using (IDataReader dr = GetDataReader(command))
 		{
-			using (IDataReader dr = GetDataReader(command))
-			{
-				TDomain result = HandleReader(consumer, dr);
-				ReadOutParameters(factory, command);
-				return result;
-			}
+			result = HandleReader(consumer, dr);
+			// Do NOT read out parameters here - reader must be closed first
 		}
+		// Read output parameters AFTER the reader is disposed (closed)
+		// This is required by ADO.NET - output parameters are only available after the reader is closed
+		ReadOutParameters(factory, command);
+		return result;
+	}
 
 		private TDomain HandleReader<TDomain>(IResultsConsumer<TDomain> consumer, IDataReader dr)
 		{

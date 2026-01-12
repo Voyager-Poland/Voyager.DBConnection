@@ -253,109 +253,169 @@ namespace Voyager.DBConnection
 			}
 		}
 
-		public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+	public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+	{
+		using (DbCommand command = commandFactoryHelper.CreateCommand(commandFactory))
 		{
-			using (DbCommand command = commandFactoryHelper.CreateCommand(commandFactory))
+			var reader = dataReaderHelper.GetDataReader(command);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				var reader = dataReaderHelper.GetDataReader(command);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => dataReaderHelper.HandleReader(consumer, reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => dataReaderHelper.HandleReader(consumer, r));
 			}
-		}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
 
-		public Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
+		}
+	}
+
+	public Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+	{
+		using (DbCommand command = commandFunction(db))
 		{
-			using (DbCommand command = commandFunction(db))
+			var reader = dataReaderHelper.GetDataReader(command);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				var reader = dataReaderHelper.GetDataReader(command);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => dataReaderHelper.HandleReader(consumer, reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => dataReaderHelper.HandleReader(consumer, r));
 			}
-		}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
 
-		public Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
+		}
+	}
+
+	public Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
+	{
+		using (DbCommand command = db.GetStoredProcCommand(procedureName))
 		{
-			using (DbCommand command = db.GetStoredProcCommand(procedureName))
+			actionAddParams?.Invoke(command);
+			var reader = dataReaderHelper.GetDataReader(command);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				actionAddParams?.Invoke(command);
-				var reader = dataReaderHelper.GetDataReader(command);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => dataReaderHelper.HandleReader(consumer, reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => dataReaderHelper.HandleReader(consumer, r));
 			}
-		}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
 
-		public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall = null)
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
+		}
+	}
+
+	public Result<TValue> ExecuteReader<TValue>(IDbCommandFactory commandFactory, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall = null)
+	{
+		using (DbCommand command = commandFactoryHelper.CreateCommand(commandFactory))
 		{
-			using (DbCommand command = commandFactoryHelper.CreateCommand(commandFactory))
+			var reader = dataReaderHelper.GetDataReader(command);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				var reader = dataReaderHelper.GetDataReader(command);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => readerFunc(reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => readerFunc(r));
 			}
-		}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
 
-		public Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall = null)
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
+		}
+	}
+
+	public Result<TValue> ExecuteReader<TValue>(Func<IDatabase, DbCommand> commandFunction, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall = null)
+	{
+		using (DbCommand command = commandFunction(db))
 		{
-			using (DbCommand command = commandFunction(db))
+			var reader = dataReaderHelper.GetDataReader(command);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				var reader = dataReaderHelper.GetDataReader(command);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => readerFunc(reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => readerFunc(r));
 			}
-		}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
 
-		public Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall = null)
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
+		}
+	}
+
+	public Result<TValue> ExecuteReader<TValue>(string procedureName, Action<DbCommand> actionAddParams, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall = null)
+	{
+		using (DbCommand command = db.GetStoredProcCommand(procedureName))
 		{
-			using (DbCommand command = db.GetStoredProcCommand(procedureName))
+			actionAddParams?.Invoke(command);
+			var reader = dataReaderHelper.GetDataReader(command);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				actionAddParams?.Invoke(command);
-				var reader = dataReaderHelper.GetDataReader(command);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => readerFunc(reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => readerFunc(r));
 			}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
+
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
 		}
+	}
 
 		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(IDbCommandFactory commandFactory, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall = null)
 			=> ExecuteReaderAsyncCore(commandFactoryHelper.CreateCommandFactory(commandFactory), null, consumer, afterCall, CancellationToken.None);
@@ -393,41 +453,61 @@ namespace Voyager.DBConnection
 		public Task<Result<TValue>> ExecuteReaderAsync<TValue>(string procedureName, Action<DbCommand> actionAddParams, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall, CancellationToken cancellationToken)
 			=> ExecuteReaderFuncAsyncCore(commandFactoryHelper.CreateCommandFactory(procedureName), actionAddParams, readerFunc, afterCall, cancellationToken);
 
-		private async Task<Result<TValue>> ExecuteReaderAsyncCore<TValue>(Func<DbCommand> commandFactory, Action<DbCommand> beforeExecute, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+	private async Task<Result<TValue>> ExecuteReaderAsyncCore<TValue>(Func<DbCommand> commandFactory, Action<DbCommand> beforeExecute, IResultsConsumer<TValue> consumer, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+	{
+		using (DbCommand command = commandFactory())
 		{
-			using (DbCommand command = commandFactory())
+			beforeExecute?.Invoke(command);
+			var reader = await dataReaderHelper.GetDataReaderAsync(command, cancellationToken).ConfigureAwait(false);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				beforeExecute?.Invoke(command);
-				var reader = await dataReaderHelper.GetDataReaderAsync(command, cancellationToken).ConfigureAwait(false);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => dataReaderHelper.HandleReader(consumer, reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => dataReaderHelper.HandleReader(consumer, r));
 			}
-		}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
 
-		private async Task<Result<TValue>> ExecuteReaderFuncAsyncCore<TValue>(Func<DbCommand> commandFactory, Action<DbCommand> beforeExecute, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
+		}
+	}
+
+	private async Task<Result<TValue>> ExecuteReaderFuncAsyncCore<TValue>(Func<DbCommand> commandFactory, Action<DbCommand> beforeExecute, Func<IDataReader, TValue> readerFunc, Action<DbCommand> afterCall, CancellationToken cancellationToken)
+	{
+		using (DbCommand command = commandFactory())
 		{
-			using (DbCommand command = commandFactory())
+			beforeExecute?.Invoke(command);
+			var reader = await dataReaderHelper.GetDataReaderAsync(command, cancellationToken).ConfigureAwait(false);
+			if (!reader.IsSuccess)
+				return reader.Error;
+
+			Result<TValue> result;
+			try
 			{
-				beforeExecute?.Invoke(command);
-				var reader = await dataReaderHelper.GetDataReaderAsync(command, cancellationToken).ConfigureAwait(false);
-				if (!reader.IsSuccess)
-					return reader.Error;
-
-				var result = reader
-						.Map(reader => readerFunc(reader))
-						.Tap(_ => afterCall?.Invoke(command))
-						.Finally(() => reader.Value.Dispose());
-
-				return result;
+				result = reader.Map(r => readerFunc(r));
 			}
+			finally
+			{
+				// Dispose reader first to ensure output parameters are available
+				reader.Value?.Dispose();
+			}
+
+			// Call afterCall AFTER reader is disposed (output parameters are now available)
+			if (result.IsSuccess && afterCall != null)
+				afterCall(command);
+
+			return result;
 		}
+	}
 
 		public void AddEvent(Action<SqlCallEvent> logEvent)
 		{
