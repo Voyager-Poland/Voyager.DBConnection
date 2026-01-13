@@ -248,6 +248,95 @@ executor.ExecuteReader(
 .TapError(error => Console.WriteLine($"Error: {error.Message}"));
 
 // Async version with functional approach
+
+### DataReaderExtensions - Simplified Data Extraction
+
+**New in v4.5+**: LINQ-like extension methods for `IDataReader` eliminate boilerplate code:
+
+```csharp
+// Before: Manual loop
+var users = new List<User>();
+while (reader.Read())
+{
+    users.Add(new User { Id = reader.GetInt32(0), Name = reader.GetString(1) });
+}
+return users.ToArray();
+
+// After: FetchAll extension
+return reader.FetchAll(r => new User 
+{ 
+    Id = r.GetInt32(0), 
+    Name = r.GetString(1) 
+});
+```
+
+**Available Methods:**
+
+| Method | Returns | Use Case | Example |
+|--------|---------|----------|---------|
+| `AsEnumerable<T>()` | `IEnumerable<T>` | LINQ operations | `reader.AsEnumerable(r => ...).Where(...).Take(10)` |
+| `FetchAll<T>()` | `T[]` | Get all rows as array | `reader.FetchAll(r => new User { ... })` |
+| `FetchList<T>()` | `List<T>` | Get modifiable list | `reader.FetchList(r => new User { ... })` |
+| `FetchFirst<T>()` | `T` | First row (required) | `reader.FetchFirst(r => new Config { ... })` |
+| `FetchFirstOrDefault<T>()` | `T` | First row (optional) | `reader.FetchFirstOrDefault(r => ...)` |
+| `FetchSingle<T>()` | `T` | Exactly one row | `reader.FetchSingle(r => new User { ... })` |
+| `FetchSingleOrDefault<T>()` | `T` | 0-1 row | `reader.FetchSingleOrDefault(r => ...)` |
+
+**Usage with DbCommandExecutor:**
+
+```csharp
+// Get all users
+var users = executor.ExecuteReader(
+    db => db.GetSqlCommand("SELECT UserId, Username, Email FROM Users"),
+    reader => reader.FetchAll(r => new User
+    {
+        Id = r.GetInt32(r.GetOrdinal("UserId")),
+        Name = r.GetString(r.GetOrdinal("Username")),
+        Email = r.GetString(r.GetOrdinal("Email"))
+    })
+);
+
+// LINQ filtering with AsEnumerable (NEW!)
+var activeUsers = executor.ExecuteReader(
+    db => db.GetSqlCommand("SELECT * FROM Users"),
+    reader => reader
+        .AsEnumerable(r => new User
+        {
+            Id = r.GetInt32(0),
+            Name = r.GetString(1),
+            IsActive = r.GetBoolean(2)
+        })
+        .Where(u => u.IsActive)
+        .Take(10)
+        .ToList()
+);
+
+// Get single user by ID (throws if not found or duplicate)
+var user = executor.ExecuteReader(
+    "GetUserById",
+    cmd => cmd.WithInputParameter("userId", DbType.Int32, 42),
+    reader => reader.FetchSingle(r => new User
+    {
+        Id = r.GetInt32(0),
+        Name = r.GetString(1),
+        Email = r.GetString(2)
+    })
+);
+
+// Optional config value
+var theme = executor.ExecuteReader(
+    "GetUserPreference",
+    cmd => cmd
+        .WithInputParameter("userId", DbType.Int32, userId)
+        .WithInputParameter("key", DbType.String, "Theme"),
+    reader => reader.FetchFirstOrDefault(r => r.GetString(0))
+);
+var userTheme = theme.Value ?? "Dark"; // Use default if not set
+```
+
+📖 **[Complete DataReaderExtensions Guide](docs/DataReaderExtensions.md)** - Examples, best practices, and migration guide
+
+// Async version with functional approach
 var result = await executor.ExecuteReaderAsync(
     "GetActiveUsers",
     cmd => cmd.WithInputParameter("MinAge", DbType.Int32, 18),
