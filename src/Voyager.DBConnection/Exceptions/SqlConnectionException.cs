@@ -15,9 +15,5 @@ namespace Voyager.DBConnection.Exceptions
 		public SqlConnectionException() { }
 		public SqlConnectionException(string message) : base(message) { }
 		public SqlConnectionException(string message, Exception inner) : base(message, inner) { }
-		protected SqlConnectionException(
-		System.Runtime.Serialization.SerializationInfo info,
-		System.Runtime.Serialization.StreamingContext context)
-			: base(info, context) { }
 	}
 }

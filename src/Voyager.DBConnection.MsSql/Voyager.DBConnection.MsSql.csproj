@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<IsPackable>true</IsPackable>
+		<OutputType>Library</OutputType>
+	</PropertyGroup>
+
+	<!-- ProjectReference for local development - automatically converted to PackageReference in NuGet
+	package -->
+	<ItemGroup>
+		<ProjectReference Include="..\Voyager.DBConnection\Voyager.DBConnection.csproj">
+			<!-- This ensures the reference becomes a PackageReference in the NuGet package -->
+			<PrivateAssets>none</PrivateAssets>
+		</ProjectReference>
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' != 'net48'">
+		<PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\img\voyager-nugets-ikona-128x128.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

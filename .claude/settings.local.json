@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet test:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker exec:*)",
+      "Bash(cat:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(where:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(dotnet script:*)",
+      "Bash(dotnet add:*)",
+      "Bash(findstr:*)",
+      "Bash(dotnet pack:*)",
+      "Bash(unzip:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(dir /S /B *.csproj)",
+      "Bash(git mv:*)",
+      "Bash(dotnet new:*)",
+      "Bash(git reset:*)",
+      "Bash(Select-String -Pattern \"Failed|Error Message|Stack Trace\" -Context 2,2)",
+      "Bash(dotnet clean:*)",
+      "Bash(dir /S /B \"c:\\\\src\\\\Voyager.DBConnection\\\\tests\\\\Voyager.DBConnection.MsSql.IntegrationTests\\\\*Tests.cs\")"
+    ]
+  }
+}

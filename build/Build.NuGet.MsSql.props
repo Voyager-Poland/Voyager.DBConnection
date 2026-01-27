@@ -1,0 +1,22 @@
+<Project>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<Product>Voyager.DBConnection.MsSql</Product>
+		<Description>SQL Server implementation for Voyager.DBConnection. Provides SqlConnection,
+			SqlDatabase, and SqlDbCommandExecutor with Result monad pattern for testable database
+			operations. Includes SQL Server-specific error mapping and provider implementation.</Description>
+		<RepositoryType>git</RepositoryType>
+
+		<Title>Voyager.DBConnection.MsSql - SQL Server Extension</Title>
+
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
+		<Authors>Andrzej Świstowski</Authors>
+		<PackageTags>database;sqlserver;mssql;ado.net;dbproviderfactory;voyager;result-monad;testable</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
+	</PropertyGroup>
+
+</Project>

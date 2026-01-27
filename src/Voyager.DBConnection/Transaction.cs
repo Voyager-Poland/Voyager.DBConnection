@@ -1,54 +1,45 @@
 ﻿using System;
-using System.Data.Common;
-using Voyager.DBConnection.Interfaces;
 
 namespace Voyager.DBConnection
 {
 	public class Transaction : IDisposable
 	{
-		readonly DbTransaction dbTransaction;
-		internal readonly ITransactionOwner owner;
-		internal Transaction(DbTransaction dbTransaction, ITransactionOwner owner)
+		private readonly TransactionHolder _holder;
+		private readonly Action _onDispose;
+		private bool _disposed;
+
+		internal Transaction(TransactionHolder holder, Action onDispose)
 		{
-			this.dbTransaction = dbTransaction;
-			this.owner = owner;
+			_holder = holder ?? throw new ArgumentNullException(nameof(holder));
+			_onDispose = onDispose;
 		}
 
 		public void Commit()
 		{
-			dbTransaction.Commit();
-			RelaseTransaction();
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(Transaction));
+
+			_holder.Commit();
 		}
 
 		public void Rollback()
 		{
-			dbTransaction.Rollback();
-			RelaseTransaction();
+			if (_disposed)
+				throw new ObjectDisposedException(nameof(Transaction));
+
+			_holder.Rollback();
 		}
 
 		public void Dispose()
 		{
-			RelaseTransaction();
-		}
-
-		void RelaseTransaction()
-		{
-			try
+			if (!_disposed)
 			{
-				dbTransaction?.Dispose();
+				_holder.Dispose();
+				_onDispose?.Invoke();
+				_disposed = true;
 			}
-			catch { }
-
-			try
-			{
-				owner?.ResetTransaction();
-			}
-			catch { }
 		}
 
-		internal DbTransaction GetTransaction()
-		{
-			return dbTransaction;
-		}
+		internal System.Data.Common.DbTransaction GetTransaction() => _holder.Transaction;
 	}
 }

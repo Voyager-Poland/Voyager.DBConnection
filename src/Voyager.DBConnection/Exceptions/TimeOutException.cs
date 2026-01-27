@@ -15,9 +15,5 @@ namespace Voyager.DBConnection.Exceptions
 		public TimeOutException() { }
 		public TimeOutException(string message) : base(message) { }
 		public TimeOutException(string message, Exception inner) : base(message, inner) { }
-		protected TimeOutException(
-		System.Runtime.Serialization.SerializationInfo info,
-		System.Runtime.Serialization.StreamingContext context)
-			: base(info, context) { }
 	}
 }

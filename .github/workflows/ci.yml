@@ -1,0 +1,155 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: |
+          6.0.x
+          8.0.x
+    - name: Voyager-Source
+      run: dotnet nuget add source "https://nuget.pkg.github.com/Voyager-Poland/index.json" -n Voyager-Poland -u ${{secrets.VOY_ACTIONLOGIN}} -p ${{secrets.VOY_ACTIONLOGINPASS}} --store-password-in-clear-text
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore  -c Release
+    - name: Test .NET 6.0
+      run: dotnet test tests/Voyager.DBConnection.Test/Voyager.DBConnection.Test.csproj --no-build --verbosity normal -c Release --framework net6.0 --filter "Category!=Integration"
+    - name: Test .NET 8.0
+      run: dotnet test tests/Voyager.DBConnection.Test/Voyager.DBConnection.Test.csproj --no-build --verbosity normal -c Release --framework net8.0 --filter "Category!=Integration"
+    - name: Pack Voyager.DBConnection
+      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection/Voyager.DBConnection.csproj
+    - name: Pack Voyager.DBConnection.MsSql
+      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.MsSql/Voyager.DBConnection.MsSql.csproj
+    - name: Pack Voyager.DBConnection.Oracle
+      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.Oracle/Voyager.DBConnection.Oracle.csproj
+    - name: Pack Voyager.DBConnection.PostgreSql
+      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.PostgreSql/Voyager.DBConnection.PostgreSql.csproj
+    - name: Pack Voyager.DBConnection.MySql
+      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.MySql/Voyager.DBConnection.MySql.csproj
+    - name: Pack Voyager.DBConnection.Logging
+      run: dotnet pack --no-restore --no-build -c Release ${{ github.workspace }}/src/Voyager.DBConnection.Logging/Voyager.DBConnection.Logging.csproj
+    - name: Upload artifacts for deployment job
+      uses: actions/upload-artifact@v4
+      with:
+        name: NuGetPackages
+        path: ${{ github.workspace }}/src/**/bin/Release/*.nupkg
+        compression-level: 0
+        retention-days: 1
+        overwrite: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    # Only deploy on push to main (not on PR) or on version tags
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    permissions:
+      packages: write
+      contents: read
+    
+    steps:
+      - name: Add Voyager Source
+        run: dotnet nuget add source "https://nuget.pkg.github.com/Voyager-Poland/index.json" -n Voyager-Poland -u ${{secrets.VOY_ACTIONLOGIN}} -p ${{secrets.VOY_ACTIONLOGINPASS}} --store-password-in-clear-text        
+ 
+      - name: Download artifacts from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: NuGetPackages
+          
+      - name: List downloaded packages (debug)
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== All files ==="
+          find . -name "*.nupkg" -type f
+          echo "=== Listing current dir ==="
+          ls -la
+          
+      - name: Publish Voyager.DBConnection to GitHub Packages
+        run: |
+          # Publish core package first (exact name match without provider suffixes)
+          CORE_PKG=$(find ./Voyager.DBConnection/bin/Release -name "Voyager.DBConnection.4.*.nupkg" -type f | head -n 1)
+          if [ -n "$CORE_PKG" ]; then
+            echo "Publishing core package: $CORE_PKG"
+            dotnet nuget push "$CORE_PKG" -s Voyager-Poland --skip-duplicate
+          else
+            echo "Core package not found!"
+            exit 1
+          fi
+ 
+      - name: Publish dependent packages to GitHub Packages
+        run: |
+          # Publish all provider packages in order
+          for project in MsSql Oracle PostgreSql MySql Logging; do
+            PKG=$(find "./Voyager.DBConnection.$project/bin/Release" -name "*.nupkg" -type f | head -n 1)
+            if [ -n "$PKG" ]; then
+              echo "Publishing: $PKG"
+              dotnet nuget push "$PKG" -s Voyager-Poland --skip-duplicate
+            fi
+          done
+ 
+      - name: Publish Voyager.DBConnection to NuGet.org
+        if: github.event.repository.visibility == 'public'
+        run: |
+          # Publish core package first (exact name match without provider suffixes)
+          CORE_PKG=$(find ./Voyager.DBConnection/bin/Release -name "Voyager.DBConnection.4.*.nupkg" -type f | head -n 1)
+          if [ -n "$CORE_PKG" ]; then
+            echo "Publishing core package: $CORE_PKG"
+            dotnet nuget push "$CORE_PKG" --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+          else
+            echo "Core package not found!"
+            exit 1
+          fi
+ 
+      - name: Publish dependent packages to NuGet.org
+        if: github.event.repository.visibility == 'public'
+        run: |
+          # Publish all provider packages in order
+          for project in MsSql Oracle PostgreSql MySql Logging; do
+            PKG=$(find "./Voyager.DBConnection.$project/bin/Release" -name "*.nupkg" -type f | head -n 1)
+            if [ -n "$PKG" ]; then
+              echo "Publishing: $PKG"
+              dotnet nuget push "$PKG" --api-key ${{secrets.VOY_AND_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
+            fi
+          done
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    # Only create release on tags
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: NuGetPackages
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: '**/*.nupkg'
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, 'preview') || contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
