@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Product>Voyager.DBConnection.PostgreSql</Product>
-		<Description>PostgreSQL implementation for Voyager.DBConnection. Provides PostgreSqlDatabase and PostgreSqlDbCommandExecutor with Result monad pattern for testable database operations. Includes PostgreSQL-specific error mapping and provider implementation using Npgsql.</Description>
+		<Description>PostgreSQL implementation for Voyager.DBConnection. Provides PostgreSqlDatabase and
+			PostgreSqlDbCommandExecutor with Result monad pattern for testable database operations.
+			Includes PostgreSQL-specific error mapping and provider implementation using Npgsql.</Description>
 		<RepositoryType>git</RepositoryType>
 
 		<Title>Voyager.DBConnection.PostgreSql - PostgreSQL Extension</Title>
@@ -12,7 +14,10 @@
 		<RepositoryUrl>https://github.com/Voyager-Poland/Voyager.DBConnection.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
 		<Authors>Andrzej Świstowski</Authors>
-		<PackageTags>database;postgresql;postgres;npgsql;ado.net;dbproviderfactory;voyager;result-monad;testable</PackageTags>
+		<PackageTags>
+			database;postgresql;postgres;npgsql;ado.net;dbproviderfactory;voyager;result-monad;testable</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
 	</PropertyGroup>
 
 </Project>

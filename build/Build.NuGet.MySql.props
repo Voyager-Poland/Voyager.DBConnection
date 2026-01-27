@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Product>Voyager.DBConnection.MySql</Product>
-		<Description>MySQL/MariaDB implementation for Voyager.DBConnection. Provides MySqlDatabase and MySqlDbCommandExecutor with Result monad pattern for testable database operations. Includes MySQL-specific error mapping and provider implementation.</Description>
+		<Description>MySQL/MariaDB implementation for Voyager.DBConnection. Provides MySqlDatabase and
+			MySqlDbCommandExecutor with Result monad pattern for testable database operations. Includes
+			MySQL-specific error mapping and provider implementation.</Description>
 		<RepositoryType>git</RepositoryType>
 
 		<Title>Voyager.DBConnection.MySql - MySQL/MariaDB Extension</Title>
@@ -13,6 +15,8 @@
 		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
 		<Authors>Andrzej Świstowski</Authors>
 		<PackageTags>database;mysql;mariadb;ado.net;dbproviderfactory;voyager;result-monad;testable</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
 	</PropertyGroup>
 
 </Project>

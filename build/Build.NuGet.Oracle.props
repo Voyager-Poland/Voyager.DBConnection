@@ -3,7 +3,9 @@
 	<PropertyGroup>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Product>Voyager.DBConnection.Oracle</Product>
-		<Description>Oracle Database implementation for Voyager.DBConnection. Provides OracleDatabase and OracleDbCommandExecutor with Result monad pattern for testable database operations. Includes Oracle-specific error mapping and provider implementation.</Description>
+		<Description>Oracle Database implementation for Voyager.DBConnection. Provides OracleDatabase
+			and OracleDbCommandExecutor with Result monad pattern for testable database operations.
+			Includes Oracle-specific error mapping and provider implementation.</Description>
 		<RepositoryType>git</RepositoryType>
 
 		<Title>Voyager.DBConnection.Oracle - Oracle Database Extension</Title>
@@ -13,6 +15,9 @@
 		<PackageProjectUrl>https://github.com/Voyager-Poland/Voyager.DBConnection</PackageProjectUrl>
 		<Authors>Andrzej Świstowski</Authors>
 		<PackageTags>database;oracle;ado.net;dbproviderfactory;voyager;result-monad;testable</PackageTags>
+		<!-- Centralize icon/readme metadata here to avoid duplication in csproj -->
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>voyager-nugets-ikona-128x128.png</PackageIcon>
 	</PropertyGroup>
 
 </Project>
