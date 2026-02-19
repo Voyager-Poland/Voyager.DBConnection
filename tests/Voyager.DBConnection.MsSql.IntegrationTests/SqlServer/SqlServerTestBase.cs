@@ -80,15 +80,17 @@ public abstract class SqlServerTestBase
 
     protected void ExecuteNonQuery(string sql)
     {
-        Executor!.ExecuteNonQuery(db => db.GetSqlCommand(sql))
+        _ = Executor!.ExecuteNonQuery(db => db.GetSqlCommand(sql))
             .TapError(error => throw new InvalidOperationException($"Failed to execute SQL: {error.Message}"));
     }
 
     protected T? ExecuteScalar<T>(string sql)
     {
-        return Executor!.ExecuteScalar(db => db.GetSqlCommand(sql))
+        var result = Executor!.ExecuteScalar(db => db.GetSqlCommand(sql))
             .Map(value => value == null || value == DBNull.Value ? default(T) : (T)value)
-            .TapError(error => throw new InvalidOperationException($"Failed to execute SQL: {error.Message}"))
-            .Value;
+            .TapError(error => throw new InvalidOperationException($"Failed to execute SQL: {error.Message}"));
+        if (!result.IsSuccess)
+            throw new InvalidOperationException("Unexpected failure");
+        return result.Value;
     }
 }

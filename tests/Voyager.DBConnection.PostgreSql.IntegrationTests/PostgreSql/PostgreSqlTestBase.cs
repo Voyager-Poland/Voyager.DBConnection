@@ -67,7 +67,7 @@ public abstract class PostgreSqlTestBase
         try
         {
             // Test connection by executing a simple query
-            Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
+            _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
                 .TapError(error => throw new InvalidOperationException(error.Message));
         }
         catch (Exception ex)
@@ -91,11 +91,11 @@ public abstract class PostgreSqlTestBase
         // Table names are case-sensitive in PostgreSQL when defined with quotes
         // Our schema uses PascalCase: Users, Products, Orders, OrderItems
         // Clean up test data in correct order (respect foreign keys)
-        ExecuteNonQuery("DELETE FROM OrderItems");
-        ExecuteNonQuery("DELETE FROM Orders");
-        ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
-        
+        _ = ExecuteNonQuery("DELETE FROM OrderItems");
+        _ = ExecuteNonQuery("DELETE FROM Orders");
+        _ = ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
+
         // Delete test users created during tests (keep only the 3 initial users)
-        ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
+        _ = ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
     }
 }

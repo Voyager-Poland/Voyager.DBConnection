@@ -86,7 +86,7 @@ public class DbCommandExecutorTests : SqlServerTestBase
     public void ExecuteNonQuery_DuplicateUsername_ShouldReturnConflictError()
     {
         // Arrange - first insert
-        Executor!.ExecuteNonQuery(
+        _ = Executor!.ExecuteNonQuery(
             "CreateUser",
             cmd => cmd
                 .WithInputParameter("Username", DbType.String, 50, "duplicate_user")
@@ -119,7 +119,7 @@ public class DbCommandExecutorTests : SqlServerTestBase
         bool tapErrorCalled = false;
 
         // Act
-        Executor!.ExecuteAndBind<int>(
+        _ = Executor!.ExecuteAndBind<int>(
             "CreateUser",
             cmd => cmd
                 .WithInputParameter("Username", DbType.String, 50, "tap_test_user")

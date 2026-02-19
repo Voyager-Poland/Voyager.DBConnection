@@ -67,7 +67,7 @@ public abstract class MySqlTestBase
         try
         {
             // Test connection by executing a simple query
-            Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
+            _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
                 .TapError(error => throw new InvalidOperationException(error.Message));
         }
         catch (Exception ex)
@@ -91,12 +91,12 @@ public abstract class MySqlTestBase
         // MySQL table names are case-insensitive on Windows, case-sensitive on Linux
         // Clean up test data in correct order (respect foreign keys)
         // Ignore errors if tables are empty or records don't exist
-        ExecuteNonQuery("DELETE FROM OrderItems WHERE 1=1");
-        ExecuteNonQuery("DELETE FROM Orders WHERE 1=1");
-        ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
-        
+        _ = ExecuteNonQuery("DELETE FROM OrderItems WHERE 1=1");
+        _ = ExecuteNonQuery("DELETE FROM Orders WHERE 1=1");
+        _ = ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
+
         // Delete test users created during tests (keep only the 3 initial users)
         // Use single-line string for MySQL compatibility
-        ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
+        _ = ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
     }
 }

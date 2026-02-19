@@ -72,13 +72,13 @@ public class DbCommandExecutorTests : MySqlTestBase
     public void ExecuteScalar_GetUserCount_ShouldReturnCount()
     {
         // Arrange - Create some test users
-        Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
+        _ = Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
             .WithInputParameter("p_Username", DbType.String, 50, "user1_mysql")
             .WithInputParameter("p_Email", DbType.String, 100, "user1@example.com")
             .WithInputParameter("p_Age", DbType.Int32, 20)
             .WithOutputParameter("p_UserId", DbType.Int32, 0));
 
-        Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
+        _ = Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
             .WithInputParameter("p_Username", DbType.String, 50, "user2_mysql")
             .WithInputParameter("p_Email", DbType.String, 100, "user2@example.com")
             .WithInputParameter("p_Age", DbType.Int32, 30)
@@ -100,7 +100,7 @@ public class DbCommandExecutorTests : MySqlTestBase
     public void ExecuteNonQuery_DuplicateUsername_ShouldReturnConflictError()
     {
         // Arrange - First insert
-        Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
+        _ = Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
             .WithInputParameter("p_Username", DbType.String, 50, "duplicate_user_mysql")
             .WithInputParameter("p_Email", DbType.String, 100, "dup1@example.com")
             .WithInputParameter("p_Age", DbType.Int32, 25)
@@ -126,7 +126,7 @@ public class DbCommandExecutorTests : MySqlTestBase
         bool tapErrorCalled = false;
 
         // Act
-        Executor!.ExecuteAndBind<int>(
+        _ = Executor!.ExecuteAndBind<int>(
             "CreateUser",
             cmd => cmd
                 .WithInputParameter("p_Username", DbType.String, 50, "tap_test_mysql")
@@ -207,6 +207,7 @@ public class DbCommandExecutorTests : MySqlTestBase
                 .WithOutputParameter("p_UserId", DbType.Int32, 0),
             cmd => cmd.GetParameterValue<int>("p_UserId")
         );
+        Assert.That(createResult.IsSuccess, Is.True);
         var userId = createResult.Value;
 
         // Act

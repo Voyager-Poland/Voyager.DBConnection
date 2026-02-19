@@ -58,7 +58,7 @@ public abstract class OracleTestBase
     private void EnsureDatabaseExists()
     {
             // Test connection by executing a simple query
-            Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1 FROM DUAL"))
+            _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1 FROM DUAL"))
                 .TapError(error => throw new InvalidOperationException(error.Message));
     }
 
@@ -75,11 +75,11 @@ public abstract class OracleTestBase
     protected void CleanupTestData()
     {
         // Clean up test data in correct order (respect foreign keys)
-        ExecuteNonQuery("DELETE FROM OrderItems");
-        ExecuteNonQuery("DELETE FROM Orders");
-        ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
-        
+        _ = ExecuteNonQuery("DELETE FROM OrderItems");
+        _ = ExecuteNonQuery("DELETE FROM Orders");
+        _ = ExecuteNonQuery("DELETE FROM Products WHERE ProductId > 4"); // Keep initial test data
+
         // Delete test users created during tests (keep only the 3 initial users)
-        ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
+        _ = ExecuteNonQuery("DELETE FROM Users WHERE Username NOT IN ('john_doe', 'jane_smith', 'bob_wilson')");
     }
 }
