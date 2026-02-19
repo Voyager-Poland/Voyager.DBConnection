@@ -19,7 +19,7 @@ public class SqlErrorMapperTests : SqlServerTestBase
     public void ExecuteNonQuery_DuplicateKey_ShouldReturnDatabaseError()
     {
         // Arrange - create first user
-        Executor!.ExecuteNonQuery(
+        _ = Executor!.ExecuteNonQuery(
             "CreateUser",
             cmd => cmd
                 .WithInputParameter("Username", DbType.String, 50, "unique_user_error_test")

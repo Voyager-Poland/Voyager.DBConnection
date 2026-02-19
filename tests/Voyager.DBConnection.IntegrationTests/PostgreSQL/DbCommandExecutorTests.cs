@@ -37,9 +37,9 @@ public class DbCommandExecutorTests : PostgreSqlTestBase
     public void ExecuteScalar_GetUserCount_ShouldReturnCount()
     {
         // Arrange - Create some test users
-        Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('user1_pg', 'user1@example.com', 20)"));
-        Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('user2_pg', 'user2@example.com', 30)"));
-        Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('user3_pg', 'user3@example.com', 40)"));
+        _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('user1_pg', 'user1@example.com', 20)"));
+        _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('user2_pg', 'user2@example.com', 30)"));
+        _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('user3_pg', 'user3@example.com', 40)"));
 
         // Act
         var result = Executor!.ExecuteScalar(
@@ -56,7 +56,7 @@ public class DbCommandExecutorTests : PostgreSqlTestBase
     public void ExecuteScalar_DuplicateUsername_ShouldReturnConflictError()
     {
         // Arrange - First insert
-        Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('duplicate_user_pg', 'dup1@example.com', 25)"));
+        _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT CreateUser('duplicate_user_pg', 'dup1@example.com', 25)"));
 
         // Act - Try to insert duplicate
         var result = Executor!.ExecuteScalar(
@@ -77,7 +77,7 @@ public class DbCommandExecutorTests : PostgreSqlTestBase
         bool tapErrorCalled = false;
 
         // Act
-        Executor!.ExecuteScalar(
+        _ = Executor!.ExecuteScalar(
             db => db.GetSqlCommand("SELECT CreateUser('tap_test_pg', 'tap@example.com', 27)")
         )
         .Tap(userId =>
@@ -138,6 +138,7 @@ public class DbCommandExecutorTests : PostgreSqlTestBase
         var createResult = Executor!.ExecuteScalar(
             db => db.GetSqlCommand("SELECT CreateUser('delete_test_pg', 'delete@example.com', 30)")
         );
+        Assert.That(createResult.IsSuccess, Is.True);
         var userId = Convert.ToInt32(createResult.Value!);
 
         // Act
@@ -158,6 +159,7 @@ public class DbCommandExecutorTests : PostgreSqlTestBase
         var createResult = Executor!.ExecuteScalar(
             db => db.GetSqlCommand($"SELECT CreateUser('{username}', 'getuser@example.com', 25)")
         );
+        Assert.That(createResult.IsSuccess, Is.True);
         var userId = Convert.ToInt32(createResult.Value!);
 
         // Act - Use direct SQL for simple SELECT

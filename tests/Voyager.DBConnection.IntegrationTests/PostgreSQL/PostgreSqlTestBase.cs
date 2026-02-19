@@ -27,7 +27,7 @@ public abstract class PostgreSqlTestBase : DatabaseTestBase
         try
         {
             // Test connection by executing a simple query
-            Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
+            _ = Executor!.ExecuteScalar(db => db.GetSqlCommand("SELECT 1"))
                 .TapError(error => throw new InvalidOperationException(error.Message));
         }
         catch

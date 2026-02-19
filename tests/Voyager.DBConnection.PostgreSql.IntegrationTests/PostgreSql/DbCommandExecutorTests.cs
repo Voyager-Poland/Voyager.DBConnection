@@ -133,7 +133,7 @@ public class DbCommandExecutorTests : PostgreSqlTestBase
     public void ExecuteNonQuery_DuplicateUsername_ShouldReturnConflictError()
     {
         // Arrange - First insert
-        ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('duplicate_test', 'test1@example.com', 25)");
+        _ = ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('duplicate_test', 'test1@example.com', 25)");
 
         // Act - Try to insert duplicate username (unique constraint violation)
         var result = ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('duplicate_test', 'test2@example.com', 30)");

@@ -65,13 +65,13 @@ public class DbCommandExecutorTests : OracleTestBase
     public void ExecuteScalar_GetUserCount_ShouldReturnCount()
     {
         // Arrange - Create some test users
-        Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
+        _ = Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
             .WithInputParameter("p_Username", DbType.String, 50, "user1_ora")
             .WithInputParameter("p_Email", DbType.String, 100, "user1@example.com")
             .WithInputParameter("p_Age", DbType.Int32, 20)
             .WithOutputParameter("p_UserId", DbType.Decimal, 0));
 
-        Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
+        _ = Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
             .WithInputParameter("p_Username", DbType.String, 50, "user2_ora")
             .WithInputParameter("p_Email", DbType.String, 100, "user2@example.com")
             .WithInputParameter("p_Age", DbType.Int32, 30)
@@ -95,7 +95,7 @@ public class DbCommandExecutorTests : OracleTestBase
     public void ExecuteNonQuery_DuplicateUsername_ShouldReturnConflictError()
     {
         // Arrange - First insert
-        Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
+        _ = Executor!.ExecuteNonQuery("CreateUser", cmd => cmd
             .WithInputParameter("p_Username", DbType.String, 50, "duplicate_user_ora")
             .WithInputParameter("p_Email", DbType.String, 100, "dup1@example.com")
             .WithInputParameter("p_Age", DbType.Int32, 25)
@@ -121,7 +121,7 @@ public class DbCommandExecutorTests : OracleTestBase
         bool tapErrorCalled = false;
 
         // Act
-        Executor!.ExecuteAndBind<decimal>(
+        _ = Executor!.ExecuteAndBind<decimal>(
             "CreateUser",
             cmd => cmd
                 .WithInputParameter("p_Username", DbType.String, 50, "tap_test_ora")
@@ -202,6 +202,7 @@ public class DbCommandExecutorTests : OracleTestBase
                 .WithOutputParameter("p_UserId", DbType.Decimal, 0),
             cmd => cmd.GetParameterValue<decimal>("p_UserId")
         );
+        Assert.That(createResult.IsSuccess, Is.True);
         var userId = Convert.ToInt32(createResult.Value);
 
         // Act
@@ -227,6 +228,7 @@ public class DbCommandExecutorTests : OracleTestBase
                 .WithOutputParameter("p_UserId", DbType.Decimal, 0),
             cmd => cmd.GetParameterValue<decimal>("p_UserId")
         );
+        Assert.That(createResult.IsSuccess, Is.True);
         var userId = Convert.ToInt32(createResult.Value);
 
         // Act - Oracle GetUserById returns a cursor, so we'll use a simpler query

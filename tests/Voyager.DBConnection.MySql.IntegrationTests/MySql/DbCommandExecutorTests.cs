@@ -28,8 +28,8 @@ public class DbCommandExecutorTests : MySqlTestBase
     public void ExecuteScalar_CountUsers_ShouldReturnCorrectCount()
     {
         // Arrange - Insert test users to ensure we have data
-        ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('count_test1', 'count1@example.com', 25)");
-        ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('count_test2', 'count2@example.com', 30)");
+        _ = ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('count_test1', 'count1@example.com', 25)");
+        _ = ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('count_test2', 'count2@example.com', 30)");
 
         // Act
         var result = ExecuteScalar("SELECT COUNT(*) FROM Users");
@@ -144,7 +144,7 @@ public class DbCommandExecutorTests : MySqlTestBase
     {
         // Arrange - Create a test user first
         const string username = "get_username_test";
-        ExecuteNonQuery($"INSERT INTO Users (Username, Email, Age) VALUES ('{username}', 'getuser@example.com', 27)");
+        _ = ExecuteNonQuery($"INSERT INTO Users (Username, Email, Age) VALUES ('{username}', 'getuser@example.com', 27)");
 
         // Get the user ID
         var userIdResult = ExecuteScalar($"SELECT UserId FROM Users WHERE Username = '{username}'");
@@ -174,7 +174,7 @@ public class DbCommandExecutorTests : MySqlTestBase
     public void ExecuteNonQuery_DuplicateUsername_ShouldReturnConflictError()
     {
         // Arrange - First insert
-        ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('duplicate_test', 'test1@example.com', 25)");
+        _ = ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('duplicate_test', 'test1@example.com', 25)");
 
         // Act - Try to insert duplicate username (unique constraint violation)
         var result = ExecuteNonQuery("INSERT INTO Users (Username, Email, Age) VALUES ('duplicate_test', 'test2@example.com', 30)");
